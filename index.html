@@ -1671,28 +1671,7 @@
         });
     }
 
-    function openTreasureBox(boxKey, price, hiddenReward, boxTitle){
-        let currentPts = userData.points || 0;
-        if(currentPts < price) {
-            return alert(`❌ نقاطك الحالية (${currentPts.toLocaleString()} نقطة) لا تكفي لفتح هذا الصندوق (يلزم ${price.toLocaleString()} نقطة)!`);
-        }
-
-        if(!confirm(`هل أنت متأكد من خصم ${price.toLocaleString()} نقطة وفتح (${boxTitle})؟`)) return;
-
-        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-            if(!u) return u;
-            if((u.points || 0) < price) return;
-            u.points = (u.points || 0) - price + hiddenReward;
-            return u;
-        }, (error, committed)=>{
-            if(error || !committed){
-                return alert("❌ فشلت عملية فتح الصندوق، تأكد من رصيدك.");
-            }
-            updateUI();
-            alert(`🎉 مبروك أسطورة! فتحت (${boxTitle}) مقابل ${price.toLocaleString()} نقطة وظهرت بداخله مفاجأة مخفية بقيمة (${hiddenReward.toLocaleString()} نقطة 🪙)!`);
-        });
-    }
-
+    // ⭐ الدالة المحدثة لشحن الوكيل (تستخدم Transaction لضمان وصول النقاط وظهورها فوراً)
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1701,7 +1680,7 @@
         let currentBag = userData.agentBag || 0;
 
         if(currentBag < amt) {
-            return alert(`❌ النقاط غير كافية لإتمام عملية الشحن! رصيد حقيبتك الحالي (${currentBag.toLocaleString()} نقطة) بينما المطلوب (${amt.toLocaleString()} نقطة). يرجى الحصول على نقاط من الشركة أولاً.`);
+            return alert(`❌ النقاط غير كافية لإتمام عملية الشحن! رصيد حقيبتك (${currentBag.toLocaleString()}) بينما المطلوب (${amt.toLocaleString()}).`);
         }
 
         rtdb.ref('users').once('value').then(snap=>{
@@ -1716,29 +1695,29 @@
                 return agent;
             }, (err, committed)=>{
                 if(!committed){
-                    return alert("❌ النقاط غير كافية لإتمام عملية الشحن أو حدث خطأ في الحقيبة!");
+                    return alert("❌ فشلت عملية الخصم من حقيبة الوكيل!");
                 }
 
-                rtdb.ref(`users/${targetKey}`).once('value').then(targetSnap=>{
-                    if(!targetSnap.exists()) return;
-                    let targetData = targetSnap.val();
-                    let targetCurrentPts = Number(targetData.points || 0);
-                    let newTargetPts = targetCurrentPts + amt;
+                rtdb.ref(`users/${targetKey}`).transaction(targetUser=>{
+                    if(!targetUser) targetUser = { points: 0 };
+                    targetUser.points = Number(targetUser.points || 0) + amt;
+                    targetUser.lastAgentChargedName = userData.name || 'وكيل معتمد';
+                    targetUser.lastAgentChargedId = userData.customId || '---';
+                    return targetUser;
+                }, (tErr, tCommitted)=>{
+                    if(!tCommitted){
+                        return alert("❌ حدث خطأ أثناء إضافة النقاط لرصيد المستخدم.");
+                    }
 
-                    rtdb.ref(`users/${targetKey}`).update({
-                        points: newTargetPts,
-                        lastAgentChargedName: userData.name || 'وكيل معتمد',
-                        lastAgentChargedId: userData.customId || '---'
-                    }).then(()=>{
-                        rtdb.ref(`notifications/${targetKey}`).push({
-                            text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك من حقيبته المعتمدة!`,
-                            timestamp: Date.now()
-                        });
-                        document.getElementById('agentChargeTargetId').value = '';
-                        document.getElementById('agentChargeAmount').value = '';
-                        updateUI();
-                        alert("✅ تم شحن النقاط للمستخدم بنجاح من حقيبتك المعتمدة!");
+                    rtdb.ref(`notifications/${targetKey}`).push({
+                        text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك من حقيبته المعتمدة!`,
+                        timestamp: Date.now()
                     });
+
+                    document.getElementById('agentChargeTargetId').value = '';
+                    document.getElementById('agentChargeAmount').value = '';
+                    updateUI();
+                    alert("✅ تم شحن النقاط للمستخدم بنجاح وظهرت في رصيده فوراً!");
                 });
             });
         });
@@ -2128,7 +2107,7 @@
         let sId=document.getElementById('searchIdInput').value.trim(),res=document.getElementById('searchResultArea');
         if(!sId)return res.innerText="⚠️ أدخل الـ ID";
         res.innerText="جاري البحث والإرسال...";
-        rtdb.ref('users').once('value').then(snap=>{
+        rtdb.ref('users').once('value',snap=>{
             let tk='';
             snap.forEach(c=>{
                 let u=c.val();
@@ -2136,7 +2115,7 @@
             });
             if(!tk)return res.innerText="❌ لم يتم العثور على مستخدم بهذا الـ ID";
             if(tk===currentUserKey)return res.innerText="⚠️ لا يمكنك إضافة نفسك!";
-            rtdb.ref(`friends/${currentUserKey}/${tk}`).once('value').then(fs=>{
+            rtdb.ref(`friends/${currentUserKey}/${tk}`).once('value',fs=>{
                 if(fs.exists())return res.innerText="⚠️ هذا المستخدم مضاف لديك مسبقاً!";
                 rtdb.ref(`friend_requests/${tk}/${currentUserKey}`).set({
                     name: userData.name || 'مستخدم',
@@ -2325,7 +2304,7 @@
         });
     }
 
-    // ⭐ الدوال المباشرة والمحدثة بدقة تامة (بدون تعقيد وبدون تصفير النقاط)
+    // ⭐ الدالة المحدثة للشحن المباشر من الإدارة (تستخدم Transaction لتحديث رصيد المستخدم وظهوره فوراً)
     function adminDualChargeDirectPoints(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminDualTargetId').value.trim();
@@ -2344,24 +2323,21 @@
 
             if(!targetKey) return alert('❌ لم يتم العثور على المستخدم بهذا الـ ID!');
 
-            rtdb.ref(`users/${targetKey}`).once('value').then(userSnap=>{
-                if(!userSnap.exists()) return alert('❌ بيانات المستخدم غير موجودة.');
-                let uData = userSnap.val();
-                let currentPts = Number(uData.points || 0);
-                let newTotal = currentPts + pts;
+            rtdb.ref(`users/${targetKey}`).transaction(userNode=>{
+                if(!userNode) userNode = { points: 0 };
+                userNode.points = Number(userNode.points || 0) + pts;
+                return userNode;
+            }, (err, committed)=>{
+                if(!committed || err) return alert('❌ فشل تحديث رصيد المستخدم.');
 
-                rtdb.ref(`users/${targetKey}`).update({
-                    points: newTotal
-                }).then(()=>{
-                    rtdb.ref(`notifications/${targetKey}`).push({
-                        text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك بنجاح!`,
-                        timestamp: Date.now()
-                    });
-
-                    document.getElementById('adminDualTargetId').value = '';
-                    document.getElementById('adminDualPointsAmount').value = '';
-                    alert(`✅ تم شحن ${pts.toLocaleString()} نقطة بنجاح للمستخدم (ID: ${tId}) وأصبحت نقاطه الحالية (${newTotal.toLocaleString()})!`);
+                rtdb.ref(`notifications/${targetKey}`).push({
+                    text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك بنجاح!`,
+                    timestamp: Date.now()
                 });
+
+                document.getElementById('adminDualTargetId').value = '';
+                document.getElementById('adminDualPointsAmount').value = '';
+                alert(`✅ تم شحن ${pts.toLocaleString()} نقطة بنجاح للمستخدم (ID: ${tId}) وظهرت في رصيده مباشرة!`);
             });
         });
     }
