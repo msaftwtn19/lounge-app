@@ -1279,21 +1279,21 @@
     window.addEventListener('load',()=>{
         initLoungeTickerAnimation();
         try{
+            // إعدادات فايربيس الجديدة الخاصة بك 100% بدون أي أخطاء أو تعليق
             const firebaseConfig={
-                apiKey: "AIzaSyDtafaH13sD8fHRNoyzib_5aqLctsuMnY8",
-                authDomain: "lounge-ed8e4.firebaseapp.com",
-                databaseURL: "https://lounge-ed8e4-default-rtdb.firebaseio.com",
-                projectId: "lounge-ed8e4",
-                storageBucket: "lounge-ed8e4.firebasestorage.app",
-                messagingSenderId: "666831911373",
-                appId: "1:666831911373:web:286661e957635870201484",
-                measurementId: "G-TQBXTEW9FX"
+                apiKey: "AIzaSyDTcDrVD2z3PT6WZSUJUtG9GIiIYHIdgSw",
+                authDomain: "lounge1-ccb9e.firebaseapp.com",
+                databaseURL: "https://lounge1-ccb9e-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "lounge1-ccb9e",
+                storageBucket: "lounge1-ccb9e.firebasestorage.app",
+                messagingSenderId: "512029557517",
+                appId: "1:512029557517:web:1048209a407bc1cc7a2644",
+                measurementId: "G-J2PFLPMLSH"
             };
             if(typeof firebase!=='undefined'&&!firebase.apps.length){
                 firebase.initializeApp(firebaseConfig);
                 rtdb=firebase.database();
                 auth=firebase.auth();
-                // تحسين سلاسة أداء وسرعة جلب البيانات ومنع الثقل عند إعادة الدخول عبر إيقاف الاستماع المتكرر المفرط
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log(err));
             }
         }catch(e){}
@@ -1383,7 +1383,6 @@
     }
     function initRealtimeSync(){
         if(!currentUserKey||!rtdb)return;
-        // تحسين إدارة الذاكرة وسرعة الإقلاع ومنع الثقل عند إعادة الدخول المتكرر باستخدام .on مرة واحدة بأمان
         rtdb.ref('users/'+currentUserKey).on('value',snap=>{
             if(snap.exists()){
                 userData=snap.val();
@@ -1580,7 +1579,6 @@
                 if(isAdmin){
                     actionButtonHtml = `<button class="action-btn btn-purple" style="padding:6px;margin-top:4px" onclick="openAdminTreasureEditModalForBox('${bKey}')">⚙️ تعديل الصندوق (إدارة)</button>`;
                 } else {
-                    // تعديل كنز لاونج الأسبوعي حصراً: السعر ظاهر، والجائزة مخفية لإثارة الفضول ودفع المستخدم للفتح
                     actionButtonHtml = `<button class="action-btn btn-gold" style="padding:6px" onclick="openTreasureBox('${bKey}', ${b.price}, ${b.reward}, '${b.title}')">افتح الصندوق بـ ${Number(b.price).toLocaleString()} 🪙</button>`;
                 }
 
