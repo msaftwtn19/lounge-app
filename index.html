@@ -1083,45 +1083,35 @@
             return alert(`❌ ليس لديك نقاط كافية لشراء العداد! رصيدك (${buyerPts.toLocaleString()} نقطة) بينما السعر (${price.toLocaleString()} نقطة).`);
         }
 
-        rtdb.ref(`trading_counters/${itemKey}`).transaction(currentOffer=>{
-            if(!currentOffer) return;
-            return null;
-        }, (error, committed)=>{
-            if(error || !committed){
-                closeBuyConfirmModal();
-                return alert("❌ عذراً، هذا العرض تم بيعه لشخص آخر أو لم يعد متوفراً.");
-            }
-
-            rtdb.ref(`users/${currentUserKey}`).transaction(buyer=>{
-                if(!buyer) return buyer;
-                if((buyer.points || 0) < price) return;
-                buyer.points = (buyer.points || 0) - price;
-                buyer.activeCounterVal = counterVal;
-                buyer.activeCounter = `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`;
-                return buyer;
-            }, (bErr, bCommitted)=>{
-                if(!bCommitted){
-                    closeBuyConfirmModal();
-                    return alert("❌ فشلت عملية الخصم من رصيدك.");
-                }
-
-                rtdb.ref(`users/${sellerKey}`).transaction(seller=>{
-                    if(!seller) return seller;
-                    seller.points = (seller.points || 0) + price;
-                    seller.activeCounterVal = 0;
-                    seller.activeCounter = 'لا يوجد (تم بيع العداد)';
-                    return seller;
-                }, ()=>{
-                    rtdb.ref(`notifications/${sellerKey}`).push({
-                        text: `🎉 مبروك! تم بيع عدادك (${counterVal.toLocaleString()} نقطة يومياً) بنجاح وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
-                        timestamp: Date.now()
-                    });
-
-                    closeBuyConfirmModal();
-                    updateUI();
-                    alert("🎉 مبروك أسطورة! تمت عملية الشراء ونقل العداد بنجاح تام!");
+        rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
+            let newBuyerPts = buyerPts - price;
+            rtdb.ref(`users/${currentUserKey}`).update({
+                points: newBuyerPts,
+                activeCounterVal: counterVal,
+                activeCounter: `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`
+            }).then(()=>{
+                rtdb.ref(`users/${sellerKey}`).once('value').then(sSnap=>{
+                    if(sSnap.exists()){
+                        let currentSellerPts = sSnap.val().points || 0;
+                        rtdb.ref(`users/${sellerKey}`).update({
+                            points: currentSellerPts + price,
+                            activeCounterVal: 0,
+                            activeCounter: 'لا يوجد (تم بيع العداد)'
+                        }).then(()=>{
+                            rtdb.ref(`notifications/${sellerKey}`).push({
+                                text: `🎉 مبروك! تم بيع عدادك (${counterVal.toLocaleString()} نقطة يومياً) بنجاح وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
+                                timestamp: Date.now()
+                            });
+                            closeBuyConfirmModal();
+                            updateUI();
+                            alert("🎉 مبروك أسطورة! تمت عملية الشراء ونقل العداد بنجاح تام!");
+                        });
+                    }
                 });
             });
+        }).catch(()=>{
+            closeBuyConfirmModal();
+            alert("❌ عذراً، هذا العرض تم بيعه لشخص آخر أو لم يعد متوفراً.");
         });
     }
 
@@ -1242,11 +1232,8 @@
                 const todayStr = new Date().toDateString();
                 localStorage.setItem('lounge_quiz_completed_' + currentUserKey, todayStr);
 
-                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-                    if(!u) return u;
-                    u.points = (u.points || 0) + 50;
-                    return u;
-                }, ()=>{
+                let currentPts = userData.points || 0;
+                rtdb.ref(`users/${currentUserKey}`).update({ points: currentPts + 50 }).then(()=>{
                     updateUI();
                     document.getElementById('earned-points').innerText = "50";
                     lockQuizButton("أتممت الـ 100 سؤال بنجاح! حصلت على 50 نقطة مكافأة اليوم 🎉");
@@ -1671,7 +1658,7 @@
         });
     }
 
-    // ⭐ الدالة المحدثة لشحن الوكيل (تستخدم Transaction لضمان وصول النقاط وظهورها فوراً)
+    // ⭐ 1. دالة شحن الوكيل المحدثة (بالتحديث المباشر السريع بدون Transactions)
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1680,7 +1667,7 @@
         let currentBag = userData.agentBag || 0;
 
         if(currentBag < amt) {
-            return alert(`❌ النقاط غير كافية لإتمام عملية الشحن! رصيد حقيبتك (${currentBag.toLocaleString()}) بينما المطلوب (${amt.toLocaleString()}).`);
+            return alert(`❌ النقاط غير كافية! رصيد حقيبتك (${currentBag.toLocaleString()}) بينما المطلوب (${amt.toLocaleString()}).`);
         }
 
         rtdb.ref('users').once('value').then(snap=>{
@@ -1688,36 +1675,30 @@
             snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) targetKey = c.key; });
             if(!targetKey) return alert("❌ لم يتم العثور على هذا المستخدم!");
 
-            rtdb.ref(`users/${currentUserKey}`).transaction(agent=>{
-                if(!agent) return agent;
-                if((agent.agentBag || 0) < amt) return;
-                agent.agentBag = (agent.agentBag || 0) - amt;
-                return agent;
-            }, (err, committed)=>{
-                if(!committed){
-                    return alert("❌ فشلت عملية الخصم من حقيبة الوكيل!");
-                }
+            let updatedBag = currentBag - amt;
+            rtdb.ref(`users/${currentUserKey}`).update({ agentBag: updatedBag }).then(()=>{
+                userData.agentBag = updatedBag;
 
-                rtdb.ref(`users/${targetKey}`).transaction(targetUser=>{
-                    if(!targetUser) targetUser = { points: 0 };
-                    targetUser.points = Number(targetUser.points || 0) + amt;
-                    targetUser.lastAgentChargedName = userData.name || 'وكيل معتمد';
-                    targetUser.lastAgentChargedId = userData.customId || '---';
-                    return targetUser;
-                }, (tErr, tCommitted)=>{
-                    if(!tCommitted){
-                        return alert("❌ حدث خطأ أثناء إضافة النقاط لرصيد المستخدم.");
-                    }
+                rtdb.ref(`users/${targetKey}`).once('value').then(targetSnap=>{
+                    if(!targetSnap.exists()) return;
+                    let targetData = targetSnap.val();
+                    let newTargetPoints = Number(targetData.points || 0) + amt;
 
-                    rtdb.ref(`notifications/${targetKey}`).push({
-                        text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك من حقيبته المعتمدة!`,
-                        timestamp: Date.now()
+                    rtdb.ref(`users/${targetKey}`).update({
+                        points: newTargetPoints,
+                        lastAgentChargedName: userData.name || 'وكيل معتمد',
+                        lastAgentChargedId: userData.customId || '---'
+                    }).then(()=>{
+                        rtdb.ref(`notifications/${targetKey}`).push({
+                            text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك مباشرة!`,
+                            timestamp: Date.now()
+                        });
+
+                        document.getElementById('agentChargeTargetId').value = '';
+                        document.getElementById('agentChargeAmount').value = '';
+                        updateUI();
+                        alert("✅ تم شحن النقاط للمستخدم بنجاح وظهرت في رصيده فوراً!");
                     });
-
-                    document.getElementById('agentChargeTargetId').value = '';
-                    document.getElementById('agentChargeAmount').value = '';
-                    updateUI();
-                    alert("✅ تم شحن النقاط للمستخدم بنجاح وظهرت في رصيده فوراً!");
                 });
             });
         });
@@ -1725,17 +1706,16 @@
 
     function buyCounter(pts,price, counterName){
         if((userData.points||0)<price)return alert(`❌ نقاطك غير كافية! سعر العداد ${price.toLocaleString()} نقطة.`);
-        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-            if(!u) return u;
-            if((u.points||0)<price) return;
-            u.points = (u.points||0) - price;
-            u.activeCounterVal = (u.activeCounterVal||0) + pts;
-            u.activeCounter = counterName;
-            return u;
-        }, (err, committed)=>{
-            if(!committed) return alert("❌ فشلت العملية، تأكد من رصيدك.");
+        let newPts = (userData.points||0) - price;
+        let newCounterVal = (userData.activeCounterVal||0) + pts;
+        
+        rtdb.ref(`users/${currentUserKey}`).update({
+            points: newPts,
+            activeCounterVal: newCounterVal,
+            activeCounter: counterName
+        }).then(()=>{
             updateUI();
-            alert(`🎉 مبروك! تم شراء العداد وأصبح إجمالي إنتاجك اليومي (${userData.activeCounterVal.toLocaleString()} نقطة يومياً).`);
+            alert(`🎉 مبروك! تم شراء العداد وأصبح إجمالي إنتاجك اليومي (${newCounterVal.toLocaleString()} نقطة يومياً).`);
         });
     }
     
@@ -1793,13 +1773,8 @@
                             nBack64 = e4.target.result;
 
                             if(method === 'points'){
-                                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-                                    if(!u) return u;
-                                    if((u.points||0) < 1000000) return;
-                                    u.points = (u.points||0) - 1000000;
-                                    return u;
-                                }, (err, committed)=>{
-                                    if(!committed) return alert("❌ رصيدك غير كافٍ لاستقطاع المليون نقطة!");
+                                let newPts = (userData.points||0) - 1000000;
+                                rtdb.ref(`users/${currentUserKey}`).update({ points: newPts }).then(()=>{
                                     saveAgentAppToDB(prov, tg, wa, method);
                                 });
                             } else {
@@ -1901,13 +1876,14 @@
         let rPts=userData.activeCounterVal||0;
         if(rPts<0) rPts=0;
         
-        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-            if(!u) return u;
-            u.points = (u.points||0) + rPts;
-            u.gems = (u.gems||0) + 500;
-            u.lastSpinTime = now;
-            return u;
-        }, ()=>{
+        let newPoints = (userData.points||0) + rPts;
+        let newGems = (userData.gems||0) + 500;
+        
+        rtdb.ref(`users/${currentUserKey}`).update({
+            points: newPoints,
+            gems: newGems,
+            lastSpinTime: now
+        }).then(()=>{
             updateUI();
             alert(`🎉 حصلت على أرباحك (${rPts.toLocaleString()} نقطة) و 500 جوهرة 💎 بنجاح.`);
         });
@@ -1916,14 +1892,13 @@
     function convertGemsToPoints(){
         if((userData.gems||0)<5000)return alert(`⚠️ رصيدك الحالي (${(userData.gems||0).toLocaleString()} جوهرة) لا يكفي. يلزم امتلاك 5.000 جوهرة كحد أدنى لتبديلها بـ 100 نقطة!`);
         
-        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-            if(!u) return u;
-            if((u.gems||0) < 5000) return;
-            u.gems = (u.gems||0) - 5000;
-            u.points = (u.points||0) + 100;
-            return u;
-        }, (err, committed)=>{
-            if(!committed) return alert("❌ رصيدك من الجواهر غير كافٍ لإتمام الاستبدال!");
+        let newGems = (userData.gems||0) - 5000;
+        let newPoints = (userData.points||0) + 100;
+        
+        rtdb.ref(`users/${currentUserKey}`).update({
+            gems: newGems,
+            points: newPoints
+        }).then(()=>{
             updateUI();
             alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح متزامن تام!');
         });
@@ -1957,22 +1932,13 @@
         if((userData.gems||0)<100)return msg.innerText="❌ ليس لديك جواهر كافية (يلزم 100 جوهرة)!";
         isSpinning=true;spinBtn.disabled=true;
         
-        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-            if(!u) return u;
-            if((u.gems||0)<100) return;
-            u.gems = (u.gems||0) - 100;
-            return u;
-        }, (err, committed)=>{
-            if(!committed){ isSpinning=false; spinBtn.disabled=false; return alert("❌ جواهر غير كافية."); }
-            
+        let newGems = (userData.gems||0) - 100;
+        rtdb.ref(`users/${currentUserKey}`).update({ gems: newGems }).then(()=>{
             let wheel=document.getElementById('wheelGraphic'),prizes=[0,5,10,15,20,25,50],idx=Math.floor(Math.random()*7),prize=prizes[idx];
             totalWheelDegrees+=3600+(idx*51.4)+25;wheel.style.transform=`rotate(${totalWheelDegrees}deg)`;
             setTimeout(()=>{
-                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
-                    if(!u) return u;
-                    u.points = (u.points||0) + prize;
-                    return u;
-                }, ()=>{
+                let currentPts = userData.points || 0;
+                rtdb.ref(`users/${currentUserKey}`).update({ points: currentPts + prize }).then(()=>{
                     msg.innerText=`🎉 مبروك! حصلت على ${prize} نقطة بنجاح!`;
                     isSpinning=false;spinBtn.disabled=false;updateUI();
                 });
@@ -2304,7 +2270,7 @@
         });
     }
 
-    // ⭐ الدالة المحدثة للشحن المباشر من الإدارة (تستخدم Transaction لتحديث رصيد المستخدم وظهوره فوراً)
+    // ⭐ 2. دالة الشحن المباشر من الإدارة المحدثة (بالتحديث المباشر السريع بدون Transactions)
     function adminDualChargeDirectPoints(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminDualTargetId').value.trim();
@@ -2323,21 +2289,21 @@
 
             if(!targetKey) return alert('❌ لم يتم العثور على المستخدم بهذا الـ ID!');
 
-            rtdb.ref(`users/${targetKey}`).transaction(userNode=>{
-                if(!userNode) userNode = { points: 0 };
-                userNode.points = Number(userNode.points || 0) + pts;
-                return userNode;
-            }, (err, committed)=>{
-                if(!committed || err) return alert('❌ فشل تحديث رصيد المستخدم.');
+            rtdb.ref(`users/${targetKey}`).once('value').then(userSnap=>{
+                if(!userSnap.exists()) return alert('❌ بيانات المستخدم غير موجودة.');
+                let currentPoints = Number(userSnap.val().points || 0);
+                let newTotal = currentPoints + pts;
 
-                rtdb.ref(`notifications/${targetKey}`).push({
-                    text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك بنجاح!`,
-                    timestamp: Date.now()
+                rtdb.ref(`users/${targetKey}`).update({ points: newTotal }).then(()=>{
+                    rtdb.ref(`notifications/${targetKey}`).push({
+                        text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك بنجاح!`,
+                        timestamp: Date.now()
+                    });
+
+                    document.getElementById('adminDualTargetId').value = '';
+                    document.getElementById('adminDualPointsAmount').value = '';
+                    alert(`✅ تم شحن ${pts.toLocaleString()} نقطة للمستخدم (ID: ${tId}) وظهرت بالرصيد فوراً!`);
                 });
-
-                document.getElementById('adminDualTargetId').value = '';
-                document.getElementById('adminDualPointsAmount').value = '';
-                alert(`✅ تم شحن ${pts.toLocaleString()} نقطة بنجاح للمستخدم (ID: ${tId}) وظهرت في رصيده مباشرة!`);
             });
         });
     }
