@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق Lounge الرسمي</title>
+
+    <!-- Google Tag Manager / Analytics -->
+    <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WZ3RF79X"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+    </script>
+
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -1279,7 +1288,6 @@
     window.addEventListener('load',()=>{
         initLoungeTickerAnimation();
         try{
-            // إعدادات فايربيس الخاصة بمشروعك lounge1-ccb9e
             const firebaseConfig={
                 apiKey: "AIzaSyDTcDrVD2z3PT6WZSUJUtG9GIiIYHIdgSw",
                 authDomain: "lounge1-ccb9e.firebaseapp.com",
@@ -1298,7 +1306,6 @@
             }
         }catch(e){}
         
-        // التحقق التلقائي من تسجيل الدخول عبر Authentication
         setTimeout(()=>{
             if(auth){
                 auth.onAuthStateChanged((user)=>{
@@ -1339,7 +1346,6 @@
         document.getElementById('signupForm').style.display=type==='signup'?'block':'none';
     }
     
-    // تسجيل الدخول عبر Firebase Authentication
     function handleLogin(){
         const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPass').value.trim();
         if(!email||!pass)return alert("⚠️ أدخل البريد وكلمة المرور");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
@@ -1383,7 +1389,6 @@
         });
     }
 
-    // إنشاء حساب جديد فريد عبر Firebase Authentication
     function handleSignup(){
         const email=document.getElementById('signupEmail').value.trim(),pass=document.getElementById('signupPass').value.trim();
         if(!email||!pass)return alert("⚠️ املأ الخانات");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
@@ -1924,7 +1929,12 @@
 
     function loadLeaderboardData(){
         rtdb.ref('users').once('value').then(snap=>{
-            if(!snap.exists())return;let users=[];
+            let c=document.getElementById('leaderboardClickingList');
+            if(!snap.exists()){
+                if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة في التصنيف الأسبوعي حالياً.</div>";
+                return;
+            }
+            let users=[];
             snap.forEach(u=>{
                 let d=u.val();
                 users.push({
@@ -1936,12 +1946,15 @@
                 });
             });
             renderLeaderboardList('leaderboardClickingList',[...users].sort((a,b)=>b.clicking-a.clicking).slice(0,10),'clicking','تكبيسة');
+        }).catch(()=>{
+            let c=document.getElementById('leaderboardClickingList');
+            if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#ef4444'>تعذر جلب بيانات التصنيف الأسبوعي.</div>";
         });
     }
 
     function renderLeaderboardList(id,list,key,unit){
         let c=document.getElementById(id);if(!c)return;
-        if(list.length===0||list[0][key]===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة.</div>";return;}
+        if(list.length===0||list[0][key]===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد نقاط تسجيل للتصنيف حتى الآن.</div>";return;}
         let html='';list.forEach((it,i)=>{
             let r=i+1,cr=r===1?'👑 ':(r===2?'🥈 ':(r===3?'🥉 ':''));
             html+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.05)">
@@ -2254,7 +2267,7 @@
         document.getElementById('adminAgentAppsModal').style.display='flex';
         rtdb.ref('agent_applications').once('value',snap=>{
             let lst = document.getElementById('adminAgentAppsList');
-            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات وكالة معلقة."; return; }
+            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات وكالة معلقة حالياً."; return; }
             let h = '';
             snap.forEach(item=>{
                 let d = item.val();
@@ -2276,6 +2289,7 @@
             rtdb.ref(`notifications/${userKey}`).push({ text: `🎉 مبروك! وافقت الإدارة على طلبك وأصبحت وكيلاً معتمداً.`, timestamp: Date.now() });
             rtdb.ref(`agent_applications/${appKey}`).remove();
             alert("💼 تم تفعيل الوكالة للمستخدم بنجاح!");
+            openAdminAgentApplications();
         });
     }
 
@@ -2342,7 +2356,7 @@
         document.getElementById('adminCounterOrdersModal').style.display='flex';
         rtdb.ref('manual_counter_orders').once('value',snap=>{
             let lst = document.getElementById('adminCounterOrdersList');
-            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات إيداع أو حجز عدادات معلقة."; return; }
+            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات إيداع أو حجز عدادات معلقة حالياً."; return; }
             let h="";
             snap.forEach(item=>{
                 let d = item.val();
@@ -2361,12 +2375,27 @@
 
     function loadAdminData(){
         rtdb.ref('admin_withdrawals').once('value',snap=>{
-            let a=document.getElementById('adminWithdrawalsArea');if(!snap.exists()){a.innerHTML="لا توجد طلبات سحب.";return;}let h='';
-            snap.forEach(item=>{let d=item.val();h+=`<div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:4px;margin-bottom:3px"><b>${d.userName} (ID: ${d.userId})</b>: ${d.amount}$ عبر (${d.method})<button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:1px 4px;border-radius:3px;cursor:pointer;float:left">حذف 🗑️</button></div>`;});
-            a.innerHTML=h;
+            let a=document.getElementById('adminWithdrawalsArea');
+            if(!snap.exists()){
+                if(a) a.innerHTML="لا توجد طلبات سحب معلقة حالياً.";
+                return;
+            }
+            let h='';
+            snap.forEach(item=>{
+                let d=item.val();
+                h+=`<div style="background:rgba(255,255,255,0.03);padding:4px;border-radius:4px;margin-bottom:3px"><b>${d.userName} (ID: ${d.userId})</b>: ${d.amount}$ عبر (${d.method})<button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:1px 4px;border-radius:3px;cursor:pointer;float:left">حذف 🗑️</button></div>`;
+            });
+            if(a) a.innerHTML=h;
         });
     }
-    function adminDeleteRef(path,key){rtdb.ref(`${path}/${key}`).remove().then(()=>alert("✅ تم الحذف بنجاح."));}
+    function adminDeleteRef(path,key){
+        rtdb.ref(`${path}/${key}`).remove().then(()=>{
+            alert("✅ تم الحذف بنجاح.");
+            if(path==='admin_withdrawals') loadAdminData();
+            if(path==='manual_counter_orders') openAdminCounterOrders();
+            if(path==='agent_applications') openAdminAgentApplications();
+        });
+    }
     
     function openIsolatedPublicRooms(){navigateTo('isolatedChatScreen');loadIsolatedRoomsSafe();}
     function exitIsolatedChat(){exitIsolatedActiveRoom();navigateTo('mainScreen');}
@@ -2545,7 +2574,7 @@
     function openTargetSelectorModal(){
         if(!isolatedActiveRoomId)return;let c=document.getElementById('roomOccupantsListContainer');c.innerHTML="جاري جلب الحضور...";
         rtdb.ref(`room_occupants/${isolatedActiveRoomId}`).once('value',snap=>{
-            if(!snap.exists()){c.innerHTML="لا يوجد حضور.";return;}
+            if(!snap.exists()){c.innerHTML="لا يوجد حضور حالياً.";return;}
             let h=`<div style="padding:8px;background:rgba(192,132,252,0.15);border:1px solid #c084fc;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="selectTargetAndCloseModal('all','الكل (عام)')"><span style="color:#c084fc;font-weight:bold">🌍 إرسال للجميع في الغرفة (Broadcast)</span><span style="font-size:10px;color:#38bdf8">تحديد</span></div>`;
             snap.forEach(occ=>{
                 let uk=occ.key,ud=occ.val();if(uk!==currentUserKey){
