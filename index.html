@@ -2320,7 +2320,7 @@
         });
     }
 
-    // ⭐ الدوال الذكية المحدثة والمضبوطة تماماً (transaction) لضمان عدم صفران النقاط وظهورها فوراً
+    // ⭐ الدوال الذكية المحدثة والمضبوطة تماماً (transaction) لضمان عدم صفران النقاط ووصولها فوراً وتحديث واجهة المستخدم
     function adminDualChargeDirectPoints(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminDualTargetId').value.trim();
@@ -2340,7 +2340,7 @@
             if(!targetKey) return alert('❌ لم يتم العثور على المستخدم بهذا الـ ID!');
 
             rtdb.ref(`users/${targetKey}`).transaction(userNode=>{
-                if(!userNode) return userNode;
+                if(!userNode) userNode = { points: 0, gems: 0 };
                 userNode.points = (userNode.points || 0) + pts;
                 return userNode;
             }, (error, committed, snapshot)=>{
@@ -2386,7 +2386,7 @@
                 }
 
                 rtdb.ref(`users/${targetKey}`).transaction(agentNode=>{
-                    if(!agentNode) return agentNode;
+                    if(!agentNode) agentNode = { agentBag: 0 };
                     agentNode.agentBag = (agentNode.agentBag || 0) + amt;
                     return agentNode;
                 }, (err, committed, snapshot)=>{
