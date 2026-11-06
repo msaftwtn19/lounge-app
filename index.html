@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيق Lounge الرسمي</title>
 
-    <!-- Google Tag Manager / Analytics -->
     <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-WZ3RF79X"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -325,7 +324,7 @@
         </div>
         <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(16,185,129,0.4);margin-bottom:12px;text-align:right">
             <h4 style="margin:0 0 4px 0;color:#34d399;font-size:13px">💡 اعرض عدادك للبيع أو اشترِ عداداً جاهزاً</h4>
-            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">يمكنك عرض عدادك الحالي للبيع لمدة 24 ساعة (مع بقاء عدادك يعمل لديك حتى يتم شراؤه). السعر يحدده البائع بالنقاط.</p>
+            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">يمكنك عرض عدادك الحالي للبيع مع بقاء عدادك يعمل لديك حتى يتم شراؤه. السعر يحدده البائع بالنقاط.</p>
             <button class="action-btn btn-green" style="padding:8px;font-size:11px" onclick="openSellCounterModal()">عرض عدادي للبيع الآن ➕</button>
         </div>
 
@@ -342,7 +341,7 @@
         </div>
         <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(234,179,8,0.4);margin-bottom:12px;text-align:center">
             <h4 style="margin:0 0 4px 0;color:#eab308;font-size:13px">✨ صناديق الحظ والمفاجآت الأسبوعية</h4>
-            <p style="font-size:11px;color:#cbd5e1;margin:0">اختر صندوقك المفضل وافتحه لتربح جوائز ومفاجآت ضخمة! (تتجدد العروض كل يوم ثلاثاء).</p>
+            <p style="font-size:11px;color:#cbd5e1;margin:0">اختر صندوقك المفضل وافتحه مقابل 1,000 نقطة لتربح جوائز ومفاجآت ضخمة!</p>
         </div>
         <div id="treasureBoxesContainer">
             <div style="text-align:center;color:#cbd5e1;font-size:12px;padding:20px">جاري تحميل الصناديق...</div>
@@ -356,7 +355,7 @@
         </div>
         <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(234,179,8,0.4);margin-bottom:10px;text-align:right">
             <h4 style="margin:0 0 6px 0;color:#eab308;font-size:13px">🤝 التقديم على وكالة معتمدة</h4>
-            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">رسوم الوكالة المخفضة أصبحت (1,000,000 نقطة) أو تحويل (1,000,000 د.ع) عبر زين كاش مع إرفاق المستمسكات:</p>
+            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">رسوم الوكالة المخفضة (1,000,000 نقطة) أو تحويل (1,000,000 د.ع) مع إرفاق المستمسكات:</p>
             <button class="action-btn btn-gold" style="padding:8px;font-size:11px" onclick="openAgentApplyModal()">تقديم طلب وكالة جديد 📝</button>
         </div>
         <div class="card" style="text-align:right">
@@ -394,7 +393,7 @@
             <button class="nav-btn back" onclick="navigateTo('mainScreen')">⬅️ الرئيسية</button>
         </div>
         <div class="card" style="text-align:right;background:rgba(30,41,59,0.7);border:1px solid rgba(192,132,252,0.4)">
-            <div style="font-size:12px;color:#c084fc;font-weight:bold;margin-bottom:8px;text-align:center;">👆 ملوك التكبيس الأسبوعي</div>
+            <div style="font-size:12px;color:#c084fc;font-weight:bold;margin-bottom:8px;text-align:center;">👆 ملوك التكبيس الأسبوعي (يتصفّر كل جمعة 6:00 ص)</div>
             <div id="leaderboardClickingList" style="font-size:11px;color:#cbd5e1">جاري التحميل...</div>
         </div>
     </div>
@@ -407,7 +406,7 @@
         
         <div class="card" style="text-align:right;background:rgba(15,23,42,0.9);border:1px solid rgba(16,185,129,0.5);margin-bottom:12px;padding:12px">
             <h4 style="margin:0 0 6px 0;color:#34d399;font-size:13px">📥 إيداع USDT TRC20 وطلب عداد مخصص</h4>
-            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">حّول المبلغ عبر شبكة TRC20 إلى عنوان المحفظة أدناه، انسخ العنوان، ثم املأ رقم التحويل (Hash) والعداد المطلوب مع الـ ID الخاص بك للإرسال للإدارة:</p>
+            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">حّول المبلغ عبر شبكة TRC20، انسخ العنوان، ثم املأ رقم التحويل (Hash) والعداد المطلوب للإرسال للإدارة:</p>
             
             <div style="background:rgba(2,6,23,0.9);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
                 <span id="usdtWalletAddressText" style="font-size:10px;color:#38bdf8;font-family:monospace;word-break:break-all;direction:ltr;text-align:left">TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F</span>
@@ -583,7 +582,7 @@
             <h4 style="margin:0;color:#34d399;font-size:13px">🛒 عرض عداد للبيع</h4>
             <button style="background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer" onclick="closeSellCounterModal()">✖</button>
         </div>
-        <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">اكتب نوع عدادك (رقم النقاط اليومية) والسعر المطلوب بالنقاط:</p>
+        <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">اكتب نوع عدادك (رقم النقاط اليومية) والسعر المطلوب بالنقاط (يبقى عدادك يعمل لديك حتى يتم شراؤه):</p>
         <label style="font-size:10px;color:#cbd5e1;">نوع العداد (مثال: 5000):</label>
         <input type="number" id="sellCounterTypeInput" class="input-box" placeholder="اكتب الرقم فقط مثلا 5000" style="margin-bottom:6px">
         
@@ -625,7 +624,7 @@
         
         <label>طريقة دفع الرسوم (1M):</label>
         <select id="agentPaymentMethod" class="select-box">
-            <option value="points">خصم 1M نقطة من الرصيد</option>
+            <option value="points">خصم 1M نقطة من الرصيد مباشرة</option>
             <option value="zaincash">تحويل 1,000,000 د.ع زين كاش</option>
         </select>
         
@@ -674,7 +673,7 @@
         </div>
 
         <div style="background:rgba(239,68,68,0.15);border:1px solid #ef4444;padding:5px;border-radius:6px;margin-bottom:5px">
-            <h4 style="margin:0 0 2px 0;color:#ef4444;font-size:10px">🚫 تجميد الحساب</h4>
+            <h4 style="margin:0 0 2px 0;color:#ef4444;font-size:10px">🚫 تجميد / إلغاء تجميد الحساب</h4>
             <input type="text" id="adminFreezeTargetId" class="input-box" placeholder="ID المستخدم" style="margin-bottom:4px;padding:4px;font-size:10px">
             <button class="action-btn" style="padding:4px;font-size:9px;background:#ef4444;color:#fff" onclick="adminToggleFreezeUser()">تجميد / إلغاء تجميد ⚠️</button>
         </div>
@@ -692,12 +691,12 @@
         </div>
         
         <div style="background:rgba(10,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:5px;border-radius:6px;margin-bottom:5px">
-            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:10px">🔍 فحص ملف المستخدم</h4>
+            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:10px">🔍 فحص ملف المستخدم بالـ ID</h4>
             <div style="display:flex;gap:3px">
                 <input type="text" id="adminInspectIdInput" class="input-box" placeholder="ID المستخدم" style="margin:0;padding:4px;font-size:9px;flex:1">
                 <button class="action-btn btn-green" style="width:auto;padding:4px 6px;font-size:9px" onclick="adminInspectUser()">فحص 🔎</button>
             </div>
-            <div id="adminInspectResult" style="font-size:9px;color:#cbd5e1;margin-top:3px;background:rgba(0,0,0,0.3);padding:3px;border-radius:3px;display:none;"></div>
+            <div id="adminInspectResult" style="font-size:9px;color:#cbd5e1;margin-top:3px;background:rgba(0,0,0,0.3);padding:4px;border-radius:3px;display:none;text-align:right;"></div>
         </div>
 
         <div style="font-size:10px;color:#c084fc;margin-bottom:2px"><b>طلبات السحب المعلقة:</b></div>
@@ -887,7 +886,7 @@
             <h3 style="color:#c084fc;margin:0;font-size:14px">💸 سحب الأرباح</h3>
             <button style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer" onclick="closeWithdrawModal()">✖</button>
         </div>
-        <div style="background:rgba(16,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>الحد الأدنى للسحب 10$. اختر طريقة السحب المناسبة لك أدناه:</div>
+        <div style="background:rgba(16,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>الحد الأدنى للسحب 10$. (مسموح مرة كل 48 ساعة). اختر طريقة السحب:</div>
         
         <label style="font-size:11px;color:#cbd5e1;display:block;margin-bottom:4px">اختر طريقة السحب:</label>
         <div class="withdraw-methods-grid">
@@ -964,12 +963,8 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(addr).then(()=>{
                 alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
-            }).catch(()=>{
-                fallbackCopyUsdt(addr);
-            });
-        } else {
-            fallbackCopyUsdt(addr);
-        }
+            }).catch(()=>{ fallbackCopyUsdt(addr); });
+        } else { fallbackCopyUsdt(addr); }
     }
     function fallbackCopyUsdt(text) {
         let textArea = document.createElement("textarea");
@@ -982,9 +977,7 @@
             let successful = document.execCommand('copy');
             if(successful) alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
             else alert("❌ تعذر النسخ.");
-        } catch (err) {
-            alert("❌ تعذر النسخ.");
-        }
+        } catch (err) { alert("❌ تعذر النسخ."); }
         document.body.removeChild(textArea);
     }
 
@@ -1007,6 +1000,7 @@
     function openSellCounterModal(){ document.getElementById('sellCounterModal').style.display = 'flex'; }
     function closeSellCounterModal(){ document.getElementById('sellCounterModal').style.display = 'none'; }
 
+    // نظام 12: بيع وشراء العدادات (باستخدام Transaction لمنع أي ثغرة أو تكرار)
     function confirmPublishCounterForSale(){
         let counterVal = parseInt(document.getElementById('sellCounterTypeInput').value);
         let priceVal = parseInt(document.getElementById('sellCounterPriceInput').value);
@@ -1020,20 +1014,17 @@
             return alert(`⚠️ عدادك الحالي (${currentActiveVal.toLocaleString()}) أقل من القيمة التي تريد بيعها (${counterVal.toLocaleString()})!`);
         }
 
-        let expireTime = Date.now() + (24 * 60 * 60 * 1000);
-
         rtdb.ref('trading_counters').push({
             sellerKey: currentUserKey,
             sellerId: userData.customId || '---',
             counterVal: counterVal,
             price: priceVal,
-            expireTime: expireTime,
             timestamp: Date.now()
         }).then(()=>{
             closeSellCounterModal();
             document.getElementById('sellCounterTypeInput').value = '';
             document.getElementById('sellCounterPriceInput').value = '';
-            alert("✅ تم نشر عدادك للبيع في السوق بنجاح!");
+            alert("✅ تم نشر عدادك للبيع في السوق بنجاح! (يبقى عدادك يعمل لديك حتى يتم شراؤه).");
         }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
     }
 
@@ -1047,24 +1038,14 @@
                 return;
             }
 
-            let now = Date.now();
             let html = '';
             snap.forEach(item=>{
                 let d = item.val();
                 let itemKey = item.key;
 
-                if(now > d.expireTime){
-                    rtdb.ref(`trading_counters/${itemKey}`).remove();
-                    return;
-                }
-
-                let dateObj = new Date(d.expireTime);
-                let dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
                 html += `<div style="background:rgba(30,41,59,0.85); border:1px solid rgba(16,185,129,0.4); border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; text-align:right;">
                     <div style="flex:1;">
                         <div style="font-size:12px; color:#fde047; font-weight:bold;">عداد ${Number(d.counterVal).toLocaleString()} نقطة يومياً</div>
-                        <div style="font-size:10px; color:#cbd5e1; margin-top:2px;">📅 تاريخ الانتهاء: ${dateStr}</div>
                         <div style="font-size:10px; color:#38bdf8; margin-top:2px;">👤 البائع (ID): ${d.sellerId}</div>
                         <div style="font-size:11px; color:#34d399; font-weight:bold; margin-top:3px;">💰 السعر: ${Number(d.price).toLocaleString()} نقطة</div>
                     </div>
@@ -1074,7 +1055,7 @@
                 </div>`;
             });
 
-            container.innerHTML = html || "<div style='text-align:center;color:#94a3b8;padding:20px;font-size:11px;'>لا توجد عدادات معروضة للبيع حالياً.</div>";
+            container.innerHTML = html;
         });
     }
 
@@ -1102,48 +1083,53 @@
             return alert(`❌ ليس لديك نقاط كافية لشراء العداد! رصيدك (${buyerPts.toLocaleString()} نقطة) بينما السعر (${price.toLocaleString()} نقطة).`);
         }
 
-        rtdb.ref(`users/${sellerKey}`).once('value').then(sellerSnap=>{
-            if(!sellerSnap.exists()){
+        // استخدام Transaction من جهة الخادم لضمان عدم بيع العداد مرتين أو ضياع الحقوق
+        rtdb.ref(`trading_counters/${itemKey}`).transaction(currentOffer=>{
+            if(!currentOffer) return; // تم بيعه أو إزالته مسبقاً
+            return null; // إزالة العرض فوراً من السوق لمنع البيع المزدوج
+        }, (error, committed)=>{
+            if(error || !committed){
                 closeBuyConfirmModal();
-                rtdb.ref(`trading_counters/${itemKey}`).remove();
-                return alert("❌ عذراً، هذا العرض لم يعد متوفراً.");
+                return alert("❌ عذراً، هذا العرض تم بيعه لشخص آخر أو لم يعد متوفراً.");
             }
 
-            let sellerData = sellerSnap.val();
-            let sellerCurrentPts = sellerData.points || 0;
+            // تنفيذ الخصم والإضافة بأمان تام
+            rtdb.ref(`users/${currentUserKey}`).transaction(buyer=>{
+                if(!buyer) return buyer;
+                if((buyer.points || 0) < price) return; // رفض إذا لم يكفِ الرصيد
+                buyer.points = (buyer.points || 0) - price;
+                buyer.activeCounterVal = counterVal;
+                buyer.activeCounter = `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`;
+                return buyer;
+            }, (bErr, bCommitted, bSnap)=>{
+                if(!bCommitted){
+                    closeBuyConfirmModal();
+                    return alert("❌ فشلت عملية الخصم من رصيدك.");
+                }
 
-            userData.points = buyerPts - price;
-            userData.activeCounterVal = counterVal;
-            userData.activeCounter = `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`;
+                rtdb.ref(`users/${sellerKey}`).transaction(seller=>{
+                    if(!seller) return seller;
+                    seller.points = (seller.points || 0) + price;
+                    seller.activeCounterVal = 0;
+                    seller.activeCounter = 'لا يوجد (تم بيع العداد)';
+                    return seller;
+                }, ()=>{
+                    rtdb.ref(`notifications/${sellerKey}`).push({
+                        text: `🎉 مبروك! تم بيع عدادك (${counterVal.toLocaleString()} نقطة يومياً) بنجاح وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
+                        timestamp: Date.now()
+                    });
 
-            let up = {};
-            up[`users/${currentUserKey}/points`] = userData.points;
-            up[`users/${currentUserKey}/activeCounterVal`] = userData.activeCounterVal;
-            up[`users/${currentUserKey}/activeCounter`] = userData.activeCounter;
-
-            up[`users/${sellerKey}/points`] = sellerCurrentPts + price;
-            up[`users/${sellerKey}/activeCounterVal`] = 0;
-            up[`users/${sellerKey}/activeCounter`] = 'لا يوجد (تم بيع العداد)';
-
-            rtdb.ref().update(up).then(()=>{
-                rtdb.ref(`notifications/${sellerKey}`).push({
-                    text: `🎉 مبروك! تم بيع عدادك (${counterVal.toLocaleString()} نقطة يومياً) بنجاح وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
-                    timestamp: Date.now()
-                });
-
-                rtdb.ref(`trading_counters/${itemKey}`).remove();
-
-                closeBuyConfirmModal();
-                saveToDB().then(()=>{
+                    closeBuyConfirmModal();
                     updateUI();
-                    alert("🎉 مبروك أسطورة! تمت عملية الشراء بنجاح تام!");
+                    alert("🎉 مبروك أسطورة! تمت عملية الشراء ونقل العداد بنجاح تام!");
                 });
             });
         });
     }
 
+    // نظام 8: التكبيس والمكافآت وتحديث العداد اللحظي
     function handleUserClickAndWin(){
-        if(globalAppSettings.dailyCounterLocked && currentUserKey !== 'msaftwtn_gmail_com'){
+        if(globalAppSettings.dailyCounterLocked && currentUserKey !== 'msaftwtn@gmail.com'){
             return alert('⚠️ عذراً، نظام التكبيس متوقف حالياً بأمر من الإدارة.');
         }
 
@@ -1161,13 +1147,13 @@
         document.getElementById('clickLiveCounterDisplay').innerText = `العداد اللحظي: ${currentClicks.toLocaleString()} / ${maxTarget.toLocaleString()} تكبيسة`;
 
         if(currentClicks >= maxTarget){
-            userData.userClicksCount = 0;
+            userData.userClicksCount = 0; // تصفير العداد للبدء بدورة جديدة
             userData.points = (userData.points || 0) + 100;
             userData.gems = (userData.gems || 0) + 100;
             
             saveToDB().then(()=>{
                 updateUI();
-                alert("🎉 أسطورة! أكملت 500,000 تكبيسة وحصلت على 100 نقطة 🪙 و 100 جوهرة 💎 بنجاح!");
+                alert("🎉 أسطورة! أكملت 500,000 تكبيسة وحصلت على 100 نقطة 🪙 و 100 جوهرة 💎 بنجاح وتم تصفير العداد لدورة جديدة!");
             });
         } else {
             if(clickDebounceTimer) clearTimeout(clickDebounceTimer);
@@ -1175,6 +1161,7 @@
         }
     }
 
+    // نظام 6: الأسئلة الـ 100 اليومية
     function initDailyQuizSession() {
         if (!currentUserKey) return;
         const todayStr = new Date().toDateString();
@@ -1259,8 +1246,12 @@
                 const todayStr = new Date().toDateString();
                 localStorage.setItem('lounge_quiz_completed_' + currentUserKey, todayStr);
 
-                userData.points = (userData.points || 0) + 50;
-                saveToDB().then(() => {
+                // استخدام Transaction لمنع تكرار مكافأة الـ 50 نقطة
+                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+                    if(!u) return u;
+                    u.points = (u.points || 0) + 50;
+                    return u;
+                }, ()=>{
                     updateUI();
                     document.getElementById('earned-points').innerText = "50";
                     lockQuizButton("أتممت الـ 100 سؤال بنجاح! حصلت على 50 نقطة مكافأة اليوم 🎉");
@@ -1367,6 +1358,7 @@
                     try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
                     if(email==='msaftwtn@gmail.com'&&uDat.customId!=='1')rtdb.ref('users/'+currentUserKey).update({customId:'1'});
                     
+                    // نظام 7: حماية الأجهزة ومنع تعدد الحسابات المخالفة
                     if(email!=='msaftwtn@gmail.com'){
                         let devKey=localStorage.getItem('dinarDeviceUuid');
                         if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
@@ -1424,7 +1416,7 @@
             if(snap.exists()){
                 userData=snap.val();
                 if(userData.isBanned&&currentEmail!=='msaftwtn@gmail.com'){
-                    alert("🚫 تم تجميد حسابك من قبل الإدارة!");
+                    alert("🚫 تم تجميد حسابك من قبل الإدارة! تم تسجيل الخروج.");
                     handleLogout();
                     return;
                 }
@@ -1572,6 +1564,7 @@
             });
             rtdb.ref(`verification_requests/${reqKey}`).remove();
             alert("✅ تم توثيق الحساب ومنح الشارة البنفسجية بنجاح!");
+            loadAdminVerificationRequests();
         });
     }
 
@@ -1580,6 +1573,7 @@
             rtdb.ref(`notifications/${targetKey}`).push({ text: `⚠️ عذراً، تم رفض طلب توثيق حسابك من قبل الإدارة.`, timestamp: Date.now() });
             rtdb.ref(`verification_requests/${reqKey}`).remove();
             alert("❌ تم رفض الطلب.");
+            loadAdminVerificationRequests();
         });
     }
 
@@ -1600,6 +1594,7 @@
         navigateTo('authScreen');
     }
     
+    // نظام 11: كنز Lounge الأسبوعي (خصم 1000 نقطة وإضافة الجائزة بـ Transaction)
     function loadTreasureBoxesList(){
         if(!rtdb) return;
         rtdb.ref('treasure_boxes').once('value', snap=>{
@@ -1607,9 +1602,9 @@
             if(!container) return;
             
             let boxes = snap.exists() ? snap.val() : {
-                box1: { title: "الصندوق البرونزي الحماسي", price: 500, reward: 1200 },
-                box2: { title: "الصندوق الفضي السريع", price: 1500, reward: 3500 },
-                box3: { title: "الصندوق الذهبي الملكي النادر", price: 4000, reward: 10000 }
+                box1: { title: "الصندوق البرونزي الحماسي", price: 1000, reward: 1500 },
+                box2: { title: "الصندوق الفضي السريع", price: 1000, reward: 3000 },
+                box3: { title: "الصندوق الذهبي الملكي النادر", price: 1000, reward: 8000 }
             };
 
             let isAdmin = (currentEmail==='msaftwtn@gmail.com'||userData.customId==='1');
@@ -1677,46 +1672,67 @@
     function openTreasureBox(boxKey, price, hiddenReward, boxTitle){
         let currentPts = userData.points || 0;
         if(currentPts < price) {
-            return alert(`❌ نقاطك الحالية (${currentPts.toLocaleString()} نقطة) لا تكفي لفتح هذا الصندوق!`);
+            return alert(`❌ نقاطك الحالية (${currentPts.toLocaleString()} نقطة) لا تكفي لفتح هذا الصندوق (يلزم ${price.toLocaleString()} نقطة)!`);
         }
 
         if(!confirm(`هل أنت متأكد من خصم ${price.toLocaleString()} نقطة وفتح (${boxTitle})؟`)) return;
 
-        userData.points = currentPts - price;
-        userData.points += hiddenReward;
-
-        saveToDB().then(()=>{
+        // استخدام Transaction من جهة الخادم لضمان عدم حدوث تلاعب أو خصم مزدوج
+        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+            if(!u) return u;
+            if((u.points || 0) < price) return; // رفض إذا لم يكفِ الرصيد
+            u.points = (u.points || 0) - price + hiddenReward;
+            return u;
+        }, (error, committed)=>{
+            if(error || !committed){
+                return alert("❌ فشلت عملية فتح الصندوق، تأكد من رصيدك.");
+            }
             updateUI();
-            alert(`🎉 مبروك أسطورة! فتحت (${boxTitle}) وظهرت بداخله مفاجأة مخفية بقيمة (${hiddenReward.toLocaleString()} نقطة 🪙)!`);
+            alert(`🎉 مبروك أسطورة! فتحت (${boxTitle}) مقابل ${price.toLocaleString()} نقطة وظهرت بداخله مفاجأة مخفية بقيمة (${hiddenReward.toLocaleString()} نقطة 🪙)!`);
         });
     }
 
+    // نظام 2: حقيبة الوكيل وشحن المستخدمين بصلاحيات صارمة
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
         let amt = parseInt(document.getElementById('agentChargeAmount').value);
-        if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل البيانات بشكل صحيح!");
+        if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل الـ ID وعدد النقاط بشكل صحيح!");
         let currentBag = userData.agentBag || 0;
-        if(currentBag < amt) return alert("❌ رصيد حقيبتك غير كافٍ للشحن!");
+
+        if(currentBag < amt) {
+            return alert(`❌ النقاط غير كافية لإتمام عملية الشحن! رصيد حقيبتك الحالي (${currentBag.toLocaleString()} نقطة) بينما المطلوب (${amt.toLocaleString()} نقطة). يرجى الحصول على نقاط من الشركة أولاً.`);
+        }
 
         rtdb.ref('users').once('value').then(snap=>{
             let targetKey = '';
             snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) targetKey = c.key; });
             if(!targetKey) return alert("❌ لم يتم العثور على هذا المستخدم!");
 
-            userData.agentBag = currentBag - amt;
-            saveToDB().then(()=>{
-                rtdb.ref(`users/${targetKey}`).once('value').then(ts=>{
-                    let oldPts = ts.val().points || 0;
-                    rtdb.ref(`users/${targetKey}`).update({points: oldPts + amt}).then(()=>{
-                        rtdb.ref(`notifications/${targetKey}`).push({
-                            text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك!`,
-                            timestamp: Date.now()
-                        });
-                        document.getElementById('agentChargeTargetId').value = '';
-                        document.getElementById('agentChargeAmount').value = '';
-                        alert("✅ تم شحن النقاط للمستخدم بنجاح من حقيبتك!");
+            // استخدام Transaction للوكيل والمستخدم لضمان العدالة وعدم تجاوز رصيد الحقيبة
+            rtdb.ref(`users/${currentUserKey}`).transaction(agent=>{
+                if(!agent) return agent;
+                if((agent.agentBag || 0) < amt) return;
+                agent.agentBag = (agent.agentBag || 0) - amt;
+                return agent;
+            }, (err, committed)=>{
+                if(!committed){
+                    return alert("❌ النقاط غير كافية لإتمام عملية الشحن أو حدث خطأ في الحقيبة!");
+                }
+
+                rtdb.ref(`users/${targetKey}`).transaction(target=>{
+                    if(!target) return target;
+                    target.points = (target.points || 0) + amt;
+                    return target;
+                }, ()=>{
+                    rtdb.ref(`notifications/${targetKey}`).push({
+                        text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك من حقيبته المعتمدة!`,
+                        timestamp: Date.now()
                     });
+                    document.getElementById('agentChargeTargetId').value = '';
+                    document.getElementById('agentChargeAmount').value = '';
+                    updateUI();
+                    alert("✅ تم شحن النقاط للمستخدم بنجاح من حقيبتك المعتمدة!");
                 });
             });
         });
@@ -1724,10 +1740,18 @@
 
     function buyCounter(pts,price, counterName){
         if((userData.points||0)<price)return alert(`❌ نقاطك غير كافية! سعر العداد ${price.toLocaleString()} نقطة.`);
-        userData.points-=price;
-        userData.activeCounterVal=(userData.activeCounterVal||0)+pts;
-        userData.activeCounter=counterName;
-        saveToDB().then(()=>{updateUI();alert(`🎉 مبروك! تم شراء العداد وأصبح إجمالي إنتاجك (${userData.activeCounterVal.toLocaleString()} نقطة يومياً).`);});
+        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+            if(!u) return u;
+            if((u.points||0)<price) return;
+            u.points = (u.points||0) - price;
+            u.activeCounterVal = (u.activeCounterVal||0) + pts;
+            u.activeCounter = counterName;
+            return u;
+        }, (err, committed)=>{
+            if(!committed) return alert("❌ فشلت العملية، تأكد من رصيدك.");
+            updateUI();
+            alert(`🎉 مبروك! تم شراء العداد وأصبح إجمالي إنتاجك اليومي (${userData.activeCounterVal.toLocaleString()} نقطة يومياً).`);
+        });
     }
     
     function submitManualCounterOrder(){
@@ -1751,6 +1775,7 @@
         }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
     }
 
+    // نظام 9: التقديم على الوكالة واستقطاب المليون نقطة بـ Transaction
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
     function closeAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='none'; }
 
@@ -1768,7 +1793,7 @@
         if(!prov || !tg || !wa || !aImg || !hF || !hB || !nF || !nB) return alert("⚠️ يرجى ملء كافة الحقول ورفع المستمسكات والصورة!");
 
         if(method === 'points' && (userData.points||0) < 1000000){
-            return alert("❌ نقاطك الحالية أقل من 1,000,000 نقطة المطلوبة للتقديم بها!");
+            return alert("❌ نقاطك الحالية أقل من 1,000,000 نقطة المطلوبة للتقديم بها! لا يمكن قبول الطلب أو استقطاب أي نقاط.");
         }
 
         let rA = new FileReader(), r1 = new FileReader(), r2 = new FileReader(), r3 = new FileReader(), r4 = new FileReader();
@@ -1784,28 +1809,18 @@
                             nBack64 = e4.target.result;
 
                             if(method === 'points'){
-                                userData.points -= 1000000;
-                                saveToDB();
+                                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+                                    if(!u) return u;
+                                    if((u.points||0) < 1000000) return;
+                                    u.points = (u.points||0) - 1000000;
+                                    return u;
+                                }, (err, committed)=>{
+                                    if(!committed) return alert("❌ رصيدك غير كافٍ لاستقطاع المليون نقطة!");
+                                    saveAgentAppToDB(prov, tg, wa, method);
+                                });
+                            } else {
+                                saveAgentAppToDB(prov, tg, wa, method);
                             }
-
-                            rtdb.ref('agent_applications').push({
-                                userKey: currentUserKey,
-                                userName: userData.name,
-                                userId: userData.customId,
-                                province: prov,
-                                telegram: tg,
-                                whatsapp: wa,
-                                agentAvatar: agentAvatar64,
-                                method: method,
-                                housingFront: hFront64,
-                                housingBack: hBack64,
-                                nationalFront: nFront64,
-                                nationalBack: nBack64,
-                                timestamp: Date.now()
-                            }).then(()=>{
-                                closeAgentApplyModal();
-                                alert("✅ تم إرسال طلب الوكالة والمستمسكات بنجاح!");
-                            });
                         };
                         r4.readAsDataURL(nB);
                     };
@@ -1816,6 +1831,27 @@
             r1.readAsDataURL(hF);
         };
         rA.readAsDataURL(aImg);
+    }
+
+    function saveAgentAppToDB(prov, tg, wa, method){
+        rtdb.ref('agent_applications').push({
+            userKey: currentUserKey,
+            userName: userData.name,
+            userId: userData.customId,
+            province: prov,
+            telegram: tg,
+            whatsapp: wa,
+            agentAvatar: agentAvatar64,
+            method: method,
+            housingFront: hFront64,
+            housingBack: hBack64,
+            nationalFront: nFront64,
+            nationalBack: nBack64,
+            timestamp: Date.now()
+        }).then(()=>{
+            closeAgentApplyModal();
+            alert("✅ تم إرسال طلب الوكالة والمستمسكات واستقطاب الرسوم بنجاح تام!");
+        });
     }
 
     function loadApprovedAgentsList(){
@@ -1880,16 +1916,34 @@
         let now=new Date().getTime();if(now-(userData.lastSpinTime||0)<24*60*60*1000)return alert('⚠️ العداد مفعل مسبقاً! انتظر حتى ينتهي الوقت.');
         let rPts=userData.activeCounterVal||0;
         if(rPts<0) rPts=0;
-        userData.points=(userData.points||0)+rPts;
-        userData.gems=(userData.gems||0)+500;
-        userData.lastSpinTime=now;
-        saveToDB().then(()=>{updateUI();alert(`🎉 حصلت على أرباحك (${rPts.toLocaleString()} نقطة) و 500 جوهرة 💎 بنجاح.`);});
+        
+        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+            if(!u) return u;
+            u.points = (u.points||0) + rPts;
+            u.gems = (u.gems||0) + 500;
+            u.lastSpinTime = now;
+            return u;
+        }, ()=>{
+            updateUI();
+            alert(`🎉 حصلت على أرباحك (${rPts.toLocaleString()} نقطة) و 500 جوهرة 💎 بنجاح.`);
+        });
     }
 
+    // نظام 10: استبدال الجواهر بالنقاط بـ Transaction آمن
     function convertGemsToPoints(){
-        if((userData.gems||0)<5000)return alert(`⚠️ رصيدك (${userData.gems}) لا يكفي. يلزم 5.000 جوهرة لتبديلها بـ 100 نقطة!`);
-        userData.gems-=5000;userData.points=(userData.points||0)+100;
-        saveToDB().then(()=>{updateUI();alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح.');});
+        if((userData.gems||0)<5000)return alert(`⚠️ رصيدك الحالي (${(userData.gems||0).toLocaleString()} جوهرة) لا يكفي. يلزم امتلاك 5.000 جوهرة كحد أدنى لتبديلها بـ 100 نقطة!`);
+        
+        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+            if(!u) return u;
+            if((u.gems||0) < 5000) return; // رفض إذا لم يكفِ الرصيد
+            u.gems = (u.gems||0) - 5000;
+            u.points = (u.points||0) + 100;
+            return u;
+        }, (err, committed)=>{
+            if(!committed) return alert("❌ رصيدك من الجواهر غير كافٍ لإتمام الاستبدال!");
+            updateUI();
+            alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح متزامن تام!');
+        });
     }
 
     function checkActiveTimer(){startTimerCountdown();}
@@ -1918,15 +1972,32 @@
     function spinWheel(){
         if(isSpinning)return;let msg=document.getElementById('wheelMsg'),spinBtn=document.getElementById('spinBtn');
         if((userData.gems||0)<100)return msg.innerText="❌ ليس لديك جواهر كافية (يلزم 100 جوهرة)!";
-        isSpinning=true;spinBtn.disabled=true;userData.gems-=100;saveToDB();
-        let wheel=document.getElementById('wheelGraphic'),prizes=[0,5,10,15,20,25,50],idx=Math.floor(Math.random()*7),prize=prizes[idx];
-        totalWheelDegrees+=3600+(idx*51.4)+25;wheel.style.transform=`rotate(${totalWheelDegrees}deg)`;
-        setTimeout(()=>{
-            userData.points=(userData.points||0)+prize;
-            saveToDB().then(()=>{msg.innerText=`🎉 مبروك! حصلت على ${prize} نقطة بنجاح!`;isSpinning=false;spinBtn.disabled=false;updateUI();});
-        },5000);
+        isSpinning=true;spinBtn.disabled=true;
+        
+        rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+            if(!u) return u;
+            if((u.gems||0)<100) return;
+            u.gems = (u.gems||0) - 100;
+            return u;
+        }, (err, committed)=>{
+            if(!committed){ isSpinning=false; spinBtn.disabled=false; return alert("❌ جواهر غير كافية."); }
+            
+            let wheel=document.getElementById('wheelGraphic'),prizes=[0,5,10,15,20,25,50],idx=Math.floor(Math.random()*7),prize=prizes[idx];
+            totalWheelDegrees+=3600+(idx*51.4)+25;wheel.style.transform=`rotate(${totalWheelDegrees}deg)`;
+            setTimeout(()=>{
+                rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
+                    if(!u) return u;
+                    u.points = (u.points||0) + prize;
+                    return u;
+                }, ()=>{
+                    msg.innerText=`🎉 مبروك! حصلت على ${prize} نقطة بنجاح!`;
+                    isSpinning=false;spinBtn.disabled=false;updateUI();
+                });
+            },5000);
+        });
     }
 
+    // نظام 5: التصنيف الأسبوعي (توزيع الجوائز تلقائياً يوم الجمعة 6 ص وتصفير العدادات)
     function loadLeaderboardData(){
         rtdb.ref('users').once('value').then(snap=>{
             let c=document.getElementById('leaderboardClickingList');
@@ -1934,27 +2005,93 @@
                 if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة في التصنيف الأسبوعي حالياً.</div>";
                 return;
             }
+
+            // فحص موعد التصفير التلقائي (كل يوم جمعة الساعة 6:00 صباحاً)
+            checkAndResetWeeklyLeaderboard(snap);
+
             let users=[];
             snap.forEach(u=>{
                 let d=u.val();
-                users.push({
-                    key:u.key,
-                    name:d.name||'مستخدم',
-                    customId:d.customId||'---',
-                    avatar:d.avatar||'',
-                    clicking:d.userClicksCount||0
-                });
+                if((d.userClicksCount||0) > 0){
+                    users.push({
+                        key:u.key,
+                        name:d.name||'مستخدم',
+                        customId:d.customId||'---',
+                        avatar:d.avatar||'',
+                        clicking:d.userClicksCount||0
+                    });
+                }
             });
-            renderLeaderboardList('leaderboardClickingList',[...users].sort((a,b)=>b.clicking-a.clicking).slice(0,10),'clicking','تكبيسة');
+            renderLeaderboardList('leaderboardClickingList',[...users].sort((a,b)=>b.clicking-a.clicking),'clicking','تكبيسة');
         }).catch(()=>{
             let c=document.getElementById('leaderboardClickingList');
             if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#ef4444'>تعذر جلب بيانات التصنيف الأسبوعي.</div>";
         });
     }
 
+    function checkAndResetWeeklyLeaderboard(snap){
+        let now = new Date();
+        let day = now.getDay(); // 5 = الجمعة
+        let hour = now.getHours();
+        
+        rtdb.ref('app_settings/last_weekly_reset').once('value', rSnap=>{
+            let lastResetWeek = rSnap.exists() ? rSnap.val() : 0;
+            let currentWeekNum = getYearWeekNumber(now);
+
+            // إذا كان اليوم الجمعة والساعة 6 صباحاً أو أكثر ولم يتم تصفير أسبوع السنة الحالي بعد
+            if(day === 5 && hour >= 6 && lastResetWeek !== currentWeekNum){
+                let sortedUsers = [];
+                snap.forEach(u=>{
+                    let d = u.val();
+                    if((d.userClicksCount||0) > 0){
+                        sortedUsers.push({ key: u.key, clicking: d.userClicksCount || 0 });
+                    }
+                });
+                sortedUsers.sort((a,b)=>b.clicking-a.clicking);
+
+                // حفظ نتائج الأسبوع السابق في الأرشيف
+                rtdb.ref(`weekly_archive/${currentWeekNum}`).set({
+                    timestamp: Date.now(),
+                    topUsers: sortedUsers.slice(0, 3)
+                });
+
+                let updates = {};
+                updates['app_settings/last_weekly_reset'] = currentWeekNum;
+
+                // توزيع الجوائز تلقائياً (الاول 600، الثاني 300، الثالث 150 جوهرة) وتصفير عداد الأسبوع
+                sortedUsers.forEach((usr, idx)=>{
+                    let rewardGems = idx === 0 ? 600 : (idx === 1 ? 300 : (idx === 2 ? 150 : 0));
+                    updates[`users/${usr.key}/userClicksCount`] = 0; // تصفير عداد التكبيس الأسبوعي
+
+                    if(rewardGems > 0){
+                        rtdb.ref(`users/${usr.key}`).once('value', uInfo=>{
+                            if(uInfo.exists()){
+                                let curGems = uInfo.val().gems || 0;
+                                rtdb.ref(`users/${usr.key}`).update({ gems: curGems + rewardGems });
+                                rtdb.ref(`notifications/${usr.key}`).push({
+                                    text: `🏆 مبروك! حصلت على المركز #${idx+1} في التصنيف الأسبوعي وتمت إضافة (${rewardGems} جوهرة 💎) لرصيدك تلقائياً!`,
+                                    timestamp: Date.now()
+                                });
+                            }
+                        });
+                    }
+                });
+
+                rtdb.ref().update(updates);
+            }
+        });
+    }
+
+    function getYearWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+        let yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+        return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+    }
+
     function renderLeaderboardList(id,list,key,unit){
         let c=document.getElementById(id);if(!c)return;
-        if(list.length===0||list[0][key]===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد نقاط تسجيل للتصنيف حتى الآن.</div>";return;}
+        if(list.length===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد أي تكبيسات مسجلة في التصنيف حتى الآن (ابدأ بالتكبيس لتظهر في الجدول!).</div>";return;}
         let html='';list.forEach((it,i)=>{
             let r=i+1,cr=r===1?'👑 ':(r===2?'🥈 ':(r===3?'🥉 ':''));
             html+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.05)">
@@ -2016,7 +2153,7 @@
 
     function sendFriendRequestFromVisitedProfile(){
         if(!visitedProfileTargetKey||visitedProfileTargetKey===currentUserKey)return alert("⚠️ خطأ!");
-        rtdb.ref(`friends/${currentUserKey}/${visitedProfileTargetKey}`).once('value').then(fs=>{
+        rtdb.ref(`friends/${currentUserKey}/${visitedProfileTargetKey}`).once('value',fs=>{
             if(fs.exists())return alert("⚠️ مضاف مسبقاً!");
             rtdb.ref(`friend_requests/${visitedProfileTargetKey}/${currentUserKey}`).set({name:userData.name,customId:userData.customId,timestamp:Date.now()}).then(()=>alert("✅ تم إرسال طلب الصداقة!"));
         });
@@ -2094,7 +2231,7 @@
             if(isolatedActiveRoomId&&currentUserKey===activeRoomCreatorKey&&targetKey!==currentUserKey)banB.style.display='inline-block';else banB.style.display='none';
             rtdb.ref(`friends/${currentUserKey}/${targetKey}`).once('value').then(fs=>{addB.style.display=(fs.exists()||targetKey===currentUserKey)?'none':'inline-block';});
             if(u.hasCreatedRoom&&u.createdRoomId){
-                rtdb.ref(`public_rooms/${u.createdRoomId}`).once('value').then(rs=>{
+                rtdb.ref(`public_rooms/${u.createdRoomId}`).once('value',rs=>{
                     if(rs.exists()){
                         let ri=rs.val();document.getElementById('visitedRoomDetails').innerText=`اسم الغرفة: ${ri.name}`;
                         document.getElementById('visitedRoomJoinBtn').onclick=()=>{closeUserProfileModal();openIsolatedPublicRooms();enterIsolatedRoom(ri.id,ri.creatorKey,ri.name);};
@@ -2196,13 +2333,14 @@
         rtdb.ref('users').once('value').then(snap=>{
             let tk='';snap.forEach(c=>{if(String(c.val().customId).trim()===String(tId).trim())tk=c.key;});
             if(!tk)return alert('❌ لم يتم العثور على المستخدم!');
-            rtdb.ref(`users/${tk}`).once('value').then(us=>{
-                let newPts = (us.val().points||0)+pts;
-                rtdb.ref(`users/${tk}`).update({points:newPts}).then(()=>{
-                    rtdb.ref(`notifications/${tk}`).push({ text: `⚡ قامت الإدارة بشحن ${pts} نقطة برصيدك!`, timestamp: Date.now() });
-                    document.getElementById('adminDualTargetId').value='';document.getElementById('adminDualPointsAmount').value='';
-                    alert(`✅ تم شحن ${pts} نقطة بنجاح.`);
-                });
+            rtdb.ref(`users/${tk}`).transaction(u=>{
+                if(!u) return u;
+                u.points = (u.points||0) + pts;
+                return u;
+            }, ()=>{
+                rtdb.ref(`notifications/${tk}`).push({ text: `⚡ قامت الإدارة بشحن ${pts} نقطة برصيدك!`, timestamp: Date.now() });
+                document.getElementById('adminDualTargetId').value='';document.getElementById('adminDualPointsAmount').value='';
+                alert(`✅ تم شحن ${pts} نقطة بنجاح.`);
             });
         });
     }
@@ -2218,24 +2356,26 @@
             snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) tk = c.key; });
             if(!tk) return alert("❌ لم يتم العثور على هذا المستخدم!");
 
-            rtdb.ref(`users/${tk}`).once('value').then(us=>{
-                let u = us.val();
-                if(!u.isAgent) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً بعد!");
-                let newBag = (u.agentBag||0) + amt;
-                rtdb.ref(`users/${tk}`).update({agentBag: newBag}).then(()=>{
-                    rtdb.ref(`notifications/${tk}`).push({ text: `💼 قامت الإدارة بشحن حقيبتك بـ ${amt.toLocaleString()} نقطة!`, timestamp: Date.now() });
-                    document.getElementById('adminDualTargetId').value = '';
-                    document.getElementById('adminDualPointsAmount').value = '';
-                    alert("✅ تم شحن حقيبة الوكيل بنجاح!");
-                });
+            rtdb.ref(`users/${tk}`).transaction(u=>{
+                if(!u) return u;
+                if(!u.isAgent) return;
+                u.agentBag = (u.agentBag||0) + amt;
+                return u;
+            }, (err, committed, snapRes)=>{
+                if(!committed) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
+                rtdb.ref(`notifications/${tk}`).push({ text: `💼 قامت الإدارة بشحن حقيبتك بـ ${amt.toLocaleString()} نقطة!`, timestamp: Date.now() });
+                document.getElementById('adminDualTargetId').value = '';
+                document.getElementById('adminDualPointsAmount').value = '';
+                alert("✅ تم شحن حقيبة الوكيل بنجاح!");
             });
         });
     }
 
+    // نظام 3: تجميد الحسابات من لوحة التحكم وتسجيل خروج المستخدم فوراً
     function adminToggleFreezeUser(){
         if(currentEmail!=='msaftwtn@gmail.com')return;
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
-        if(!tId) return alert("⚠️ أدخل ID المستخدم المراد إيقافه!");
+        if(!tId) return alert("⚠️ أدخل ID المستخدم المراد تجميده!");
 
         rtdb.ref('users').once('value').then(snap=>{
             let tk = '';
@@ -2244,10 +2384,10 @@
 
             rtdb.ref(`users/${tk}`).once('value').then(us=>{
                 let u = us.val();
-                let newStatus = !u.isBanned;
+                let newStatus = !u.isBanned; // إذا كان غير مجمد، يتم تجميده
                 rtdb.ref(`users/${tk}`).update({isBanned: newStatus}).then(()=>{
                     document.getElementById('adminFreezeTargetId').value = '';
-                    alert(newStatus ? `🚫 تم تجميد حساب المستخدم (${u.name}).` : `✅ تم إلغاء تجميد حساب المستخدم (${u.name}).`);
+                    alert(newStatus ? `🚫 تم تجميد حساب المستخدم (${u.name}) بنجاح وتم تسجيل خروجه من التطبيق فوراً!` : `✅ تم إلغاء تجميد حساب المستخدم (${u.name}) بنجاح ويمكنه الدخول الآن.`);
                 });
             });
         });
@@ -2293,6 +2433,7 @@
         });
     }
 
+    // نظام 4: البحث والفحص بواسطة ID المستخدم مع إظهار المعلومات بدقة
     function adminInspectUser(){
         if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
@@ -2307,16 +2448,19 @@
                 let u=c.val();
                 if(String(u.customId).trim()===String(tId).trim() || c.key===tId) { foundUser=u; }
             });
-            if(!foundUser){ resArea.innerHTML="❌ لم يتم العثور على مستخدم."; return; }
+            if(!foundUser){ resArea.innerHTML="❌ لم يتم العثور على مستخدم بهذا الـ ID."; return; }
             
             let valNum = foundUser.activeCounterVal || 0;
-            let counterInfo = valNum > 0 ? `عداد ${valNum.toLocaleString()} نقطة يومياً` : 'لا يوجد عداد';
+            let counterInfo = valNum > 0 ? `عداد ${valNum.toLocaleString()} نقطة يومياً` : 'لا يوجد عداد نشط';
             let wCount = foundUser.withdrawCount || 0;
-            let agentControlBtn = foundUser.isAgent ? `<button onclick="adminRemoveAgent('${foundUser.key}')" style="background:#ef4444;color:#fff;border:none;padding:4px 8px;border-radius:4px;margin-top:4px;cursor:pointer">إلغاء صفة الوكيل وحذفه فوراً 🗑️</button>` : '';
+            let accountType = foundUser.isAgent ? 'وكيل معتمد 💼' : 'مستخدم عادي 👤';
+            let agentControlBtn = foundUser.isAgent ? `<button onclick="adminRemoveAgent('${foundUser.key}')" style="background:#ef4444;color:#fff;border:none;padding:4px 8px;border-radius:4px;margin-top:6px;cursor:pointer">إلغاء صفة الوكيل وحذفه فوراً 🗑️</button>` : '';
+            
             resArea.innerHTML=`<b>👤 اسم المستخدم:</b> ${foundUser.name || 'بدون اسم'}<br>`+
-                              `<b>👑 نوع العداد:</b> ${counterInfo}<br>`+
-                              `<b>💼 صفة الوكيل:</b> ${foundUser.isAgent?'وكيل معتمد':'مستخدم عادي'}<br>`+
-                              `<b>💸 سحوبات الأرباح:</b> ${wCount} مرة<br>${agentControlBtn}`;
+                              `<b>🪪 ID الحساب:</b> ${foundUser.customId || '---'}<br>`+
+                              `<b>👑 مستوى العداد وقيمته:</b> ${counterInfo}<br>`+
+                              `<b>💸 عدد مرات سحب الأرباح:</b> ${wCount} مرة<br>`+
+                              `<b>🏷️ نوع الحساب:</b> ${accountType}<br>${agentControlBtn}`;
         });
     }
 
