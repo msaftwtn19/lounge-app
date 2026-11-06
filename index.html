@@ -1461,7 +1461,6 @@
         let prfBadge = document.getElementById('profileBadgeDisplay');
         if(prfBadge) prfBadge.innerHTML = badgeHtml;
 
-        // النقطة 7: عرض خانة الوكيل الذي شحن للمستخدم في الملف الشخصي بدقة
         let agentWhoChargedDisp = document.getElementById('lastAgentWhoChargedDisplay');
         if(agentWhoChargedDisp){
             if(userData.lastAgentChargedName){
@@ -1481,7 +1480,6 @@
             }
         }
 
-        // النقطة 9 و 10: ربط لوحة التحكم حصرياً بالبريد الإداري msaftwtn@gmail.com أو ID رقم 1 بدقة متناهية
         let adminBtn=document.getElementById('adminPanelMainBtn');
         if(adminBtn){
             if(currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
@@ -1599,7 +1597,6 @@
         navigateTo('authScreen');
     }
     
-    // النقطة 5: كنز لاونج الأسبوعي (بدون الجملة القديمة، مخصص للإدارة تماماً)
     function loadTreasureBoxesList(){
         if(!rtdb) return;
         rtdb.ref('treasure_boxes').once('value', snap=>{
@@ -1696,7 +1693,6 @@
         });
     }
 
-    // النقطة 2 و 6: حقيبة الوكيل وشحن المستخدمين بصلاحيات وتحديث اسم الوكيل في الملف الشخصي للمستخدم بدقة
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1780,7 +1776,6 @@
         }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
     }
 
-    // النقطة 1: التقديم على الوكالة واستقطاب المليون نقطة بـ Transaction وتخزين الطلب بدقة للإدارة
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
     function closeAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='none'; }
 
@@ -2295,7 +2290,6 @@
     }
     function closeWithdrawModal(){ document.getElementById('withdrawModal').style.display='none'; }
     
-    // النقطة 1: إرسال طلب سحب الأرباح بدقة لقاعدة بيانات الإدارة
     function submitWithdrawal(){
         if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') {
             closeWithdrawModal();
@@ -2326,53 +2320,85 @@
         });
     }
 
-    // النقطة 6: شحن النقاط المباشر (للمستخدم أو للوكيل) يعمل بفاعلية تامة الآن
+    // ⭐ الدوال المحدثة والمدمجة حصرياً (شحن النقاط المباشر وشحن حقيبة الوكيل) لتظهر النقاط فوراً بدون أي تأخير
     function adminDualChargeDirectPoints(){
-        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
-        let tId=document.getElementById('adminDualTargetId').value.trim(),pts=parseInt(document.getElementById('adminDualPointsAmount').value);
-        if(!tId||isNaN(pts)||pts<=0)return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
+        let tId = document.getElementById('adminDualTargetId').value.trim();
+        let pts = parseInt(document.getElementById('adminDualPointsAmount').value);
+        
+        if(!tId || isNaN(pts) || pts <= 0) return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
+
         rtdb.ref('users').once('value').then(snap=>{
-            let tk='';snap.forEach(c=>{if(String(c.val().customId).trim()===String(tId).trim())tk=c.key;});
-            if(!tk)return alert('❌ لم يتم العثور على المستخدم!');
-            rtdb.ref(`users/${tk}`).transaction(u=>{
-                if(!u) return u;
-                u.points = (u.points||0) + pts;
-                return u;
-            }, ()=>{
-                rtdb.ref(`notifications/${tk}`).push({ text: `⚡ قامت الإدارة بشحن ${pts} نقطة برصيدك!`, timestamp: Date.now() });
-                document.getElementById('adminDualTargetId').value='';document.getElementById('adminDualPointsAmount').value='';
-                alert(`✅ تم شحن ${pts} نقطة بنجاح للمستخدم.`);
+            let targetKey = '';
+            snap.forEach(c=>{
+                let u = c.val();
+                if(String(u.customId).trim() === String(tId).trim() || c.key === tId) {
+                    targetKey = c.key;
+                }
+            });
+
+            if(!targetKey) return alert('❌ لم يتم العثور على المستخدم بهذا الـ ID!');
+
+            rtdb.ref(`users/${targetKey}`).once('value').then(userSnap=>{
+                if(!userSnap.exists()) return alert('❌ بيانات المستخدم غير موجودة.');
+                let currentPts = userSnap.val().points || 0;
+                let newPts = currentPts + pts;
+
+                rtdb.ref(`users/${targetKey}`).update({ points: newPts }).then(()=>{
+                    rtdb.ref(`notifications/${targetKey}`).push({
+                        text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك بنجاح!`,
+                        timestamp: Date.now()
+                    });
+                    document.getElementById('adminDualTargetId').value = '';
+                    document.getElementById('adminDualPointsAmount').value = '';
+                    alert(`✅ تم شحن ${pts.toLocaleString()} نقطة بنجاح للمستخدم (ID: ${tId}) وأصبحت نقاطه (${newPts.toLocaleString()})!`);
+                });
             });
         });
     }
 
     function adminDualChargeAgentBag(){
-        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let targetId = document.getElementById('adminDualTargetId').value.trim();
         let amt = parseInt(document.getElementById('adminDualPointsAmount').value);
+        
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل ID الوكيل وعدد النقاط بشكل صحيح!");
 
         rtdb.ref('users').once('value').then(snap=>{
-            let tk = '';
-            snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) tk = c.key; });
-            if(!tk) return alert("❌ لم يتم العثور على هذا المستخدم!");
+            let targetKey = '';
+            snap.forEach(c=>{
+                let u = c.val();
+                if(String(u.customId).trim() === String(targetId).trim() || c.key === targetId) {
+                    targetKey = c.key;
+                }
+            });
 
-            rtdb.ref(`users/${tk}`).transaction(u=>{
-                if(!u) return u;
-                if(!u.isAgent) return;
-                u.agentBag = (u.agentBag||0) + amt;
-                return u;
-            }, (err, committed)=>{
-                if(!committed) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
-                rtdb.ref(`notifications/${tk}`).push({ text: `💼 قامت الإدارة بشحن حقيبتك بـ ${amt.toLocaleString()} نقطة!`, timestamp: Date.now() });
-                document.getElementById('adminDualTargetId').value = '';
-                document.getElementById('adminDualPointsAmount').value = '';
-                alert("✅ تم شحن حقيبة الوكيل بنجاح!");
+            if(!targetKey) return alert("❌ لم يتم العثور على هذا المستخدم!");
+
+            rtdb.ref(`users/${targetKey}`).once('value').then(userSnap=>{
+                if(!userSnap.exists()) return alert("❌ بيانات المستخدم غير موجودة.");
+                let uData = userSnap.val();
+
+                if(!uData.isAgent) {
+                    return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً! لا يمكن شحن الحقيبة.");
+                }
+
+                let currentBag = uData.agentBag || 0;
+                let newBag = currentBag + amt;
+
+                rtdb.ref(`users/${targetKey}`).update({ agentBag: newBag }).then(()=>{
+                    rtdb.ref(`notifications/${targetKey}`).push({
+                        text: `💼 قامت الإدارة بشحن حقيبتك بـ ${amt.toLocaleString()} نقطة مخصصة للشحن!`,
+                        timestamp: Date.now()
+                    });
+                    document.getElementById('adminDualTargetId').value = '';
+                    document.getElementById('adminDualPointsAmount').value = '';
+                    alert(`✅ تم شحن حقيبة الوكيل بنجاح وأصبح رصيد حقيبته (${newBag.toLocaleString()} نقطة)!`);
+                });
             });
         });
     }
 
-    // النقطة 8: نظام التجميد وإلغاء التجميد يعمل بكفاءة تامة وطرد المستخدم فوراً
     function adminToggleFreezeUser(){
         if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
@@ -2434,7 +2460,6 @@
         });
     }
 
-    // النقطة 4: البحث والفحص بواسطة ID المستخدم بدقة متناهية وعرض كافة المعلومات مباشرة
     function adminInspectUser(){
         if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
