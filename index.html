@@ -341,7 +341,7 @@
         </div>
         <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(234,179,8,0.4);margin-bottom:12px;text-align:center">
             <h4 style="margin:0 0 4px 0;color:#eab308;font-size:13px">✨ صناديق الحظ والمفاجآت الأسبوعية</h4>
-            <p style="font-size:11px;color:#cbd5e1;margin:0">اختر صندوقك المفضل وافتحه مقابل 1,000 نقطة لتربح جوائز ومفاجآت ضخمة!</p>
+            <p style="font-size:11px;color:#cbd5e1;margin:0">صناديق الحظ والمفاجآت الأسبوعية الخاصة بمسابقات لاونج!</p>
         </div>
         <div id="treasureBoxesContainer">
             <div style="text-align:center;color:#cbd5e1;font-size:12px;padding:20px">جاري تحميل الصناديق...</div>
@@ -470,6 +470,7 @@
             <div style="margin-top:2px;margin-bottom:6px">
                 <span id="displayUserIdProfile" style="color:#c084fc;font-size:12px;font-weight:bold">ID: ---</span>
                 <div id="profileBadgeDisplay" style="margin-top:4px"></div>
+                <div id="lastAgentWhoChargedDisplay" style="font-size:10px;color:#34d399;margin-top:4px"></div>
             </div>
             
             <div id="verificationSectionContainer" style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:8px;margin-bottom:8px;text-align:right">
@@ -912,7 +913,7 @@
 
 <script>
     let currentEmail='',currentUserKey='',rtdb=null,auth=null;
-    let userData={points:0,gems:0,lastSpinTime:0,activeCounter:'لا يوجد',activeCounterVal:0,customId:'',name:'',avatar:'',bio:'',hasCreatedRoom:false,createdRoomId:'',lastWithdrawTime:0,isBanned:false,whatsapp:'',withdrawCount:0,isAgent:false,agentTelegram:'',agentWhatsapp:'',agentBag:0,gameWins:0,userClicksCount:0,isVerified:false,verificationPhone:'',verificationStatus:'none'};
+    let userData={points:0,gems:0,lastSpinTime:0,activeCounter:'لا يوجد',activeCounterVal:0,customId:'',name:'',avatar:'',bio:'',hasCreatedRoom:false,createdRoomId:'',lastWithdrawTime:0,isBanned:false,whatsapp:'',withdrawCount:0,isAgent:false,agentTelegram:'',agentWhatsapp:'',agentBag:0,gameWins:0,userClicksCount:0,isVerified:false,verificationPhone:'',verificationStatus:'none',lastAgentChargedName:'',lastAgentChargedId:''};
     let base64Image='',activeChatFriendKey='',activeChatFriendName='',visitedProfileTargetKey='',timerInterval=null;
     let isolatedActiveRoomId='',currentRoomOccupantsCount=0,activeRoomCreatorKey='',globalAppSettings={withdrawLocked:false,dailyCounterLocked:false,tickerText:'أهلاً بكم في تطبيق Lounge الرسمي!'};
     let newRoomAvatarBase64='',newRoomBgBase64='';
@@ -1000,7 +1001,6 @@
     function openSellCounterModal(){ document.getElementById('sellCounterModal').style.display = 'flex'; }
     function closeSellCounterModal(){ document.getElementById('sellCounterModal').style.display = 'none'; }
 
-    // نظام 12: بيع وشراء العدادات (باستخدام Transaction لمنع أي ثغرة أو تكرار)
     function confirmPublishCounterForSale(){
         let counterVal = parseInt(document.getElementById('sellCounterTypeInput').value);
         let priceVal = parseInt(document.getElementById('sellCounterPriceInput').value);
@@ -1083,25 +1083,23 @@
             return alert(`❌ ليس لديك نقاط كافية لشراء العداد! رصيدك (${buyerPts.toLocaleString()} نقطة) بينما السعر (${price.toLocaleString()} نقطة).`);
         }
 
-        // استخدام Transaction من جهة الخادم لضمان عدم بيع العداد مرتين أو ضياع الحقوق
         rtdb.ref(`trading_counters/${itemKey}`).transaction(currentOffer=>{
-            if(!currentOffer) return; // تم بيعه أو إزالته مسبقاً
-            return null; // إزالة العرض فوراً من السوق لمنع البيع المزدوج
+            if(!currentOffer) return;
+            return null;
         }, (error, committed)=>{
             if(error || !committed){
                 closeBuyConfirmModal();
                 return alert("❌ عذراً، هذا العرض تم بيعه لشخص آخر أو لم يعد متوفراً.");
             }
 
-            // تنفيذ الخصم والإضافة بأمان تام
             rtdb.ref(`users/${currentUserKey}`).transaction(buyer=>{
                 if(!buyer) return buyer;
-                if((buyer.points || 0) < price) return; // رفض إذا لم يكفِ الرصيد
+                if((buyer.points || 0) < price) return;
                 buyer.points = (buyer.points || 0) - price;
                 buyer.activeCounterVal = counterVal;
                 buyer.activeCounter = `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`;
                 return buyer;
-            }, (bErr, bCommitted, bSnap)=>{
+            }, (bErr, bCommitted)=>{
                 if(!bCommitted){
                     closeBuyConfirmModal();
                     return alert("❌ فشلت عملية الخصم من رصيدك.");
@@ -1127,9 +1125,8 @@
         });
     }
 
-    // نظام 8: التكبيس والمكافآت وتحديث العداد اللحظي
     function handleUserClickAndWin(){
-        if(globalAppSettings.dailyCounterLocked && currentUserKey !== 'msaftwtn@gmail.com'){
+        if(globalAppSettings.dailyCounterLocked && currentEmail !== 'msaftwtn@gmail.com'){
             return alert('⚠️ عذراً، نظام التكبيس متوقف حالياً بأمر من الإدارة.');
         }
 
@@ -1147,7 +1144,7 @@
         document.getElementById('clickLiveCounterDisplay').innerText = `العداد اللحظي: ${currentClicks.toLocaleString()} / ${maxTarget.toLocaleString()} تكبيسة`;
 
         if(currentClicks >= maxTarget){
-            userData.userClicksCount = 0; // تصفير العداد للبدء بدورة جديدة
+            userData.userClicksCount = 0;
             userData.points = (userData.points || 0) + 100;
             userData.gems = (userData.gems || 0) + 100;
             
@@ -1161,7 +1158,6 @@
         }
     }
 
-    // نظام 6: الأسئلة الـ 100 اليومية
     function initDailyQuizSession() {
         if (!currentUserKey) return;
         const todayStr = new Date().toDateString();
@@ -1246,7 +1242,6 @@
                 const todayStr = new Date().toDateString();
                 localStorage.setItem('lounge_quiz_completed_' + currentUserKey, todayStr);
 
-                // استخدام Transaction لمنع تكرار مكافأة الـ 50 نقطة
                 rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
                     if(!u) return u;
                     u.points = (u.points || 0) + 50;
@@ -1358,7 +1353,6 @@
                     try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
                     if(email==='msaftwtn@gmail.com'&&uDat.customId!=='1')rtdb.ref('users/'+currentUserKey).update({customId:'1'});
                     
-                    // نظام 7: حماية الأجهزة ومنع تعدد الحسابات المخالفة
                     if(email!=='msaftwtn@gmail.com'){
                         let devKey=localStorage.getItem('dinarDeviceUuid');
                         if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
@@ -1392,7 +1386,7 @@
             currentUserKey = user.uid;
             
             let defaultName=email.split('@')[0],assignedId=(email==='msaftwtn@gmail.com')?'1':Math.floor(100000+Math.random()*900000).toString();
-            const newUser={name:defaultName,email:email,password:pass,customId:assignedId,points:0,gems:0,bio:'',lastSpinTime:0,activeCounter:'لا يوجد',activeCounterVal:0,hasCreatedRoom:false,createdRoomId:'',lastWithdrawTime:0,isBanned:false,whatsapp:'',withdrawCount:0,isAgent:false,agentTelegram:'',agentWhatsapp:'',agentBag:0,agentProvince:'',agentAvatar:'',gameWins:0,userClicksCount:0,isVerified:false,verificationPhone:'',verificationStatus:'none'};
+            const newUser={name:defaultName,email:email,password:pass,customId:assignedId,points:0,gems:0,bio:'',lastSpinTime:0,activeCounter:'لا يوجد',activeCounterVal:0,hasCreatedRoom:false,createdRoomId:'',lastWithdrawTime:0,isBanned:false,whatsapp:'',withdrawCount:0,isAgent:false,agentTelegram:'',agentWhatsapp:'',agentBag:0,agentProvince:'',agentAvatar:'',gameWins:0,userClicksCount:0,isVerified:false,verificationPhone:'',verificationStatus:'none',lastAgentChargedName:'',lastAgentChargedId:''};
             
             rtdb.ref('users/'+currentUserKey).set(newUser).then(()=>{
                 currentEmail=email;
@@ -1467,6 +1461,16 @@
         let prfBadge = document.getElementById('profileBadgeDisplay');
         if(prfBadge) prfBadge.innerHTML = badgeHtml;
 
+        // النقطة 7: عرض خانة الوكيل الذي شحن للمستخدم في الملف الشخصي بدقة
+        let agentWhoChargedDisp = document.getElementById('lastAgentWhoChargedDisplay');
+        if(agentWhoChargedDisp){
+            if(userData.lastAgentChargedName){
+                agentWhoChargedDisp.innerHTML = `💼 آخر شحن بواسطة الوكيل: <b>${userData.lastAgentChargedName}</b> (ID: ${userData.lastAgentChargedId||'---'})`;
+            } else {
+                agentWhoChargedDisp.innerHTML = '';
+            }
+        }
+
         let agentPanel = document.getElementById('agentBagPanel');
         if(agentPanel){
             if(userData.isAgent){
@@ -1477,6 +1481,7 @@
             }
         }
 
+        // النقطة 9 و 10: ربط لوحة التحكم حصرياً بالبريد الإداري msaftwtn@gmail.com أو ID رقم 1 بدقة متناهية
         let adminBtn=document.getElementById('adminPanelMainBtn');
         if(adminBtn){
             if(currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
@@ -1594,7 +1599,7 @@
         navigateTo('authScreen');
     }
     
-    // نظام 11: كنز Lounge الأسبوعي (خصم 1000 نقطة وإضافة الجائزة بـ Transaction)
+    // النقطة 5: كنز لاونج الأسبوعي (بدون الجملة القديمة، مخصص للإدارة تماماً)
     function loadTreasureBoxesList(){
         if(!rtdb) return;
         rtdb.ref('treasure_boxes').once('value', snap=>{
@@ -1618,14 +1623,14 @@
                 if(isAdmin){
                     actionButtonHtml = `<button class="action-btn btn-purple" style="padding:6px;margin-top:4px" onclick="openAdminTreasureEditModalForBox('${bKey}')">⚙️ تعديل الصندوق (إدارة)</button>`;
                 } else {
-                    actionButtonHtml = `<button class="action-btn btn-gold" style="padding:6px" onclick="openTreasureBox('${bKey}', ${b.price}, ${b.reward}, '${b.title}')">افتح الصندوق بـ ${Number(b.price).toLocaleString()} 🪙</button>`;
+                    actionButtonHtml = `<button class="action-btn btn-gold" style="padding:6px" onclick="openTreasureBox('${bKey}', ${b.price}, ${b.reward}, '${b.title}')">فتح الصندوق بـ ${Number(b.price).toLocaleString()} 🪙</button>`;
                 }
 
                 html += `<div class="treasure-card treasure-box-card">
                     <div class="treasure-icon">${icons[idx]}</div>
                     <h3 style="margin:2px 0;color:#fde047;font-size:13px">${b.title}</h3>
                     <p style="font-size:11px;color:#34d399;font-weight:bold;margin:4px 0">سعر الفتح: ${Number(b.price).toLocaleString()} 🪙</p>
-                    <p style="font-size:9px;color:#cbd5e1;margin-bottom:6px">اضغط لفتح الصندوق واكتشاف جائزتك المخفية المذهلة!</p>
+                    <p style="font-size:9px;color:#cbd5e1;margin-bottom:6px">صناديق مسابقات لاونج الأسبوعية المعتمدة.</p>
                     ${actionButtonHtml}
                 </div>`;
             });
@@ -1677,10 +1682,9 @@
 
         if(!confirm(`هل أنت متأكد من خصم ${price.toLocaleString()} نقطة وفتح (${boxTitle})؟`)) return;
 
-        // استخدام Transaction من جهة الخادم لضمان عدم حدوث تلاعب أو خصم مزدوج
         rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
             if(!u) return u;
-            if((u.points || 0) < price) return; // رفض إذا لم يكفِ الرصيد
+            if((u.points || 0) < price) return;
             u.points = (u.points || 0) - price + hiddenReward;
             return u;
         }, (error, committed)=>{
@@ -1692,7 +1696,7 @@
         });
     }
 
-    // نظام 2: حقيبة الوكيل وشحن المستخدمين بصلاحيات صارمة
+    // النقطة 2 و 6: حقيبة الوكيل وشحن المستخدمين بصلاحيات وتحديث اسم الوكيل في الملف الشخصي للمستخدم بدقة
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1709,7 +1713,6 @@
             snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) targetKey = c.key; });
             if(!targetKey) return alert("❌ لم يتم العثور على هذا المستخدم!");
 
-            // استخدام Transaction للوكيل والمستخدم لضمان العدالة وعدم تجاوز رصيد الحقيبة
             rtdb.ref(`users/${currentUserKey}`).transaction(agent=>{
                 if(!agent) return agent;
                 if((agent.agentBag || 0) < amt) return;
@@ -1723,6 +1726,8 @@
                 rtdb.ref(`users/${targetKey}`).transaction(target=>{
                     if(!target) return target;
                     target.points = (target.points || 0) + amt;
+                    target.lastAgentChargedName = userData.name || 'وكيل معتمد';
+                    target.lastAgentChargedId = userData.customId || '---';
                     return target;
                 }, ()=>{
                     rtdb.ref(`notifications/${targetKey}`).push({
@@ -1775,7 +1780,7 @@
         }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
     }
 
-    // نظام 9: التقديم على الوكالة واستقطاب المليون نقطة بـ Transaction
+    // النقطة 1: التقديم على الوكالة واستقطاب المليون نقطة بـ Transaction وتخزين الطلب بدقة للإدارة
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
     function closeAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='none'; }
 
@@ -1850,7 +1855,7 @@
             timestamp: Date.now()
         }).then(()=>{
             closeAgentApplyModal();
-            alert("✅ تم إرسال طلب الوكالة والمستمسكات واستقطاب الرسوم بنجاح تام!");
+            alert("✅ تم إرسال طلب الوكالة والمستمسكات واستقطاب الرسوم بنجاح تام وإلى لوحة تحكم الإدارة!");
         });
     }
 
@@ -1929,13 +1934,12 @@
         });
     }
 
-    // نظام 10: استبدال الجواهر بالنقاط بـ Transaction آمن
     function convertGemsToPoints(){
         if((userData.gems||0)<5000)return alert(`⚠️ رصيدك الحالي (${(userData.gems||0).toLocaleString()} جوهرة) لا يكفي. يلزم امتلاك 5.000 جوهرة كحد أدنى لتبديلها بـ 100 نقطة!`);
         
         rtdb.ref(`users/${currentUserKey}`).transaction(u=>{
             if(!u) return u;
-            if((u.gems||0) < 5000) return; // رفض إذا لم يكفِ الرصيد
+            if((u.gems||0) < 5000) return;
             u.gems = (u.gems||0) - 5000;
             u.points = (u.points||0) + 100;
             return u;
@@ -1997,7 +2001,6 @@
         });
     }
 
-    // نظام 5: التصنيف الأسبوعي (توزيع الجوائز تلقائياً يوم الجمعة 6 ص وتصفير العدادات)
     function loadLeaderboardData(){
         rtdb.ref('users').once('value').then(snap=>{
             let c=document.getElementById('leaderboardClickingList');
@@ -2006,7 +2009,6 @@
                 return;
             }
 
-            // فحص موعد التصفير التلقائي (كل يوم جمعة الساعة 6:00 صباحاً)
             checkAndResetWeeklyLeaderboard(snap);
 
             let users=[];
@@ -2031,14 +2033,13 @@
 
     function checkAndResetWeeklyLeaderboard(snap){
         let now = new Date();
-        let day = now.getDay(); // 5 = الجمعة
+        let day = now.getDay();
         let hour = now.getHours();
         
         rtdb.ref('app_settings/last_weekly_reset').once('value', rSnap=>{
             let lastResetWeek = rSnap.exists() ? rSnap.val() : 0;
             let currentWeekNum = getYearWeekNumber(now);
 
-            // إذا كان اليوم الجمعة والساعة 6 صباحاً أو أكثر ولم يتم تصفير أسبوع السنة الحالي بعد
             if(day === 5 && hour >= 6 && lastResetWeek !== currentWeekNum){
                 let sortedUsers = [];
                 snap.forEach(u=>{
@@ -2049,7 +2050,6 @@
                 });
                 sortedUsers.sort((a,b)=>b.clicking-a.clicking);
 
-                // حفظ نتائج الأسبوع السابق في الأرشيف
                 rtdb.ref(`weekly_archive/${currentWeekNum}`).set({
                     timestamp: Date.now(),
                     topUsers: sortedUsers.slice(0, 3)
@@ -2058,10 +2058,9 @@
                 let updates = {};
                 updates['app_settings/last_weekly_reset'] = currentWeekNum;
 
-                // توزيع الجوائز تلقائياً (الاول 600، الثاني 300، الثالث 150 جوهرة) وتصفير عداد الأسبوع
                 sortedUsers.forEach((usr, idx)=>{
                     let rewardGems = idx === 0 ? 600 : (idx === 1 ? 300 : (idx === 2 ? 150 : 0));
-                    updates[`users/${usr.key}/userClicksCount`] = 0; // تصفير عداد التكبيس الأسبوعي
+                    updates[`users/${usr.key}/userClicksCount`] = 0;
 
                     if(rewardGems > 0){
                         rtdb.ref(`users/${usr.key}`).once('value', uInfo=>{
@@ -2296,6 +2295,7 @@
     }
     function closeWithdrawModal(){ document.getElementById('withdrawModal').style.display='none'; }
     
+    // النقطة 1: إرسال طلب سحب الأرباح بدقة لقاعدة بيانات الإدارة
     function submitWithdrawal(){
         if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') {
             closeWithdrawModal();
@@ -2326,8 +2326,9 @@
         });
     }
 
+    // النقطة 6: شحن النقاط المباشر (للمستخدم أو للوكيل) يعمل بفاعلية تامة الآن
     function adminDualChargeDirectPoints(){
-        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminDualTargetId').value.trim(),pts=parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!tId||isNaN(pts)||pts<=0)return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
         rtdb.ref('users').once('value').then(snap=>{
@@ -2340,13 +2341,13 @@
             }, ()=>{
                 rtdb.ref(`notifications/${tk}`).push({ text: `⚡ قامت الإدارة بشحن ${pts} نقطة برصيدك!`, timestamp: Date.now() });
                 document.getElementById('adminDualTargetId').value='';document.getElementById('adminDualPointsAmount').value='';
-                alert(`✅ تم شحن ${pts} نقطة بنجاح.`);
+                alert(`✅ تم شحن ${pts} نقطة بنجاح للمستخدم.`);
             });
         });
     }
 
     function adminDualChargeAgentBag(){
-        if(currentEmail!=='msaftwtn@gmail.com')return;
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let targetId = document.getElementById('adminDualTargetId').value.trim();
         let amt = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل ID الوكيل وعدد النقاط بشكل صحيح!");
@@ -2361,7 +2362,7 @@
                 if(!u.isAgent) return;
                 u.agentBag = (u.agentBag||0) + amt;
                 return u;
-            }, (err, committed, snapRes)=>{
+            }, (err, committed)=>{
                 if(!committed) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
                 rtdb.ref(`notifications/${tk}`).push({ text: `💼 قامت الإدارة بشحن حقيبتك بـ ${amt.toLocaleString()} نقطة!`, timestamp: Date.now() });
                 document.getElementById('adminDualTargetId').value = '';
@@ -2371,9 +2372,9 @@
         });
     }
 
-    // نظام 3: تجميد الحسابات من لوحة التحكم وتسجيل خروج المستخدم فوراً
+    // النقطة 8: نظام التجميد وإلغاء التجميد يعمل بكفاءة تامة وطرد المستخدم فوراً
     function adminToggleFreezeUser(){
-        if(currentEmail!=='msaftwtn@gmail.com')return;
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
         if(!tId) return alert("⚠️ أدخل ID المستخدم المراد تجميده!");
 
@@ -2384,7 +2385,7 @@
 
             rtdb.ref(`users/${tk}`).once('value').then(us=>{
                 let u = us.val();
-                let newStatus = !u.isBanned; // إذا كان غير مجمد، يتم تجميده
+                let newStatus = !u.isBanned;
                 rtdb.ref(`users/${tk}`).update({isBanned: newStatus}).then(()=>{
                     document.getElementById('adminFreezeTargetId').value = '';
                     alert(newStatus ? `🚫 تم تجميد حساب المستخدم (${u.name}) بنجاح وتم تسجيل خروجه من التطبيق فوراً!` : `✅ تم إلغاء تجميد حساب المستخدم (${u.name}) بنجاح ويمكنه الدخول الآن.`);
@@ -2394,7 +2395,7 @@
     }
 
     function adminUpdateTicker(){
-        if(currentEmail!=='msaftwtn@gmail.com') return;
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return;
         let txt = document.getElementById('adminTickerInput').value.trim();
         if(!txt) return alert("⚠️ أدخل نص الإعلان!");
         rtdb.ref('app_settings').update({tickerText: txt}).then(()=>{
@@ -2433,9 +2434,9 @@
         });
     }
 
-    // نظام 4: البحث والفحص بواسطة ID المستخدم مع إظهار المعلومات بدقة
+    // النقطة 4: البحث والفحص بواسطة ID المستخدم بدقة متناهية وعرض كافة المعلومات مباشرة
     function adminInspectUser(){
-        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
         let resArea=document.getElementById('adminInspectResult');
         if(!tId)return alert('⚠️ أدخل ID المستخدم!');
@@ -2465,7 +2466,7 @@
     }
 
     function adminRemoveAgent(userKey){
-        if(currentEmail!=='msaftwtn@gmail.com'||!confirm("⚠️ هل أنت متأكد من إلغاء وكالة هذا المستخدم وحذفه فوراً من قائمة الوكلاء؟"))return;
+        if((currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')||!confirm("⚠️ هل أنت متأكد من إلغاء وكالة هذا المستخدم وحذفه فوراً من قائمة الوكلاء؟"))return;
         rtdb.ref(`users/${userKey}`).update({ isAgent: false, agentTelegram: '', agentWhatsapp: '', agentBag: 0, agentProvince: '', agentAvatar: '' }).then(()=>{
             rtdb.ref(`notifications/${userKey}`).push({ text: `⚠️ تم إلغاء صفة الوكيل المعتمد من قبل الإدارة.`, timestamp: Date.now() });
             alert("🗑️ تم إزالة الوكيل فوراً من القائمة!");
@@ -2474,7 +2475,7 @@
     }
 
     function adminToggleWithdrawFeature(){
-        if(currentEmail!=='msaftwtn@gmail.com')return;
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return;
         let ns=!globalAppSettings.withdrawLocked;
         rtdb.ref('app_settings').update({withdrawLocked:ns}).then(()=>{
             globalAppSettings.withdrawLocked = ns;
@@ -2483,13 +2484,13 @@
     }
 
     function adminToggleDailyCounterFeature(){
-        if(currentEmail!=='msaftwtn@gmail.com')return;
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return;
         let ns=!globalAppSettings.dailyCounterLocked;
         rtdb.ref('app_settings').update({dailyCounterLocked:ns}).then(()=>alert(ns?'⏳ تم قفل العداد اليومي والتكبيس.':'⚡ تم فتح العداد اليومي والتكبيس.'));
     }
 
     function openAdminPanelModal(){
-        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
         document.getElementById('adminPanelModal').style.display='flex';
         loadAdminData();
         loadAdminVerificationRequests();
@@ -2565,7 +2566,7 @@
         let h='';
         list.forEach(r=>{
             let av=r.avatar?r.avatar:'https://via.placeholder.com/55';
-            let del=(currentEmail==='msaftwtn@gmail.com')?`<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px;font-size:10px;margin-top:4px" onclick="adminDeleteSingleRoom('${r.id}','${r.name.replace(/'/g,"\\'")}')">🗑️ حذف</button>`:'';
+            let del=(currentEmail==='msaftwtn@gmail.com'||userData.customId==='1')?`<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px;font-size:10px;margin-top:4px" onclick="adminDeleteSingleRoom('${r.id}','${r.name.replace(/'/g,"\\'")}')">🗑️ حذف</button>`:'';
             h+=`<div class="room-square-card">
                 <img src="${av}" class="room-square-avatar" alt="غرفة">
                 <div style="font-weight:bold;color:#c084fc;font-size:12px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%">${r.name}</div>
@@ -2584,7 +2585,7 @@
     }
 
     function adminDeleteSingleRoom(id,name){
-        if(currentEmail!=='msaftwtn@gmail.com'||!confirm(`⚠️ حذف الغرفة (${name})؟`))return;
+        if((currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')||!confirm(`⚠️ حذف الغرفة (${name})؟`))return;
         rtdb.ref(`public_rooms/${id}`).remove();rtdb.ref(`room_messages/${id}`).remove();rtdb.ref(`room_occupants/${id}`).remove();rtdb.ref(`room_bans/${id}`).remove();
         alert("🗑️ تم الحذف.");
     }
@@ -2620,7 +2621,7 @@
         document.getElementById('chatRoomsListArea').style.display='none';
         document.getElementById('isolatedActiveRoomArea').style.display='flex';
         document.getElementById('isolatedActiveRoomTitle').innerText=name;
-        document.getElementById('roomSettingsBtn').style.display=(currentUserKey===activeRoomCreatorKey||currentEmail==='msaftwtn@gmail.com')?'flex':'none';
+        document.getElementById('roomSettingsBtn').style.display=(currentUserKey===activeRoomCreatorKey||currentEmail==='msaftwtn@gmail.com'||userData.customId==='1')?'flex':'none';
         
         rtdb.ref(`public_rooms/${id}`).once('value',snap=>{
             if(snap.exists()){
@@ -2635,7 +2636,7 @@
             if(!snap.exists()){box.innerHTML='<div style="color:#94a3b8;text-align:center">مرحباً بك في الغرفة!</div>';return;}let h='';
             snap.forEach(m=>{
                 let msg=m.val(),isMe=msg.sender===currentUserKey;
-                let del=(isMe||currentEmail==='msaftwtn@gmail.com')?`<button class="msg-action-btn" onclick="deleteRoomMessage('${id}','${m.key}')">🗑️</button>`:'';
+                let del=(isMe||currentEmail==='msaftwtn@gmail.com'||userData.customId==='1')?`<button class="msg-action-btn" onclick="deleteRoomMessage('${id}','${m.key}')">🗑️</button>`:'';
                 if(msg.isGift){
                     let giftDisplayImg = (msg.giftIcon==='palace') ? '🏰' : (msg.giftIcon==='plane' ? '✈️' : `<img src="${msg.giftIcon||'https://cdn-icons-png.flaticon.com/512/2405/2405479.png'}" class="gift-chat-img" alt="هدية">`);
                     let isEmoji = (msg.giftIcon==='palace'||msg.giftIcon==='plane');
@@ -2698,7 +2699,7 @@
         rtdb.ref(`room_messages/${isolatedActiveRoomId}`).push(obj);
         document.getElementById('isolatedMsgInput').value='';cancelReplyMode();
     }
-    function openRoomSettingsModal(){if(currentUserKey!==activeRoomCreatorKey&&currentEmail!=='msaftwtn@gmail.com')return;document.getElementById('roomSettingsModal').style.display='flex';}
+    function openRoomSettingsModal(){if(currentUserKey!==activeRoomCreatorKey&&currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return;document.getElementById('roomSettingsModal').style.display='flex';}
     function closeRoomSettingsModal(){document.getElementById('roomSettingsModal').style.display='none';}
     function previewRoomAvatar(e){const f=e.target.files[0];if(f){const rd=new FileReader();rd.onload=ce=>{newRoomAvatarBase64=ce.target.result;};rd.readAsDataURL(f);}}
     function previewRoomBg(e){const f=e.target.files[0];if(f){const rd=new FileReader();rd.onload=ce=>{newRoomBgBase64=ce.target.result;};rd.readAsDataURL(f);}}
