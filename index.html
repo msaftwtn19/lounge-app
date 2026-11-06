@@ -1279,7 +1279,7 @@
     window.addEventListener('load',()=>{
         initLoungeTickerAnimation();
         try{
-            // إعدادات فايربيس الجديدة الخاصة بك 100% بدون أي أخطاء أو تعليق
+            // إعدادات فايربيس الخاصة بمشروعك lounge1-ccb9e
             const firebaseConfig={
                 apiKey: "AIzaSyDTcDrVD2z3PT6WZSUJUtG9GIiIYHIdgSw",
                 authDomain: "lounge1-ccb9e.firebaseapp.com",
@@ -1297,18 +1297,24 @@
                 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(err => console.log(err));
             }
         }catch(e){}
+        
+        // التحقق التلقائي من تسجيل الدخول عبر Authentication
         setTimeout(()=>{
-            try{
-                const savedUserKey=localStorage.getItem('dinarUserKey');
-                if(savedUserKey&&rtdb){
-                    currentUserKey=savedUserKey;
-                    initRealtimeSync();
-                    navigateTo('mainScreen');
-                } else {
-                    navigateTo('authScreen');
-                }
-            }catch(err){navigateTo('authScreen');}
-        },300);
+            if(auth){
+                auth.onAuthStateChanged((user)=>{
+                    if(user){
+                        currentUserKey = user.uid;
+                        try{ localStorage.setItem('dinarUserKey', currentUserKey); }catch(e){}
+                        initRealtimeSync();
+                        navigateTo('mainScreen');
+                    } else {
+                        navigateTo('authScreen');
+                    }
+                });
+            } else {
+                navigateTo('authScreen');
+            }
+        }, 300);
     });
 
     function navigateTo(screenId){
@@ -1332,45 +1338,67 @@
         document.getElementById('loginForm').style.display=type==='login'?'block':'none';
         document.getElementById('signupForm').style.display=type==='signup'?'block':'none';
     }
+    
+    // تسجيل الدخول عبر Firebase Authentication
     function handleLogin(){
         const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPass').value.trim();
-        if(!email||!pass)return alert("⚠️ أدخل البريد وكلمة المرور");if(!rtdb)return alert("❌ خطأ بالاتصال");
+        if(!email||!pass)return alert("⚠️ أدخل البريد وكلمة المرور");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
         const btn=document.getElementById('loginBtn');btn.disabled=true;btn.innerText="جاري الدخول...";
-        currentUserKey=email.replace(/[^a-zA-Z0-9]/g,'_');
-        rtdb.ref('users/'+currentUserKey).once('value').then(snap=>{
+        
+        auth.signInWithEmailAndPassword(email, pass).then((userCredential)=>{
             btn.disabled=false;btn.innerText="دخول الحساب 🚀";
-            if(snap.exists()&&String(snap.val().password).trim()===String(pass).trim()){
-                let uDat=snap.val();
-                if(uDat.isBanned&&email!=='msaftwtn@gmail.com')return alert("🚫 تم تجميد أو حظر هذا الحساب من قبل الإدارة!");
-                currentEmail=email;try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
-                if(email==='msaftwtn@gmail.com'&&uDat.customId!=='1')rtdb.ref('users/'+currentUserKey).update({customId:'1'});
-                
-                if(email!=='msaftwtn@gmail.com'){
-                    let devKey=localStorage.getItem('dinarDeviceUuid');
-                    if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
-                    rtdb.ref(`device_bindings/${devKey}`).once('value').then(bSnap=>{
-                        if(bSnap.exists()&&bSnap.val().userKey!==currentUserKey){
-                            rtdb.ref(`users/${currentUserKey}`).update({isBanned:true});
-                            rtdb.ref(`users/${bSnap.val().userKey}`).update({isBanned:true});
-                            alert("🚫 تم حظر الحسابات لاكتشاف فتح حسابين على نفس الجهاز!");handleLogout();return;
-                        }else{rtdb.ref(`device_bindings/${devKey}`).set({userKey:currentUserKey});}
-                    });
+            const user = userCredential.user;
+            currentUserKey = user.uid;
+            
+            rtdb.ref('users/'+currentUserKey).once('value').then(snap=>{
+                if(snap.exists()){
+                    let uDat=snap.val();
+                    if(uDat.isBanned&&email!=='msaftwtn@gmail.com'){
+                        auth.signOut();
+                        return alert("🚫 تم تجميد أو حظر هذا الحساب من قبل الإدارة!");
+                    }
+                    currentEmail=email;
+                    try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
+                    if(email==='msaftwtn@gmail.com'&&uDat.customId!=='1')rtdb.ref('users/'+currentUserKey).update({customId:'1'});
+                    
+                    if(email!=='msaftwtn@gmail.com'){
+                        let devKey=localStorage.getItem('dinarDeviceUuid');
+                        if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
+                        rtdb.ref(`device_bindings/${devKey}`).once('value').then(bSnap=>{
+                            if(bSnap.exists()&&bSnap.val().userKey!==currentUserKey){
+                                rtdb.ref(`users/${currentUserKey}`).update({isBanned:true});
+                                rtdb.ref(`users/${bSnap.val().userKey}`).update({isBanned:true});
+                                alert("🚫 تم حظر الحسابات لاكتشاف فتح حسابين على نفس الجهاز!");handleLogout();return;
+                            }else{rtdb.ref(`device_bindings/${devKey}`).set({userKey:currentUserKey});}
+                        });
+                    }
+                    initRealtimeSync();navigateTo('mainScreen');
+                } else {
+                    alert("❌ بيانات الحساب غير مكتملة في قاعدة البيانات.");
                 }
-                initRealtimeSync();navigateTo('mainScreen');
-            }else{alert("❌ البريد أو كلمة المرور غير صحيحة!");}
-        }).catch(()=>{btn.disabled=false;btn.innerText="دخول الحساب 🚀";alert("❌ خطأ بالاتصال بالشبكة.");});
+            });
+        }).catch((error)=>{
+            btn.disabled=false;btn.innerText="دخول الحساب 🚀";
+            alert("❌ خطأ في الدخول: " + error.message);
+        });
     }
+
+    // إنشاء حساب جديد فريد عبر Firebase Authentication
     function handleSignup(){
         const email=document.getElementById('signupEmail').value.trim(),pass=document.getElementById('signupPass').value.trim();
-        if(!email||!pass)return alert("⚠️ املأ الخانات");if(!rtdb)return alert("❌ خطأ بالاتصال");
+        if(!email||!pass)return alert("⚠️ املأ الخانات");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
         const btn=document.getElementById('signupBtn');btn.disabled=true;btn.innerText="جاري الإنشاء...";
-        currentUserKey=email.replace(/[^a-zA-Z0-9]/g,'_');
-        rtdb.ref('users/'+currentUserKey).once('value').then(check=>{
-            if(check.exists()){btn.disabled=false;btn.innerText="تأكيد الحساب ✨";return alert("⚠️ مسجل سابقاً!");}
+        
+        auth.createUserWithEmailAndPassword(email, pass).then((userCredential)=>{
+            btn.disabled=false;btn.innerText="تأكيد الحساب ✨";
+            const user = userCredential.user;
+            currentUserKey = user.uid;
+            
             let defaultName=email.split('@')[0],assignedId=(email==='msaftwtn@gmail.com')?'1':Math.floor(100000+Math.random()*900000).toString();
             const newUser={name:defaultName,email:email,password:pass,customId:assignedId,points:0,gems:0,bio:'',lastSpinTime:0,activeCounter:'لا يوجد',activeCounterVal:0,hasCreatedRoom:false,createdRoomId:'',lastWithdrawTime:0,isBanned:false,whatsapp:'',withdrawCount:0,isAgent:false,agentTelegram:'',agentWhatsapp:'',agentBag:0,agentProvince:'',agentAvatar:'',gameWins:0,userClicksCount:0,isVerified:false,verificationPhone:'',verificationStatus:'none'};
+            
             rtdb.ref('users/'+currentUserKey).set(newUser).then(()=>{
-                btn.disabled=false;btn.innerText="تأكيد الحساب ✨";currentEmail=email;
+                currentEmail=email;
                 try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
                 if(email!=='msaftwtn@gmail.com'){
                     let devKey=localStorage.getItem('dinarDeviceUuid');
@@ -1379,20 +1407,24 @@
                 }
                 initRealtimeSync();navigateTo('mainScreen');
             });
-        }).catch(()=>{btn.disabled=false;btn.innerText="تأكيد الحساب ✨";alert("❌ خطأ بالاتصال بالشبكة.");});
+        }).catch((error)=>{
+            btn.disabled=false;btn.innerText="تأكيد الحساب ✨";
+            alert("❌ فشل إنشاء الحساب: " + error.message);
+        });
     }
+
     function initRealtimeSync(){
         if(!currentUserKey||!rtdb)return;
         rtdb.ref('users/'+currentUserKey).on('value',snap=>{
             if(snap.exists()){
                 userData=snap.val();
-                if(userData.isBanned&&currentUserKey!=='msaftwtn_gmail_com'){
+                if(userData.isBanned&&currentEmail!=='msaftwtn@gmail.com'){
                     alert("🚫 تم تجميد حسابك من قبل الإدارة!");
                     handleLogout();
                     return;
                 }
-                currentEmail=userData.email||(currentUserKey==='msaftwtn_gmail_com'?'msaftwtn@gmail.com':'');
-                if(currentUserKey==='msaftwtn_gmail_com'&&userData.customId!=='1'){userData.customId='1';rtdb.ref('users/'+currentUserKey).update({customId:'1'});}
+                currentEmail=userData.email||'';
+                if(currentEmail==='msaftwtn@gmail.com'&&userData.customId!=='1'){userData.customId='1';rtdb.ref('users/'+currentUserKey).update({customId:'1'});}
                 if(!userData.customId||!/^\d+$/.test(userData.customId)){userData.customId=Math.floor(100000+Math.random()*900000).toString();rtdb.ref('users/'+currentUserKey).update({customId:userData.customId});}
                 updateUI();checkActiveTimer();
             }
@@ -1450,7 +1482,7 @@
 
         let adminBtn=document.getElementById('adminPanelMainBtn');
         if(adminBtn){
-            if(currentUserKey==='msaftwtn_gmail_com'||currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
+            if(currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
                 adminBtn.style.display='inline-block';
             } else {
                 adminBtn.style.display='none';
@@ -1548,13 +1580,20 @@
 
     function saveToDB(){
         if(!currentUserKey||!rtdb)return Promise.resolve();
-        if((userData.points<0||userData.gems<0)&&currentUserKey!=='msaftwtn_gmail_com'){
+        if((userData.points<0||userData.gems<0)&&currentEmail!=='msaftwtn@gmail.com'){
             userData.isBanned=true;rtdb.ref('users/'+currentUserKey).update({isBanned:true});
             alert("🚫 تم الحظر أوتوماتيكياً بسبب مخالفة نظام الأمان الصارم!");handleLogout();return Promise.reject("Anti-cheat violation");
         }
         return rtdb.ref('users/'+currentUserKey).update(userData);
     }
-    function handleLogout(){if(timerInterval)clearInterval(timerInterval);try{localStorage.removeItem('dinarUserKey');}catch(e){}currentEmail='';currentUserKey='';navigateTo('authScreen');}
+    
+    function handleLogout(){
+        if(timerInterval)clearInterval(timerInterval);
+        try{localStorage.removeItem('dinarUserKey');}catch(e){}
+        if(auth) auth.signOut();
+        currentEmail='';currentUserKey='';
+        navigateTo('authScreen');
+    }
     
     function loadTreasureBoxesList(){
         if(!rtdb) return;
@@ -1568,7 +1607,7 @@
                 box3: { title: "الصندوق الذهبي الملكي النادر", price: 4000, reward: 10000 }
             };
 
-            let isAdmin = (currentUserKey==='msaftwtn_gmail_com'||currentEmail==='msaftwtn@gmail.com'||userData.customId==='1');
+            let isAdmin = (currentEmail==='msaftwtn@gmail.com'||userData.customId==='1');
 
             let html = '';
             ['box1', 'box2', 'box3'].forEach((bKey, idx)=>{
@@ -1611,7 +1650,7 @@
     }
 
     function saveAdminTreasureBoxChanges(){
-        if(currentUserKey!=='msaftwtn_gmail_com'&&currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1') return alert("⚠️ غير مسموح.");
+        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1') return alert("⚠️ غير مسموح.");
         let boxKey = document.getElementById('adminTreasureSelectBox').value;
         let title = document.getElementById('adminTreasureTitleInput').value.trim();
         let price = parseInt(document.getElementById('adminTreasurePriceInput').value);
@@ -1832,7 +1871,7 @@
     }
 
     function claimDailyReward(){
-        if(globalAppSettings.dailyCounterLocked&&currentUserKey!=='msaftwtn_gmail_com')return alert('⚠️ عذراً، العداد اليومي مقفل حالياً.');
+        if(globalAppSettings.dailyCounterLocked&&currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ عذراً، العداد اليومي مقفل حالياً.');
         let now=new Date().getTime();if(now-(userData.lastSpinTime||0)<24*60*60*1000)return alert('⚠️ العداد مفعل مسبقاً! انتظر حتى ينتهي الوقت.');
         let rPts=userData.activeCounterVal||0;
         if(rPts<0) rPts=0;
@@ -2031,7 +2070,7 @@
             document.getElementById('visitedUserBadgeArea').innerHTML = vBadgeHtml;
 
             let adminDirectControl = document.getElementById('adminDirectAgentControlArea');
-            if(currentUserKey==='msaftwtn_gmail_com'||currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
+            if(currentEmail==='msaftwtn@gmail.com'||userData.customId==='1'){
                 if(u.isAgent){
                     adminDirectControl.style.display = 'block';
                     adminDirectControl.innerHTML = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:6px;font-size:11px" onclick="adminDirectRemoveAgent('${targetKey}')">🗑️ إلغاء صفة الوكيل وحذف بياناته فوراً</button>`;
@@ -2091,10 +2130,10 @@
     }
 
     function openWithdrawModal(){
-        if(globalAppSettings.withdrawLocked && currentUserKey !== 'msaftwtn_gmail_com') {
+        if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') {
             return alert('⚠️ عذراً، خدمة سحب الأرباح مغلقة من قبل الإدارة حالياً.');
         }
-        if(currentUserKey !== 'msaftwtn_gmail_com' && userData.lastWithdrawTime) {
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.lastWithdrawTime) {
             let now = Date.now();
             let fortyEightHoursMs = 48 * 60 * 60 * 1000;
             let elapsed = now - userData.lastWithdrawTime;
@@ -2108,7 +2147,7 @@
     function closeWithdrawModal(){ document.getElementById('withdrawModal').style.display='none'; }
     
     function submitWithdrawal(){
-        if(globalAppSettings.withdrawLocked && currentUserKey !== 'msaftwtn_gmail_com') {
+        if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') {
             closeWithdrawModal();
             return alert('⚠️ عذراً، خدمة سحب الأرباح مغلقة من قبل الإدارة حالياً.');
         }
@@ -2138,7 +2177,7 @@
     }
 
     function adminDualChargeDirectPoints(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminDualTargetId').value.trim(),pts=parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!tId||isNaN(pts)||pts<=0)return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
         rtdb.ref('users').once('value').then(snap=>{
@@ -2156,7 +2195,7 @@
     }
 
     function adminDualChargeAgentBag(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return;
+        if(currentEmail!=='msaftwtn@gmail.com')return;
         let targetId = document.getElementById('adminDualTargetId').value.trim();
         let amt = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل ID الوكيل وعدد النقاط بشكل صحيح!");
@@ -2181,7 +2220,7 @@
     }
 
     function adminToggleFreezeUser(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return;
+        if(currentEmail!=='msaftwtn@gmail.com')return;
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
         if(!tId) return alert("⚠️ أدخل ID المستخدم المراد إيقافه!");
 
@@ -2202,7 +2241,7 @@
     }
 
     function adminUpdateTicker(){
-        if(currentUserKey!=='msaftwtn_gmail_com') return;
+        if(currentEmail!=='msaftwtn@gmail.com') return;
         let txt = document.getElementById('adminTickerInput').value.trim();
         if(!txt) return alert("⚠️ أدخل نص الإعلان!");
         rtdb.ref('app_settings').update({tickerText: txt}).then(()=>{
@@ -2241,7 +2280,7 @@
     }
 
     function adminInspectUser(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
         let resArea=document.getElementById('adminInspectResult');
         if(!tId)return alert('⚠️ أدخل ID المستخدم!');
@@ -2268,7 +2307,7 @@
     }
 
     function adminRemoveAgent(userKey){
-        if(currentUserKey!=='msaftwtn_gmail_com'||!confirm("⚠️ هل أنت متأكد من إلغاء وكالة هذا المستخدم وحذفه فوراً من قائمة الوكلاء؟"))return;
+        if(currentEmail!=='msaftwtn@gmail.com'||!confirm("⚠️ هل أنت متأكد من إلغاء وكالة هذا المستخدم وحذفه فوراً من قائمة الوكلاء؟"))return;
         rtdb.ref(`users/${userKey}`).update({ isAgent: false, agentTelegram: '', agentWhatsapp: '', agentBag: 0, agentProvince: '', agentAvatar: '' }).then(()=>{
             rtdb.ref(`notifications/${userKey}`).push({ text: `⚠️ تم إلغاء صفة الوكيل المعتمد من قبل الإدارة.`, timestamp: Date.now() });
             alert("🗑️ تم إزالة الوكيل فوراً من القائمة!");
@@ -2277,7 +2316,7 @@
     }
 
     function adminToggleWithdrawFeature(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return;
+        if(currentEmail!=='msaftwtn@gmail.com')return;
         let ns=!globalAppSettings.withdrawLocked;
         rtdb.ref('app_settings').update({withdrawLocked:ns}).then(()=>{
             globalAppSettings.withdrawLocked = ns;
@@ -2286,13 +2325,13 @@
     }
 
     function adminToggleDailyCounterFeature(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return;
+        if(currentEmail!=='msaftwtn@gmail.com')return;
         let ns=!globalAppSettings.dailyCounterLocked;
         rtdb.ref('app_settings').update({dailyCounterLocked:ns}).then(()=>alert(ns?'⏳ تم قفل العداد اليومي والتكبيس.':'⚡ تم فتح العداد اليومي والتكبيس.'));
     }
 
     function openAdminPanelModal(){
-        if(currentUserKey!=='msaftwtn_gmail_com')return alert('⚠️ غير مسموح.');
+        if(currentEmail!=='msaftwtn@gmail.com')return alert('⚠️ غير مسموح.');
         document.getElementById('adminPanelModal').style.display='flex';
         loadAdminData();
         loadAdminVerificationRequests();
@@ -2353,7 +2392,7 @@
         let h='';
         list.forEach(r=>{
             let av=r.avatar?r.avatar:'https://via.placeholder.com/55';
-            let del=(currentUserKey==='msaftwtn_gmail_com')?`<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px;font-size:10px;margin-top:4px" onclick="adminDeleteSingleRoom('${r.id}','${r.name.replace(/'/g,"\\'")}')">🗑️ حذف</button>`:'';
+            let del=(currentEmail==='msaftwtn@gmail.com')?`<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px;font-size:10px;margin-top:4px" onclick="adminDeleteSingleRoom('${r.id}','${r.name.replace(/'/g,"\\'")}')">🗑️ حذف</button>`:'';
             h+=`<div class="room-square-card">
                 <img src="${av}" class="room-square-avatar" alt="غرفة">
                 <div style="font-weight:bold;color:#c084fc;font-size:12px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%">${r.name}</div>
@@ -2372,7 +2411,7 @@
     }
 
     function adminDeleteSingleRoom(id,name){
-        if(currentUserKey!=='msaftwtn_gmail_com'||!confirm(`⚠️ حذف الغرفة (${name})؟`))return;
+        if(currentEmail!=='msaftwtn@gmail.com'||!confirm(`⚠️ حذف الغرفة (${name})؟`))return;
         rtdb.ref(`public_rooms/${id}`).remove();rtdb.ref(`room_messages/${id}`).remove();rtdb.ref(`room_occupants/${id}`).remove();rtdb.ref(`room_bans/${id}`).remove();
         alert("🗑️ تم الحذف.");
     }
@@ -2408,7 +2447,7 @@
         document.getElementById('chatRoomsListArea').style.display='none';
         document.getElementById('isolatedActiveRoomArea').style.display='flex';
         document.getElementById('isolatedActiveRoomTitle').innerText=name;
-        document.getElementById('roomSettingsBtn').style.display=(currentUserKey===activeRoomCreatorKey||currentUserKey==='msaftwtn_gmail_com')?'flex':'none';
+        document.getElementById('roomSettingsBtn').style.display=(currentUserKey===activeRoomCreatorKey||currentEmail==='msaftwtn@gmail.com')?'flex':'none';
         
         rtdb.ref(`public_rooms/${id}`).once('value',snap=>{
             if(snap.exists()){
@@ -2423,7 +2462,7 @@
             if(!snap.exists()){box.innerHTML='<div style="color:#94a3b8;text-align:center">مرحباً بك في الغرفة!</div>';return;}let h='';
             snap.forEach(m=>{
                 let msg=m.val(),isMe=msg.sender===currentUserKey;
-                let del=(isMe||currentUserKey==='msaftwtn_gmail_com')?`<button class="msg-action-btn" onclick="deleteRoomMessage('${id}','${m.key}')">🗑️</button>`:'';
+                let del=(isMe||currentEmail==='msaftwtn@gmail.com')?`<button class="msg-action-btn" onclick="deleteRoomMessage('${id}','${m.key}')">🗑️</button>`:'';
                 if(msg.isGift){
                     let giftDisplayImg = (msg.giftIcon==='palace') ? '🏰' : (msg.giftIcon==='plane' ? '✈️' : `<img src="${msg.giftIcon||'https://cdn-icons-png.flaticon.com/512/2405/2405479.png'}" class="gift-chat-img" alt="هدية">`);
                     let isEmoji = (msg.giftIcon==='palace'||msg.giftIcon==='plane');
@@ -2486,7 +2525,7 @@
         rtdb.ref(`room_messages/${isolatedActiveRoomId}`).push(obj);
         document.getElementById('isolatedMsgInput').value='';cancelReplyMode();
     }
-    function openRoomSettingsModal(){if(currentUserKey!==activeRoomCreatorKey&&currentUserKey!=='msaftwtn_gmail_com')return;document.getElementById('roomSettingsModal').style.display='flex';}
+    function openRoomSettingsModal(){if(currentUserKey!==activeRoomCreatorKey&&currentEmail!=='msaftwtn@gmail.com')return;document.getElementById('roomSettingsModal').style.display='flex';}
     function closeRoomSettingsModal(){document.getElementById('roomSettingsModal').style.display='none';}
     function previewRoomAvatar(e){const f=e.target.files[0];if(f){const rd=new FileReader();rd.onload=ce=>{newRoomAvatarBase64=ce.target.result;};rd.readAsDataURL(f);}}
     function previewRoomBg(e){const f=e.target.files[0];if(f){const rd=new FileReader();rd.onload=ce=>{newRoomBgBase64=ce.target.result;};rd.readAsDataURL(f);}}
