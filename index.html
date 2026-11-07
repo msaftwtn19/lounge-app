@@ -80,7 +80,7 @@
         @keyframes clickPulse { 0% { transform: scale(1); } 50% { transform: scale(0.96); } 100% { transform: scale(1); } }
         .click-active-anim { animation: clickPulse 0.12s ease-in-out; }
 
-        .bottom-nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(15,23,42,0.95);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-around;align-items:center;padding:8px 10px;z-index:999}
+        .bottom-nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(15,23,42,0.95);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-around:space-around;align-items:center;padding:8px 10px;z-index:999}
         .bottom-nav-item{display:flex;flex-direction:column;align-items:center;background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;gap:2px}
         .bottom-nav-item.active{color:#c084fc}
         .bottom-nav-item span{font-size:16px}
@@ -873,8 +873,6 @@
         </div>
         <div id="chatMessagesArea" style="height:250px;overflow-y:auto;background:rgba(0,0,0,0.3);padding:8px;border-radius:8px;margin:8px 0;font-size:11px"></div>
         <div style="display:flex;gap:4px;align-items:center">
-            <input type="file" id="chatImageInput" accept="image/*" style="display:none" onchange="sendChatImage(event)">
-            <button class="gift-box-btn" onclick="document.getElementById('chatImageInput').click()" title="إرسال صورة">📷</button>
             <input type="text" id="chatInputMsg" class="input-box" placeholder="اكتب رسالة..." style="margin:0;flex:1">
             <button class="action-btn btn-blue" style="width:60px;padding:0;height:38px" onclick="sendChatMessage()">إرسال</button>
         </div>
@@ -1622,6 +1620,23 @@
         });
     }
 
+    function openTreasureBox(boxKey, price, reward, title){
+        let currentPts = userData.points || 0;
+        if(currentPts < price){
+            return alert(`❌ ليس لديك نقاط كافية لفتح (${title})! سعر الفتح ${price.toLocaleString()} نقطة بينما رصيدك ${currentPts.toLocaleString()} نقطة.`);
+        }
+
+        let newPts = currentPts - price + reward;
+        rtdb.ref(`users/${currentUserKey}`).update({ points: newPts }).then(()=>{
+            rtdb.ref(`notifications/${currentUserKey}`).push({
+                text: `🎁 مبروك! قمت بفتح (${title}) وحصلت على جائزة ${reward.toLocaleString()} نقطة!`,
+                timestamp: Date.now()
+            });
+            updateUI();
+            alert(`🎉 مبروك أسطورة! فتحت (${title}) وحصلت على ${reward.toLocaleString()} نقطة بنجاح! وتمت إضافتها فوراً لرصيدك.`);
+        }).catch(()=>{ alert("❌ حدث خطأ، حاول مجدداً."); });
+    }
+
     function openAdminTreasureEditModalForBox(boxKey){
         document.getElementById('adminTreasureSelectBox').value = boxKey;
         onAdminSelectTreasureBox(boxKey);
@@ -1658,7 +1673,6 @@
         });
     }
 
-    // ⭐ 1. دالة شحن الوكيل المحدثة (بالتحديث المباشر السريع بدون Transactions)
     function agentTransferPoints(){
         if(!userData.isAgent) return alert("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -2052,13 +2066,13 @@
 
     function loadNotifications(){
         if(!currentUserKey||!rtdb)return;
-        rtdb.ref(`notifications/${currentUserKey}`).once('value',snap=>{
+        rtdb.ref(`notifications/${currentUserKey}`).on('value',snap=>{
             let c=document.getElementById('notificationsContainer'),b=document.getElementById('mainNotificationBadge');if(!c)return;
             if(!snap.exists()){c.innerHTML="لا توجد إشعارات جديدة";if(b)b.style.display='none';return;}
             if(b)b.style.display='block';let html='';snap.forEach(n=>{html+=`<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:6px 0">🔔 ${n.val().text}</div>`;});
             c.innerHTML=html;
         });
-        rtdb.ref(`friend_requests/${currentUserKey}`).once('value',snap=>{
+        rtdb.ref(`friend_requests/${currentUserKey}`).on('value',snap=>{
             let c=document.getElementById('notificationsContainer'),b=document.getElementById('mainNotificationBadge');
             if(snap.exists()){
                 if(b)b.style.display='block';let h=c.innerHTML==="لا توجد إشعارات جديدة"?"":c.innerHTML;
@@ -2080,7 +2094,9 @@
                 if(String(u.customId).trim()===String(sId).trim() || c.key===sId) { tk=c.key; }
             });
             if(!tk)return res.innerText="❌ لم يتم العثور على مستخدم بهذا الـ ID";
-            if(tk===currentUserKey)return res.innerText="⚠️ لا يمكنك إضافة نفسك!";
+            if(tk===currentUserKey || String(sId).trim()===String(userData.customId).trim()){
+                return res.innerText="⚠️ لا يمكنك إرسال طلب صداقة لنفسك!";
+            }
             rtdb.ref(`friends/${currentUserKey}/${tk}`).once('value',fs=>{
                 if(fs.exists())return res.innerText="⚠️ هذا المستخدم مضاف لديك مسبقاً!";
                 rtdb.ref(`friend_requests/${tk}/${currentUserKey}`).set({
@@ -2096,7 +2112,7 @@
     }
 
     function sendFriendRequestFromVisitedProfile(){
-        if(!visitedProfileTargetKey||visitedProfileTargetKey===currentUserKey)return alert("⚠️ لا يمكنك إضافة نفسك!");
+        if(!visitedProfileTargetKey||visitedProfileTargetKey===currentUserKey)return alert("⚠️ لا يمكنك إرسال طلب صداقة لنفسك!");
         rtdb.ref(`friends/${currentUserKey}/${visitedProfileTargetKey}`).once('value',fs=>{
             if(fs.exists())return alert("⚠️ مضاف مسبقاً!");
             rtdb.ref(`friend_requests/${visitedProfileTargetKey}/${currentUserKey}`).set({name:userData.name,customId:userData.customId,timestamp:Date.now()}).then(()=>alert("✅ تم إرسال طلب الصداقة!"));
@@ -2130,12 +2146,12 @@
         document.getElementById('chatTitle').innerText=`${fName} 👤`;
         document.getElementById('chatModal').style.display='flex';
         let chatId=[currentUserKey,fk].sort().join('_');
-        rtdb.ref(`chats/${chatId}`).once('value',snap=>{
+        rtdb.ref(`chats/${chatId}`).on('value',snap=>{
             let a=document.getElementById('chatMessagesArea');if(!a)return;
             if(!snap.exists()){a.innerHTML="ابدأ المحادثة...";return;}let h='';
             snap.forEach(m=>{
                 let msg=m.val(),isMe=msg.sender===currentUserKey;
-                let cnt=msg.image?`<img src="${msg.image}" style="max-width:120px;border-radius:6px;display:block;margin-top:2px" alt="صورة">`:msg.text;
+                let cnt=msg.text;
                 let del=`<button onclick="deletePrivateMessage('${chatId}','${m.key}')" style="background:none;border:none;color:#ef4444;font-size:10px;cursor:pointer;margin-right:4px">🗑️</button>`;
                 let bg=isMe?"background:#10b981;color:#fff":"background:#fff;color:#0f172a";
                 h+=`<div style="text-align:${isMe?'left':'right'};margin-bottom:5px"><span style="${bg};padding:5px 9px;border-radius:6px;display:inline-block;max-width:85%;word-break:break-word"><b>${msg.senderName}:</b> ${cnt} ${del}</span></div>`;
@@ -2145,9 +2161,13 @@
     }
     function deletePrivateMessage(chatId,mKey){rtdb.ref(`chats/${chatId}/${mKey}`).remove();}
     function closeChatModal(){
+        if(activeChatFriendKey){
+            let chatId=[currentUserKey,activeChatFriendKey].sort().join('_');
+            rtdb.ref(`chats/${chatId}`).off();
+        }
         activeChatFriendKey='';activeChatFriendName='';document.getElementById('chatModal').style.display='none';
     }
-    function openVisitedUserProfileFromChat(){if(activeChatFriendKey){document.getElementById('chatModal').style.display='none';openVisitedUserProfileByKey(activeChatFriendKey,true);}}
+    function openVisitedUserProfileFromChat(){if(activeChatFriendKey){closeChatModal();openVisitedUserProfileByKey(activeChatFriendKey);}}
     function navigateBackFromProfile(){document.getElementById('userProfileModal').style.display='none';navigateTo('mainScreen');}
     function openVisitedUserProfileByKey(targetKey){
         if(!targetKey||!rtdb)return;visitedProfileTargetKey=targetKey;
@@ -2209,11 +2229,6 @@
         rtdb.ref(`chats/${[currentUserKey,activeChatFriendKey].sort().join('_')}`).push({sender:currentUserKey,senderName:userData.name,text:txt,timestamp:Date.now()});
         document.getElementById('chatInputMsg').value='';
     }
-    function sendChatImage(e){
-        const f=e.target.files[0];if(!f||!activeChatFriendKey)return;const rd=new FileReader();
-        rd.onload=ce=>{let img=ce.target.result,chatId=[currentUserKey,activeChatFriendKey].sort().join('_');rtdb.ref(`chats/${chatId}`).push({sender:currentUserKey,senderName:userData.name,image:img,timestamp:Date.now()});};
-        rd.readAsDataURL(f);e.target.value='';
-    }
     function triggerImageUpload(){document.getElementById('hiddenImageInput').click();}
     function previewImage(e){const f=e.target.files[0];if(f){const rd=new FileReader();rd.onload=ce=>{base64Image=ce.target.result;document.getElementById('avatarPreview').src=base64Image;};rd.readAsDataURL(f);}}
     function validateBioLength(i){if(i.value.length>60)i.value=i.value.substring(0,60);document.getElementById('bioCounter').innerText=`${i.value.length} / 60`;}
@@ -2270,7 +2285,6 @@
         });
     }
 
-    // ⭐ 2. دالة الشحن المباشر من الإدارة المحدثة (بالتحديث المباشر السريع بدون Transactions)
     function adminDualChargeDirectPoints(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminDualTargetId').value.trim();
