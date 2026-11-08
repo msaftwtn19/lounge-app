@@ -79,14 +79,10 @@
         @keyframes clickPulse { 0% { transform: scale(1); } 50% { transform: scale(0.96); } 100% { transform: scale(1); } }
         .click-active-anim { animation: clickPulse 0.12s ease-in-out; }
 
-        /* شريط التنقل السفلي المتباعد والمريح مع أيقونة الغرف بالمنتصف تماماً */
         .bottom-nav-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:rgba(15,23,42,0.98);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-around;align-items:center;padding:10px 8px;z-index:999}
         .bottom-nav-item{display:flex;flex-direction:column;align-items:center;background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer;gap:3px}
         .bottom-nav-item.active{color:#c084fc}
         .bottom-nav-item span{font-size:18px}
-        .bottom-nav-wheel-circle{width:45px;height:45px;border-radius:50%;background:conic-gradient(#ef4444 0deg 60deg,#3b82f6 60deg 120deg,#10b981 120deg 180deg,#9333ea 180deg 240deg,#8b5cf6 240deg 300deg,#ec4899 300deg 360deg);border:2px solid #c084fc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-top:-18px;box-shadow:0 4px 15px rgba(147,51,234,0.6);cursor:pointer}
-        
-        /* أيقونة غرف الدردشة في منتصف شريط التنقل السفلي */
         .bottom-nav-rooms-circle{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);border:2px solid #c084fc;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;margin-top:-18px;box-shadow:0 4px 15px rgba(236,72,153,0.6);cursor:pointer}
 
         button.action-btn{width:100%;padding:8px;border:none;border-radius:8px;font-weight:bold;font-size:11px;cursor:pointer}
@@ -263,7 +259,6 @@
             </div>
         </div>
         
-        <!-- شريط التنقل السفلي مع أيقونة غرف الدردشة بالمنتصف تماماً -->
         <div class="bottom-nav-bar">
             <button class="bottom-nav-item active" onclick="navigateTo('mainScreen')"><span>🏠</span><div>الرئيسية</div></button>
             <button class="bottom-nav-item" onclick="navigateTo('wheelScreen')"><span>🎡</span><div>العجلة</div></button>
@@ -273,14 +268,15 @@
         </div>
     </div>
 
-    <!-- شاشة غرف الدردشة (المضافة حصراً) -->
+    <!-- شاشة غرف الدردشة (محدثة حسب الشروط 5، 6، 7) -->
     <div id="roomsScreen" class="screen-page">
         <div class="top-nav">
             <h3 style="margin:0;color:#ec4899;font-size:15px">💬 غرف الدردشة والهدايا</h3>
             <button class="nav-btn back" onclick="navigateTo('mainScreen')">⬅️ الرئيسية</button>
         </div>
 
-        <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(236,72,153,0.4);margin-bottom:12px;text-align:right">
+        <!-- خيار إنشاء الغرفة يظهر أو يختفي تلقائياً حسب شرط عدم امتلاك غرفة سابقة -->
+        <div id="createRoomSectionCard" class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(236,72,153,0.4);margin-bottom:12px;text-align:right">
             <h4 style="margin:0 0 6px 0;color:#f472b6;font-size:13px">✨ أنشئ غرفتك الخاصة مجاناً</h4>
             <button class="action-btn btn-purple" style="padding:8px;font-size:11px;background:linear-gradient(135deg,#db2777,#9333ea)" onclick="openCreateRoomModal()">إنشاء غرفة جديدة مجاناً 🚀</button>
         </div>
@@ -296,7 +292,6 @@
         </div>
     </div>
 
-    <!-- شاشة تفاصيل الغرفة والدردشة والهدايا -->
     <div id="singleRoomScreen" class="screen-page">
         <div class="top-nav">
             <div style="display:flex;align-items:center;gap:8px">
@@ -340,7 +335,6 @@
         </div>
     </div>
 
-    <!-- بقية شاشات التطبيق الأصلية (بدون أي مساس أو تغيير) -->
     <div id="counterTradingScreen" class="screen-page">
         <div class="top-nav">
             <h3 style="margin:0;color:#10b981;font-size:15px">🛒 سوق بيع وشراء العدادات</h3>
@@ -456,10 +450,11 @@
         </div>
     </div>
 
+    <!-- شاشة الملف الشخصي (تم إصلاح زر الرجوع فيها - الشرط 1) -->
     <div id="profileScreen" class="screen-page">
         <div class="top-nav">
             <h3 style="margin:0;color:#c084fc;font-size:15px">👤 الملف الشخصي</h3>
-            <button class="nav-btn back" onclick="navigateBackFromProfile()">⬅️ الرئيسية</button>
+            <button class="nav-btn back" onclick="navigateTo('mainScreen')">⬅️ الرئيسية</button>
         </div>
         <div class="profile-box">
             <div class="large-avatar-container" id="profileAvatarRingBox"><img id="avatarPreview" class="large-avatar" src="" alt="صورة" onclick="triggerImageUpload()" title="اضغط لتغيير الصورة الشخصية"></div>
@@ -528,7 +523,6 @@
     </div>
 </div>
 
-<!-- مودال إنشاء الغرفة المجانية -->
 <div id="createRoomModal" class="modal">
     <div class="modal-content" style="text-align:right; max-width:320px; padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -537,15 +531,12 @@
         </div>
         <label style="font-size:10px;color:#cbd5e1;">اسم الغرفة:</label>
         <input type="text" id="newRoomNameInput" class="input-box" placeholder="مثال: روم السوالف والوناسة..." style="margin-bottom:6px">
-        
         <label style="font-size:10px;color:#cbd5e1;">صورة الغرفة (بروفايل أو غلاف):</label>
         <input type="file" id="newRoomCoverInput" accept="image/*" class="input-box" style="margin-bottom:10px">
-
         <button class="action-btn btn-purple" style="padding:8px;font-size:11px;background:linear-gradient(135deg,#db2777,#9333ea)" onclick="confirmCreateRoom()">إنشاء الغرفة فوراً 🚀</button>
     </div>
 </div>
 
-<!-- الباقي من المودالات الأصلية -->
 <div id="sellCounterModal" class="modal">
     <div class="modal-content" style="text-align:right; max-width:320px; padding:14px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -571,34 +562,37 @@
     </div>
 </div>
 
+<!-- مودال التقديم على وكالة (تم تصغير أزراره وظهور كلمة التقديم بوضوح تام - الشرط 2) -->
 <div id="agentApplyModal" class="modal">
     <div class="modal-content agent-modal-input-group" style="text-align:right; max-width:320px; padding:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
             <h4 style="margin:0;color:#eab308;font-size:12px">📝 التقديم على وكالة معتمدة</h4>
             <button style="background:none;border:none;color:#ef4444;font-size:15px;cursor:pointer" onclick="closeAgentApplyModal()">✖</button>
         </div>
-        <label>اسم المحافظة:</label>
-        <input type="text" id="agentProvinceInput" class="input-box" placeholder="مثال: بغداد...">
-        <label>يوزر التليجرام:</label>
-        <input type="text" id="agentTelegramInput" class="input-box" placeholder="@username">
-        <label>رقم الواتساب:</label>
-        <input type="text" id="agentWhatsappInput" class="input-box" placeholder="07xxxxxxxxx">
-        <label>صورة الوكيل:</label>
-        <input type="file" id="agentAvatarInput" accept="image/*" class="input-box">
-        <label>طريقة دفع الرسوم (1M):</label>
-        <select id="agentPaymentMethod" class="select-box">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">اسم المحافظة:</label>
+        <input type="text" id="agentProvinceInput" class="input-box" placeholder="مثال: بغداد..." style="padding:7px;font-size:11px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">يوزر التليجرام:</label>
+        <input type="text" id="agentTelegramInput" class="input-box" placeholder="@username" style="padding:7px;font-size:11px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">رقم الواتساب:</label>
+        <input type="text" id="agentWhatsappInput" class="input-box" placeholder="07xxxxxxxxx" style="padding:7px;font-size:11px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">صورة الوكيل:</label>
+        <input type="file" id="agentAvatarInput" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">طريقة دفع الرسوم (1M):</label>
+        <select id="agentPaymentMethod" class="select-box" style="padding:7px;font-size:11px;margin-bottom:6px">
             <option value="points">خصم 1M نقطة من الرصيد مباشرة</option>
             <option value="zaincash">تحويل 1,000,000 د.ع زين كاش</option>
         </select>
-        <label>بطاقة السكن (أمام):</label>
-        <input type="file" id="agentHousingFront" accept="image/*" class="input-box">
-        <label>بطاقة السكن (خلف):</label>
-        <input type="file" id="agentHousingBack" accept="image/*" class="input-box">
-        <label>البطاقة الوطنية (أمام):</label>
-        <input type="file" id="agentNationalFront" accept="image/*" class="input-box">
-        <label>البطاقة الوطنية (خلف):</label>
-        <input type="file" id="agentNationalBack" accept="image/*" class="input-box">
-        <button class="action-btn btn-gold" style="margin-top:6px; padding:6px; font-size:10px;" onclick="submitAgentApplication()">إرسال الطلب للإدارة 🚀</button>
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">بطاقة السكن (أمام):</label>
+        <input type="file" id="agentHousingFront" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">بطاقة السكن (خلف):</label>
+        <input type="file" id="agentHousingBack" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">البطاقة الوطنية (أمام):</label>
+        <input type="file" id="agentNationalFront" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
+        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">البطاقة الوطنية (خلف):</label>
+        <input type="file" id="agentNationalBack" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:8px">
+
+        <!-- زر التقديم بحجم مناسب وواضح تماماً -->
+        <button class="action-btn btn-gold" style="margin-top:2px; padding:8px 12px; font-size:11px;" onclick="submitAgentApplication()">إرسال طلب التقديم للإدارة 🚀</button>
     </div>
 </div>
 
@@ -643,14 +637,14 @@
             </div>
         </div>
         <div style="background:rgba(10,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:6px;border-radius:8px;margin-bottom:6px">
-            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:11px">🔍 فحص ملف المستخدم بالـ ID</h4>
+            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:11px">🔍 فحص ملف المستخدم بالـ ID (دقيق ومطور - الشرط 8)</h4>
             <div style="display:flex;gap:4px">
                 <input type="text" id="adminInspectIdInput" class="input-box" placeholder="ID المستخدم" style="margin:0;padding:6px;font-size:10px;flex:1">
                 <button class="action-btn btn-green" style="width:auto;padding:6px 10px;font-size:10px" onclick="adminInspectUser()">فحص 🔎</button>
             </div>
             <div id="adminInspectResult" style="font-size:10px;color:#cbd5e1;margin-top:4px;background:rgba(0,0,0,0.3);padding:6px;border-radius:4px;display:none;text-align:right;"></div>
         </div>
-        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة:</b></div>
+        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة (بالتفاصيل الكاملة - الشرط 4):</b></div>
         <div id="adminWithdrawalsArea" class="admin-tab-content" style="max-height:120px;overflow-y:auto;font-size:10px">جاري التحميل...</div>
     </div>
 </div>
@@ -668,7 +662,7 @@
 <div id="adminCounterOrdersModal" class="modal">
     <div class="modal-content" style="text-align:right;max-width:390px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <h4 style="margin:0;color:#c084fc;font-size:13px">📥 طلبات شراء العدادات المعلقة والإيداعات</h4>
+            <h4 style="margin:0;color:#c084fc;font-size:13px">📥 طلبات شراء العدادات المعلقة والإيداعات (بالتفاصيل - الشرط 3)</h4>
             <button style="background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer" onclick="closeAdminCounterOrders()">✖</button>
         </div>
         <div id="adminCounterOrdersList" style="max-height:260px;overflow-y:auto;font-size:11px">جاري التحميل...</div>
@@ -702,8 +696,8 @@
             <button class="withdraw-method-btn" id="wBtnSuper" onclick="selectWithdrawMethod('سوبركي (SuperKey)')">سوبركي</button>
             <button class="withdraw-method-btn" id="wBtnUsdt" onclick="selectWithdrawMethod('USDT TRC20')">USDT TRC20</button>
         </div>
-        <input type="text" class="input-box" id="withdrawAccount" placeholder="رقم الحساب أو محفظة USDT الخاصة بك">
-        <input type="number" class="input-box" id="withdrawAmount" placeholder="أدخل مبلغ السحب (10 دولار فأكثر)">
+        <input type="text" class="input-box" id="withdrawAccount" placeholder="رقم الحساب أو رقم الهاتف لاستلام الأرباح">
+        <input type="number" class="input-box" id="withdrawAmount" placeholder="أدخل عدد النقاط المراد سحبها (30,000 نقطة فما فوق)">
         <button class="action-btn btn-gold" onclick="submitWithdrawal()">تأكيد طلب السحب للإدارة 🚀</button>
     </div>
 </div>
@@ -715,8 +709,6 @@
     let globalAppSettings={withdrawLocked:false,dailyCounterLocked:false,tickerText:'أهلاً بكم في تطبيق Lounge الرسمي!'};
     let totalWheelDegrees=0, pendingBuyItem = null;
     let selectedWithdrawMethodName = 'زين كاش (Zain Cash)';
-
-    // متغيرات ميزة غرف الدردشة الجديدة
     let activeRoomKey = null;
 
     const fullQuestionsPool = [
@@ -734,8 +726,18 @@
     let isCompletedToday = false;
     let clickDebounceTimer = null;
 
-    // دوال غرف الدردشة والهدايا الجديدة كلياً
-    function openCreateRoomModal(){ document.getElementById('createRoomModal').style.display='flex'; }
+    // دوال غرف الدردشة مع الشرط (5، 6، 7): منع إنشاء أكثر من غرفة، ربط الآيدي الحقيقي، وإخفاء زر الإنشاء إذا كان يمتلك غرفة
+    function openCreateRoomModal(){
+        // التحقق إن كان يمتلك غرفة مسبقاً
+        rtdb.ref('rooms').once('value', snap=>{
+            let hasRoom = false;
+            snap.forEach(item=>{
+                if(item.val().creatorKey === currentUserKey) hasRoom = true;
+            });
+            if(hasRoom) return alert("⚠️ عذراً، لا يمكنك إنشاء أكثر من غرفة دردشة واحدة! لديك غرفة مسجلة مسبقاً.");
+            document.getElementById('createRoomModal').style.display='flex';
+        });
+    }
     function closeCreateRoomModal(){ document.getElementById('createRoomModal').style.display='none'; }
 
     function confirmCreateRoom(){
@@ -743,51 +745,72 @@
         let coverFile = document.getElementById('newRoomCoverInput').files[0];
         if(!roomName) return alert("⚠️ يرجى إدخال اسم الغرفة!");
 
-        let createAction = (coverBase64)=>{
-            let roomId = Math.floor(100000 + Math.random() * 900000).toString();
-            rtdb.ref('rooms').push({
-                roomId: roomId,
-                roomName: roomName,
-                creatorKey: currentUserKey,
-                creatorName: userData.name || 'مستخدم',
-                cover: coverBase64 || 'https://via.placeholder.com/85',
-                timestamp: Date.now()
-            }).then(()=>{
-                closeCreateRoomModal();
-                document.getElementById('newRoomNameInput').value = '';
-                alert("✅ تم إنشاء الغرفة بنجاح!");
-                loadRoomsList();
+        rtdb.ref('rooms').once('value', snap=>{
+            let hasRoom = false;
+            snap.forEach(item=>{
+                if(item.val().creatorKey === currentUserKey) hasRoom = true;
             });
-        };
+            if(hasRoom){
+                closeCreateRoomModal();
+                return alert("⚠️ عذراً، لديك غرفة مسجلة مسبقاً بالفعل!");
+            }
 
-        if(coverFile){
-            let reader = new FileReader();
-            reader.onload = (e)=> createAction(e.target.result);
-            reader.readAsDataURL(coverFile);
-        } else {
-            createAction('');
-        }
+            let createAction = (coverBase64)=>{
+                let roomId = Math.floor(100000 + Math.random() * 900000).toString();
+                rtdb.ref('rooms').push({
+                    roomId: roomId,
+                    roomName: roomName,
+                    creatorKey: currentUserKey,
+                    creatorName: userData.name || 'مستخدم',
+                    creatorCustomId: userData.customId || '---', // ربط الآيدي الحقيقي والصحيح للمستخدم (الشرط 6)
+                    cover: coverBase64 || 'https://via.placeholder.com/85',
+                    timestamp: Date.now()
+                }).then(()=>{
+                    closeCreateRoomModal();
+                    document.getElementById('newRoomNameInput').value = '';
+                    alert("✅ تم إنشاء الغرفة بنجاح!");
+                    loadRoomsList();
+                });
+            };
+
+            if(coverFile){
+                let reader = new FileReader();
+                reader.onload = (e)=> createAction(e.target.result);
+                reader.readAsDataURL(coverFile);
+            } else {
+                createAction('');
+            }
+        });
     }
 
     function loadRoomsList(){
         if(!rtdb) return;
         rtdb.ref('rooms').once('value', snap=>{
             let container = document.getElementById('roomsListContainer');
+            let createSection = document.getElementById('createRoomSectionCard');
             if(!container) return;
-            if(!snap.exists()){
-                container.innerHTML = "<div style='text-align:center;color:#94a3b8;padding:20px;font-size:11px;'>لا توجد غرف دردشة حالياً. انشئ غرفتك الأولى!</div>";
-                return;
-            }
+
+            let userHasRoom = false;
             let html = '';
+            
             snap.forEach(item=>{
                 let r = item.val();
                 let rKey = item.key;
-                html += `<div style="background:rgba(30,41,59,0.85); border:1px solid rgba(236,72,153,0.3); border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; text-align:right;">
+                if(r.creatorKey === currentUserKey) userHasRoom = true;
+
+                // زر حذف الغرفة خاص للإدارة فقط (الشرط 5)
+                let deleteAdminBtn = '';
+                if(currentEmail === 'msaftwtn@gmail.com' || userData.customId === '1'){
+                    deleteAdminBtn = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px 8px;font-size:10px;margin-top:4px;" onclick="adminDeleteRoomByAdmin('${rKey}')">حذف الغرفة (إدارة) 🗑️</button>`;
+                }
+
+                html += `<div style="background:rgba(30,41,59,0.85); border:1px solid rgba(236,72,153,0.3); border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; text-align:right; margin-bottom:6px;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <img src="${r.cover}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid #ec4899;" alt="روم">
                         <div>
                             <div style="font-size:13px; color:#f472b6; font-weight:bold;">${r.roomName}</div>
-                            <div style="font-size:10px; color:#38bdf8; margin-top:2px;">🏠 ID الغرفة: ${r.roomId} | المنشئ: ${r.creatorName}</div>
+                            <div style="font-size:10px; color:#38bdf8; margin-top:2px;">🏠 ID الغرفة: ${r.roomId} | المنشئ: ${r.creatorName} (ID: ${r.creatorCustomId || '---'})</div>
+                            ${deleteAdminBtn}
                         </div>
                     </div>
                     <div>
@@ -795,7 +818,27 @@
                     </div>
                 </div>`;
             });
-            container.innerHTML = html;
+
+            // إخفاء خيار إنشاء غرفة جديدة مجاناً إذا كان المستخدم يمتلك غرفة، وإظهاره فقط إذا حذفتها الإدارة (الشرط 7)
+            if(createSection){
+                createSection.style.display = userHasRoom ? 'none' : 'block';
+            }
+
+            if(!snap.exists()){
+                container.innerHTML = "<div style='text-align:center;color:#94a3b8;padding:20px;font-size:11px;'>لا توجد غرف دردشة حالياً.</div>";
+            } else {
+                container.innerHTML = html;
+            }
+        });
+    }
+
+    // حذف الغرفة حصراً للإدارة (الشرط 5)
+    function adminDeleteRoomByAdmin(roomKey){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
+        if(!confirm("⚠️ هل أنت متأكد من حذف هذه الغرفة نهائياً؟ (صلاحية للإدارة فقط)")) return;
+        rtdb.ref(`rooms/${roomKey}`).remove().then(()=>{
+            alert("✅ تم حذف الغرفة من قبل الإدارة بنجاح وسيعود خيار الإنشاء للمستخدم.");
+            loadRoomsList();
         });
     }
 
@@ -817,7 +860,7 @@
                             <img src="${r.cover}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; border:2px solid #ec4899;" alt="روم">
                             <div>
                                 <div style="font-size:13px; color:#f472b6; font-weight:bold;">${r.roomName}</div>
-                                <div style="font-size:10px; color:#38bdf8; margin-top:2px;">🏠 ID الغرفة: ${r.roomId} | المنشئ: ${r.creatorName}</div>
+                                <div style="font-size:10px; color:#38bdf8; margin-top:2px;">🏠 ID الغرفة: ${r.roomId} | المنشئ: ${r.creatorName} (ID: ${r.creatorCustomId || '---'})</div>
                             </div>
                         </div>
                         <div>
@@ -837,13 +880,11 @@
         document.getElementById('currentRoomCoverImg').src = cover;
         navigateTo('singleRoomScreen');
 
-        // تسجيل المستخدم داخل الغرفة أونلاين
         rtdb.ref(`room_users/${rKey}/${currentUserKey}`).set({
             name: userData.name || 'مستخدم',
             customId: userData.customId || '---'
         });
 
-        // مراقبة الرسائل
         rtdb.ref(`room_chats/${rKey}`).on('value', snap=>{
             let area = document.getElementById('roomMessagesArea');
             if(!area) return;
@@ -857,25 +898,18 @@
             area.scrollTop = area.scrollHeight;
         });
 
-        // مراقبة المتواجدين وتحديث قائمة استهداف الهدايا
         rtdb.ref(`room_users/${rKey}`).on('value', snap=>{
             let uList = document.getElementById('roomUsersListContainer');
             let targetSelect = document.getElementById('giftTargetSelect');
             let uCountSpan = document.getElementById('roomUsersCount');
             if(!uList || !targetSelect) return;
-            
-            let count = 0;
-            let uHtml = '';
-            let selectHtml = '<option value="all">الجميع (الشات العام)</option>';
-            
+            let count = 0, uHtml = '', selectHtml = '<option value="all">الجميع (الشات العام)</option>';
             snap.forEach(u=>{
                 let dat = u.val();
                 let uKey = u.key;
                 count++;
                 uHtml += `<div style="padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.05)">🟢 ${dat.name}</div>`;
-                if(uKey !== currentUserKey){
-                    selectHtml += `<option value="${uKey}">${dat.name}</option>`;
-                }
+                if(uKey !== currentUserKey) selectHtml += `<option value="${uKey}">${dat.name}</option>`;
             });
             uList.innerHTML = uHtml;
             uCountSpan.innerText = count;
@@ -905,71 +939,47 @@
         document.getElementById('roomChatInputMsg').value = '';
     }
 
-    // نظام الحماية وإرسال الهدايا والربح (50% للمستلم و 50% للشركة)
     function sendRoomGift(giftName, giftPrice){
         if(!activeRoomKey) return;
         let targetVal = document.getElementById('giftTargetSelect').value;
         let myPts = userData.points || 0;
+        if(myPts < giftPrice) return alert(`❌ نقاطك غير كافية لإرسال هذه الهدية! رصيدك (${myPts.toLocaleString()}) بينما السعر (${giftPrice.toLocaleString()}).`);
 
-        if(myPts < giftPrice){
-            return alert(`❌ نقاطك غير كافية لإرسال هذه الهدية! رصيدك (${myPts.toLocaleString()} نقطة) بينما السعر (${giftPrice.toLocaleString()} نقطة).`);
-        }
-
-        // نظام الحماية (Anti-Fraud): إذا كان وحده ولا يوجد غيره بالروم واختار صديق محدد
         rtdb.ref(`room_users/${activeRoomKey}`).once('value', snap=>{
-            let usersCount = 0;
             let isAlone = true;
-            snap.forEach(u=>{
-                usersCount++;
-                if(u.key !== currentUserKey) isAlone = false;
-            });
+            snap.forEach(u=>{ if(u.key !== currentUserKey) isAlone = false; });
+            if(targetVal !== 'all' && isAlone) return alert("⚠️ تنبيه أمان: ليس معك أحد داخل الغرفة لإرسال الهدية إليه!");
+            if(targetVal === 'all' && isAlone) return alert("⚠️ تنبيه أمان: أنت وحدك في الغرفة! لا يمكنك إرسال الهدية لنفسك.");
 
-            if(targetVal !== 'all' && isAlone){
-                return alert("⚠️ تنبيه أمان: ليس معك أحد داخل الغرفة لإرسال الهدية إليه!");
-            }
-
-            if(targetVal === 'all' && isAlone){
-                return alert("⚠️ تنبيه أمان: أنت وحدك في الغرفة! لا يمكنك إرسال الهدية لنفسك.");
-            }
-
-            // خصم النقاط كاملاً من المرسل
             let newSenderPts = myPts - giftPrice;
             userData.points = newSenderPts;
-
             rtdb.ref(`users/${currentUserKey}`).update({ points: newSenderPts }).then(()=>{
                 updateUI();
-
                 if(targetVal === 'all'){
-                    // هدية للجميع في الشات العام
                     rtdb.ref(`room_chats/${activeRoomKey}`).push({
                         senderKey: 'SYSTEM',
                         senderName: '🎁 نظام الهدايا',
-                        text: `أرسل الأسطورة (${userData.name}) هدية مميزة (${giftName}) للجميع في الشات العام! ✨`,
+                        text: `أرسل (${userData.name}) هدية (${giftName}) للجميع في الشات العام! ✨`,
                         timestamp: Date.now()
                     });
                     alert(`✅ تم إرسال هدية (${giftName}) للجميع بنجاح!`);
                 } else {
-                    // هدية لصديق محدد داخل الغرفة وتقسيم الأرباح (50% للمستلم و 50% للشركة)
                     let recipientShare = Math.floor(giftPrice / 2);
-
                     rtdb.ref(`users/${targetVal}`).once('value', rSnap=>{
                         if(rSnap.exists()){
                             let rData = rSnap.val();
                             let recipientNewPts = Number(rData.points || 0) + recipientShare;
-
                             rtdb.ref(`users/${targetVal}`).update({ points: recipientNewPts }).then(()=>{
                                 rtdb.ref(`notifications/${targetVal}`).push({
-                                    text: `🎁 مبروك! استلمت هدية (${giftName}) من (${userData.name}) وأضيفت (${recipientShare} نقطة) لرصيدك بنجاح!`,
+                                    text: `🎁 مبروك! استلمت هدية (${giftName}) من (${userData.name}) وأضيفت (${recipientShare} نقطة) لرصيدك!`,
                                     timestamp: Date.now()
                                 });
-
                                 rtdb.ref(`room_chats/${activeRoomKey}`).push({
                                     senderKey: 'SYSTEM',
                                     senderName: '🎁 نظام الهدايا',
-                                    text: `أرسل (${userData.name}) هدية (${giftName}) إلى (${rData.name || 'صديق'}) وحصل على حصته بنجاح! 💎`,
+                                    text: `أرسل (${userData.name}) هدية (${giftName}) إلى (${rData.name || 'صديق'}) بنجاح! 💎`,
                                     timestamp: Date.now()
                                 });
-
                                 alert(`✅ تم إرسال الهدية بنجاح! (تم إضافة ${recipientShare} نقطة للمستلم).`);
                             });
                         }
@@ -979,7 +989,6 @@
         });
     }
 
-    // دوال التطبيق الأصلية كاملة بدون أي تعديل
     function initLoungeTickerAnimation(){
         const words = ["LOUNGE", "APP", "VIP"];
         let wIdx = 0, cIdx = 0;
@@ -989,34 +998,15 @@
             let currentWord = words[wIdx];
             el.innerText = currentWord.substring(0, cIdx + 1);
             cIdx++;
-            if(cIdx >= currentWord.length){
-                cIdx = 0;
-                wIdx = (wIdx + 1) % words.length;
-            }
+            if(cIdx >= currentWord.length){ cIdx = 0; wIdx = (wIdx + 1) % words.length; }
         }, 800);
     }
 
     function copyUsdtAddress(){
         let addr = "TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F";
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(addr).then(()=>{
-                alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
-            }).catch(()=>{ fallbackCopyUsdt(addr); });
-        } else { fallbackCopyUsdt(addr); }
-    }
-    function fallbackCopyUsdt(text) {
-        let textArea = document.createElement("textarea");
-        textArea.value = text;
-        textArea.style.position = "fixed";
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            let successful = document.execCommand('copy');
-            if(successful) alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
-            else alert("❌ تعذر النسخ.");
-        } catch (err) { alert("❌ تعذر النسخ."); }
-        document.body.removeChild(textArea);
+            navigator.clipboard.writeText(addr).then(()=>alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!"));
+        } else { alert("❌ تعذر النسخ."); }
     }
 
     function selectWithdrawMethod(methodName){
@@ -1037,8 +1027,7 @@
         let counterVal = parseInt(document.getElementById('sellCounterTypeInput').value);
         let priceVal = parseInt(document.getElementById('sellCounterPriceInput').value);
         if(isNaN(counterVal) || counterVal <= 0 || isNaN(priceVal) || priceVal <= 0) return alert("⚠️ يرجى إدخال نوع العداد وسعر البيع بشكل صحيح!");
-        let currentActiveVal = userData.activeCounterVal || 0;
-        if(currentActiveVal < counterVal) return alert(`⚠️ عدادك الحالي (${currentActiveVal.toLocaleString()}) أقل من القيمة التي تريد بيعها (${counterVal.toLocaleString()})!`);
+        if((userData.activeCounterVal || 0) < counterVal) return alert(`⚠️ عدادك الحالي أقل من القيمة التي تريد بيعها!`);
 
         rtdb.ref('trading_counters').push({
             sellerKey: currentUserKey,
@@ -1051,7 +1040,7 @@
             document.getElementById('sellCounterTypeInput').value = '';
             document.getElementById('sellCounterPriceInput').value = '';
             alert("✅ تم نشر عدادك للبيع في السوق بنجاح!");
-        }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
+        });
     }
 
     function loadTradingCountersMarket(){
@@ -1065,17 +1054,14 @@
             }
             let html = '';
             snap.forEach(item=>{
-                let d = item.val();
-                let itemKey = item.key;
+                let d = item.val(), itemKey = item.key;
                 html += `<div style="background:rgba(30,41,59,0.85); border:1px solid rgba(16,185,129,0.4); border-radius:12px; padding:10px; display:flex; justify-content:space-between; align-items:center; text-align:right;">
                     <div style="flex:1;">
                         <div style="font-size:12px; color:#fde047; font-weight:bold;">عداد ${Number(d.counterVal).toLocaleString()} نقطة يومياً</div>
                         <div style="font-size:10px; color:#38bdf8; margin-top:2px;">👤 البائع (ID): ${d.sellerId}</div>
                         <div style="font-size:11px; color:#34d399; font-weight:bold; margin-top:3px;">💰 السعر: ${Number(d.price).toLocaleString()} نقطة</div>
                     </div>
-                    <div>
-                        <button class="action-btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="promptBuyTradingCounter('${itemKey}', '${d.sellerKey}', ${d.counterVal}, ${d.price})">شراء 🛒</button>
-                    </div>
+                    <div><button class="action-btn btn-gold" style="padding:6px 12px; font-size:11px;" onclick="promptBuyTradingCounter('${itemKey}', '${d.sellerKey}', ${d.counterVal}, ${d.price})">شراء 🛒</button></div>
                 </div>`;
             });
             container.innerHTML = html;
@@ -1089,62 +1075,49 @@
         document.getElementById('buyConfirmModal').style.display = 'flex';
     }
 
-    function closeBuyConfirmModal(){
-        document.getElementById('buyConfirmModal').style.display = 'none';
-        pendingBuyItem = null;
-    }
+    function closeBuyConfirmModal(){ document.getElementById('buyConfirmModal').style.display = 'none'; pendingBuyItem = null; }
 
     function executeBuyCounterTransaction(){
         if(!pendingBuyItem) return closeBuyConfirmModal();
         let { itemKey, sellerKey, counterVal, price } = pendingBuyItem;
-        let buyerPts = userData.points || 0;
-        if(buyerPts < price){
+        if((userData.points || 0) < price){
             closeBuyConfirmModal();
-            return alert(`❌ ليس لديك نقاط كافية لشراء العداد! رصيدك (${buyerPts.toLocaleString()} نقطة) بينما السعر (${price.toLocaleString()} نقطة).`);
+            return alert(`❌ ليس لديك نقاط كافية لشراء العداد!`);
         }
         rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
-            let newBuyerPts = buyerPts - price;
+            let newBuyerPts = userData.points - price;
             rtdb.ref(`users/${currentUserKey}`).update({
                 points: newBuyerPts,
                 activeCounterVal: counterVal,
                 activeCounter: `عداد ${counterVal.toLocaleString()} نقطة يومياً (مشترى)`
             }).then(()=>{
-                rtdb.ref(`users/${sellerKey}`).once('value').then(sSnap=>{
+                rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
                     if(sSnap.exists()){
-                        let currentSellerPts = sSnap.val().points || 0;
                         rtdb.ref(`users/${sellerKey}`).update({
-                            points: currentSellerPts + price,
+                            points: (sSnap.val().points || 0) + price,
                             activeCounterVal: 0,
                             activeCounter: 'لا يوجد (تم بيع العداد)'
                         }).then(()=>{
                             rtdb.ref(`notifications/${sellerKey}`).push({
-                                text: `🎉 مبروك! تم بيع عدادك (${counterVal.toLocaleString()} نقطة يومياً) بنجاح وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
+                                text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
                                 timestamp: Date.now()
                             });
                             closeBuyConfirmModal();
                             updateUI();
-                            alert("🎉 مبروك أسطورة! تمت عملية الشراء ونقل العداد بنجاح تام!");
+                            alert("🎉 تمت عملية الشراء ونقل العداد بنجاح تام!");
                         });
                     }
                 });
             });
-        }).catch(()=>{
-            closeBuyConfirmModal();
-            alert("❌ عذراً، هذا العرض تم بيعه لشخص آخر أو لم يعد متوفراً.");
         });
     }
 
     function handleUserClickAndWin(){
-        if(globalAppSettings.dailyCounterLocked && currentEmail !== 'msaftwtn@gmail.com') return alert('⚠️ عذراً، نظام التكبيس متوقف حالياً بأمر من الإدارة.');
+        if(globalAppSettings.dailyCounterLocked && currentEmail !== 'msaftwtn@gmail.com') return alert('⚠️ عذراً، نظام التكبيس متوقف حالياً من الإدارة.');
         let btn = document.getElementById('clickAndWinMainBtn');
-        if(btn){
-            btn.classList.remove('click-active-anim');
-            void btn.offsetWidth;
-            btn.classList.add('click-active-anim');
-        }
+        if(btn){ btn.classList.remove('click-active-anim'); void btn.offsetWidth; btn.classList.add('click-active-anim'); }
         userData.userClicksCount = (userData.userClicksCount || 0) + 1;
-        let currentClicks = userData.userClicksCount;
-        let maxTarget = 500000;
+        let currentClicks = userData.userClicksCount, maxTarget = 500000;
         document.getElementById('clickLiveCounterDisplay').innerText = `العداد اللحظي: ${currentClicks.toLocaleString()} / ${maxTarget.toLocaleString()} تكبيسة`;
         if(currentClicks >= maxTarget){
             userData.userClicksCount = 0;
@@ -1164,8 +1137,7 @@
         if (!currentUserKey) return;
         const todayStr = new Date().toDateString();
         const sessionDateKey = 'lounge_quiz_session_date_' + currentUserKey;
-        const storedDate = localStorage.getItem(sessionDateKey);
-        if (storedDate !== todayStr) {
+        if (localStorage.getItem(sessionDateKey) !== todayStr) {
             localStorage.setItem(sessionDateKey, todayStr);
             let shuffled = [...fullQuestionsPool].sort(() => Math.random() - 0.5);
             localStorage.setItem('lounge_daily_pool_' + currentUserKey, JSON.stringify(shuffled));
@@ -1173,14 +1145,11 @@
         }
         let savedPool = localStorage.getItem('lounge_daily_pool_' + currentUserKey);
         currentDailyQuestions = savedPool ? JSON.parse(savedPool) : [...fullQuestionsPool].sort(() => Math.random() - 0.5);
-        const completedToday = localStorage.getItem('lounge_quiz_completed_' + currentUserKey);
-        if (completedToday === todayStr) {
+        if (localStorage.getItem('lounge_quiz_completed_' + currentUserKey) === todayStr) {
             isCompletedToday = true;
             lockQuizButton("لقد أتممت تحدي الأسئلة بنجاح لهذا اليوم!");
         } else {
-            isCompletedToday = false;
-            currentQuestionIndex = 0;
-            correctAnswersCount = 0;
+            isCompletedToday = false; currentQuestionIndex = 0; correctAnswersCount = 0;
             loadNextDailyQuestion();
         }
     }
@@ -1212,37 +1181,25 @@
         if (isCompletedToday) return;
         const allButtons = document.getElementById('options-box').getElementsByTagName('button');
         for (let b of allButtons) b.style.pointerEvents = 'none';
-        if (isCorrect) {
-            selectedBtn.style.background = '#22c55e';
-            correctAnswersCount++;
-        } else {
-            selectedBtn.style.background = '#ef4444';
-        }
+        if (isCorrect) { selectedBtn.style.background = '#22c55e'; correctAnswersCount++; }
+        else { selectedBtn.style.background = '#ef4444'; }
         currentQuestionIndex++;
         setTimeout(() => {
             if (currentQuestionIndex >= 5 || currentQuestionIndex >= currentDailyQuestions.length) {
                 isCompletedToday = true;
-                const todayStr = new Date().toDateString();
-                localStorage.setItem('lounge_quiz_completed_' + currentUserKey, todayStr);
-                let currentPts = userData.points || 0;
-                rtdb.ref(`users/${currentUserKey}`).update({ points: currentPts + 50 }).then(()=>{
+                localStorage.setItem('lounge_quiz_completed_' + currentUserKey, new Date().toDateString());
+                rtdb.ref(`users/${currentUserKey}`).update({ points: (userData.points || 0) + 50 }).then(()=>{
                     updateUI();
                     document.getElementById('earned-points').innerText = "50";
                     lockQuizButton("أتممت الأسئلة بنجاح! حصلت على 50 نقطة مكافأة اليوم 🎉");
                 });
-            } else {
-                loadNextDailyQuestion();
-            }
+            } else { loadNextDailyQuestion(); }
         }, 800);
     }
 
     function lockQuizButton(message) {
         const actionBtn = document.getElementById('answer-action-btn');
-        if (actionBtn) {
-            actionBtn.innerText = message;
-            actionBtn.style.background = '#64748b';
-            actionBtn.disabled = true;
-        }
+        if (actionBtn) { actionBtn.innerText = message; actionBtn.style.background = '#64748b'; actionBtn.disabled = true; }
         const oBox = document.getElementById('options-box');
         if (oBox) oBox.innerHTML = `<p style="grid-column:span 2; text-align:center; color:#38bdf8; font-weight:bold; font-size:12px; padding:10px;">${message}</p>`;
     }
@@ -1276,13 +1233,9 @@
                         try{ localStorage.setItem('dinarUserKey', currentUserKey); }catch(e){}
                         initRealtimeSync();
                         navigateTo('mainScreen');
-                    } else {
-                        navigateTo('authScreen');
-                    }
+                    } else { navigateTo('authScreen'); }
                 });
-            } else {
-                navigateTo('authScreen');
-            }
+            } else { navigateTo('authScreen'); }
         }, 300);
     });
 
@@ -1309,6 +1262,7 @@
         document.getElementById('signupForm').style.display=type==='signup'?'block':'none';
     }
     
+    // نظام فحص بصمة الجهاز الصارم ومنع فتح حسابين على نفس الهاتف
     function handleLogin(){
         const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPass').value.trim();
         if(!email||!pass)return alert("⚠️ أدخل البريد وكلمة المرور");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
@@ -1320,13 +1274,27 @@
             rtdb.ref('users/'+currentUserKey).once('value',snap=>{
                 if(snap.exists()){
                     let uDat=snap.val();
-                    if(uDat.isBanned&&email!=='msaftwtn@gmail.com'){
+                    if(uDat.isBanned && email!=='msaftwtn@gmail.com'){
                         auth.signOut();
                         return alert("🚫 تم تجميد أو حظر هذا الحساب من قبل الإدارة!");
                     }
                     currentEmail=email;
                     try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
                     if(email==='msaftwtn@gmail.com'&&uDat.customId!=='1')rtdb.ref('users/'+currentUserKey).update({customId:'1'});
+                    
+                    if(email!=='msaftwtn@gmail.com'){
+                        let devKey=localStorage.getItem('dinarDeviceUuid');
+                        if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
+                        rtdb.ref(`device_bindings/${devKey}`).once('value',bSnap=>{
+                            if(bSnap.exists()&&bSnap.val().userKey!==currentUserKey){
+                                rtdb.ref(`users/${currentUserKey}`).update({isBanned:true});
+                                auth.signOut();
+                                alert("🚫 تم حظر الحساب لاكتشاف فتح أكثر من حساب على نفس الهاتف!");
+                                navigateTo('authScreen');
+                                return;
+                            } else { rtdb.ref(`device_bindings/${devKey}`).set({userKey:currentUserKey}); }
+                        });
+                    }
                     initRealtimeSync();navigateTo('mainScreen');
                 }
             });
@@ -1349,6 +1317,11 @@
             rtdb.ref('users/'+currentUserKey).set(newUser).then(()=>{
                 currentEmail=email;
                 try{localStorage.setItem('dinarUserKey',currentUserKey);}catch(e){}
+                if(email!=='msaftwtn@gmail.com'){
+                    let devKey=localStorage.getItem('dinarDeviceUuid');
+                    if(!devKey){devKey='dev_'+Math.random().toString(36).substring(2)+Date.now();localStorage.setItem('dinarDeviceUuid',devKey);}
+                    rtdb.ref(`device_bindings/${devKey}`).set({userKey:currentUserKey});
+                }
                 initRealtimeSync();navigateTo('mainScreen');
             });
         }).catch((error)=>{
@@ -1396,10 +1369,7 @@
         let cVal = userData.activeCounterVal || 0;
         document.getElementById('activeCounterInfo').innerText = cVal > 0 ? `${cVal.toLocaleString()} نقطة يومياً` : (userData.activeCounter || 'لا يوجد');
         let clickDisplay = document.getElementById('clickLiveCounterDisplay');
-        if(clickDisplay){
-            let curr = userData.userClicksCount || 0;
-            clickDisplay.innerText = `العداد اللحظي: ${curr.toLocaleString()} / 500,000 تكبيسة`;
-        }
+        if(clickDisplay){ clickDisplay.innerText = `العداد اللحظي: ${(userData.userClicksCount || 0).toLocaleString()} / 500,000 تكبيسة`; }
         let badgeHtml = '';
         if(userData.isAgent) badgeHtml += ` <span class="badge-tag agent">وكيل معتمد 💼</span>`;
         let hdrBadge = document.getElementById('userHeaderBadgeArea');
@@ -1411,9 +1381,7 @@
             if(userData.isAgent){
                 agentPanel.style.display = 'block';
                 document.getElementById('agentBagBalance').innerText = (userData.agentBag||0).toLocaleString();
-            } else {
-                agentPanel.style.display = 'none';
-            }
+            } else { agentPanel.style.display = 'none'; }
         }
         let adminBtn=document.getElementById('adminPanelMainBtn');
         if(adminBtn){
@@ -1437,7 +1405,7 @@
         }).then(()=>{
             saveToDB().then(()=>{
                 updateVerificationStatusUI();
-                alert("✅ تم إرسال طلب توثيق الحساب بالرقم إلى لوحة تحكم الإدارة بنجاح!");
+                alert("✅ تم إرسال طلب توثيق الحساب بالرقم إلى الإدارة بنجاح!");
             });
         });
     }
@@ -1446,12 +1414,11 @@
         let statusDisp = document.getElementById('verificationStatusDisplay');
         if(!statusDisp) return;
         if(userData.isVerified){
-            let verifiedBadge = `<span class="verified-badge-icon" title="موثق">✔</span>`;
-            statusDisp.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;"><span style="color:#22c55e;font-weight:bold;font-size:11px;">رقم الهاتف الموثق: ${userData.verificationPhone || '---'}</span><span>${verifiedBadge} <b style="color:#c084fc;font-size:10px;">موثق رسمياً</b></span></div>`;
+            statusDisp.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px;"><span style="color:#22c55e;font-weight:bold;font-size:11px;">رقم الهاتف الموثق: ${userData.verificationPhone || '---'}</span><span><span class="verified-badge-icon">✔</span> <b style="color:#c084fc;font-size:10px;">موثق رسمياً</b></span></div>`;
         } else if(userData.verificationStatus === 'pending'){
             statusDisp.innerHTML = `<span style="color:#eab308;font-weight:bold">⏳ طلب التوثيق بالرقم قيد المراجعة...</span>`;
         } else {
-            statusDisp.innerHTML = `<div style="font-size:11px;color:#c084fc;font-weight:bold;margin-bottom:4px">🛡️ طلب توثيق الحساب بالعلامة الزرقاء:</div><div style="display:flex;gap:4px"><input type="text" id="verificationPhoneInput" class="input-box" placeholder="أدخل رقم الهاتف للتوثيق" style="margin:0;flex:1;padding:7px;font-size:11px"><button class="action-btn btn-purple" style="width:40px;height:34px;padding:0;font-size:14px" onclick="submitVerificationRequest()" title="إرسال طلب التوثيق">✔️</button></div>`;
+            statusDisp.innerHTML = `<div style="font-size:11px;color:#c084fc;font-weight:bold;margin-bottom:4px">🛡️ طلب توثيق الحساب بالعلامة الزرقاء:</div><div style="display:flex;gap:4px"><input type="text" id="verificationPhoneInput" class="input-box" placeholder="أدخل رقم الهاتف للتوثيق" style="margin:0;flex:1;padding:7px;font-size:11px"><button class="action-btn btn-purple" style="width:40px;height:34px;padding:0;font-size:14px" onclick="submitVerificationRequest()" title="إرسال">✔️</button></div>`;
         }
     }
 
@@ -1473,7 +1440,7 @@
         rtdb.ref(`users/${targetKey}`).update({ isVerified: true, verificationStatus: 'approved', verificationPhone: phone }).then(()=>{
             rtdb.ref(`notifications/${targetKey}`).push({ text: `🎉 مبروك! وافقت الإدارة على طلب توثيق حسابك بالرقم وتم تفعيل الشارة البنفسجية الملكية! 🛡️`, timestamp: Date.now() });
             rtdb.ref(`verification_requests/${reqKey}`).remove();
-            alert("✅ تم توثيق الحساب ومنح الشارة البنفسجية بنجاح!");
+            alert("✅ تم توثيق الحساب بنجاح!");
             loadAdminVerificationRequests();
         });
     }
@@ -1506,7 +1473,7 @@
         let amt = parseInt(document.getElementById('agentChargeAmount').value);
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل الـ ID وعدد النقاط بشكل صحيح!");
         let currentBag = userData.agentBag || 0;
-        if(currentBag < amt) return alert(`❌ النقاط غير كافية! رصيد حقيبتك (${currentBag.toLocaleString()}) بينما المطلوب (${amt.toLocaleString()}).`);
+        if(currentBag < amt) return alert(`❌ النقاط غير كافية برصيد حقيبتك!`);
         rtdb.ref('users').once('value', snap=>{
             let targetKey = '';
             snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) targetKey = c.key; });
@@ -1517,8 +1484,7 @@
                 rtdb.ref(`users/${targetKey}`).once('value', targetSnap=>{
                     if(!targetSnap.exists()) return;
                     let targetData = targetSnap.val();
-                    let newTargetPoints = Number(targetData.points || 0) + amt;
-                    rtdb.ref(`users/${targetKey}`).update({ points: newTargetPoints }).then(()=>{
+                    rtdb.ref(`users/${targetKey}`).update({ points: Number(targetData.points || 0) + amt }).then(()=>{
                         rtdb.ref(`notifications/${targetKey}`).push({
                             text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك مباشرة!`,
                             timestamp: Date.now()
@@ -1526,7 +1492,7 @@
                         document.getElementById('agentChargeTargetId').value = '';
                         document.getElementById('agentChargeAmount').value = '';
                         updateUI();
-                        alert("✅ تم شحن النقاط للمستخدم بنجاح وظهرت في رصيده فوراً!");
+                        alert("✅ تم شحن النقاط للمستخدم بنجاح!");
                     });
                 });
             });
@@ -1543,28 +1509,28 @@
             activeCounter: counterName
         }).then(()=>{
             updateUI();
-            alert(`🎉 مبروك! تم شراء العداد وأصبح إجمالي إنتاجك اليومي (${newCounterVal.toLocaleString()} نقطة يومياً).`);
+            alert(`🎉 مبروك! تم شراء العداد وأصبح إنتاجك اليومي (${newCounterVal.toLocaleString()} نقطة يومياً).`);
         });
     }
     
     function submitManualCounterOrder(){
         let ph = document.getElementById('manualCounterPhone').value.trim();
         let det = document.getElementById('manualCounterDetails').value.trim();
-        if(!ph || !det) return alert("⚠️ يرجى ملء حقل رقم التحويل/الـ Hash وحقل العداد المطلوب!");
+        if(!ph || !det) return alert("⚠️ يرجى ملء حقل رقم التحويل وحقل العداد المطلوب!");
         rtdb.ref('manual_counter_orders').push({
             userKey: currentUserKey,
             userName: userData.name || 'مستخدم',
             userId: userData.customId || '---',
             paymentMethod: 'USDT TRC20',
-            phone: ph,
-            details: det,
+            hash: ph, // كود عملية التحويل (الشرط 3)
+            details: det, // العداد المطلوب (الشرط 3)
             timestamp: Date.now(),
             status: 'pending'
         }).then(()=>{
             document.getElementById('manualCounterPhone').value = '';
             document.getElementById('manualCounterDetails').value = '';
             alert("✅ تم إرسال طلب الإيداع وحجز العداد للإدارة بنجاح!");
-        }).catch(()=>alert("❌ حدث خطأ، حاول مجدداً."));
+        });
     }
 
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
@@ -1580,8 +1546,8 @@
         let hB = document.getElementById('agentHousingBack').files[0];
         let nF = document.getElementById('agentNationalFront').files[0];
         let nB = document.getElementById('agentNationalBack').files[0];
-        if(!prov || !tg || !wa || !aImg || !hF || !hB || !nF || !nB) return alert("⚠️ يرجى ملء كافة الحقول ورفع المستمسكات والصورة!");
-        if(method === 'points' && (userData.points||0) < 1000000) return alert("❌ نقاطك الحالية أقل من 1,000,000 نقطة المطلوبة للتقديم بها!");
+        if(!prov || !tg || !wa || !aImg || !hF || !hB || !nF || !nB) return alert("⚠️ يرجى ملء كافة الحقول ورفع المستمسكات!");
+        if(method === 'points' && (userData.points||0) < 1000000) return alert("❌ نقاطك الحالية أقل من 1,000,000 نقطة المطلوبة!");
         
         let rA = new FileReader(), r1 = new FileReader(), r2 = new FileReader(), r3 = new FileReader(), r4 = new FileReader();
         rA.onload = (eA)=>{
@@ -1595,13 +1561,10 @@
                         r4.onload = (e4)=>{
                             let nBack64 = e4.target.result;
                             if(method === 'points'){
-                                let newPts = (userData.points||0) - 1000000;
-                                rtdb.ref(`users/${currentUserKey}`).update({ points: newPts }).then(()=>{
+                                rtdb.ref(`users/${currentUserKey}`).update({ points: (userData.points||0) - 1000000 }).then(()=>{
                                     saveAgentAppToDB(prov, tg, wa, method, agentAvatar64, hFront64, hBack64, nFront64, nBack64);
                                 });
-                            } else {
-                                saveAgentAppToDB(prov, tg, wa, method, agentAvatar64, hFront64, hBack64, nFront64, nBack64);
-                            }
+                            } else { saveAgentAppToDB(prov, tg, wa, method, agentAvatar64, hFront64, hBack64, nFront64, nBack64); }
                         };
                         r4.readAsDataURL(nB);
                     };
@@ -1616,19 +1579,9 @@
 
     function saveAgentAppToDB(prov, tg, wa, method, a64, hF, hB, nF, nB){
         rtdb.ref('agent_applications').push({
-            userKey: currentUserKey,
-            userName: userData.name,
-            userId: userData.customId,
-            province: prov,
-            telegram: tg,
-            whatsapp: wa,
-            agentAvatar: a64,
-            method: method,
-            housingFront: hF,
-            housingBack: hB,
-            nationalFront: nF,
-            nationalBack: nB,
-            timestamp: Date.now()
+            userKey: currentUserKey, userName: userData.name, userId: userData.customId,
+            province: prov, telegram: tg, whatsapp: wa, agentAvatar: a64, method: method,
+            housingFront: hF, housingBack: hB, nationalFront: nF, nationalBack: nB, timestamp: Date.now()
         }).then(()=>{
             closeAgentApplyModal();
             alert("✅ تم إرسال طلب الوكالة والمستمسكات بنجاح تام!");
@@ -1648,7 +1601,7 @@
                     h += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(234,179,8,0.3);padding:6px;border-radius:10px;text-align:right;"><div style="font-size:11px;color:#facc15;font-weight:bold;margin-bottom:4px;">📍 ${prov}</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><img src="${av}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid #eab308;" alt="وكيل"><div><b style="color:#fff;font-size:11px">${d.name}</b><div style="font-size:9px;color:#cbd5e1;">⭐ وكيل معتمد</div></div></div><div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">تليجرام: ${d.agentTelegram||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentTelegram||''}')">📋</button></div><div style="font-size:9px;color:#cbd5e1;">واتساب: ${d.agentWhatsapp||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentWhatsapp||''}')">📋</button></div></div>`;
                 }
             });
-            c.innerHTML = h || "<div style='grid-column:span 2;text-align:center;'>لا يوجد وكلاء معتمدون حتى الآن.</div>";
+            c.innerHTML = h || "<div style='grid-column:span 2;text-align:center;'>لا يوجد وكلاء معتمدون.</div>";
         });
     }
 
@@ -1660,14 +1613,12 @@
     }
 
     function claimDailyReward(){
-        if(globalAppSettings.dailyCounterLocked&&currentEmail!=='msaftwtn@gmail.com') return alert('⚠️ عذراً، العداد اليومي مقفل حالياً.');
+        if(globalAppSettings.dailyCounterLocked&&currentEmail!=='msaftwtn@gmail.com') return alert('⚠️ عذراً، العداد اليومي مقفل.');
         let now=new Date().getTime();if(now-(userData.lastSpinTime||0)<24*60*60*1000)return alert('⚠️ العداد مفعل مسبقاً! انتظر حتى ينتهي الوقت.');
         let rPts=userData.activeCounterVal||0;if(rPts<0) rPts=0;
-        let newPoints = (userData.points||0) + rPts;
-        let newGems = (userData.gems||0) + 500;
         rtdb.ref(`users/${currentUserKey}`).update({
-            points: newPoints,
-            gems: newGems,
+            points: (userData.points||0) + rPts,
+            gems: (userData.gems||0) + 500,
             lastSpinTime: now
         }).then(()=>{
             updateUI();
@@ -1676,12 +1627,13 @@
     }
 
     function convertGemsToPoints(){
-        if((userData.gems||0)<5000) return alert(`⚠️ رصيدك الحالي (${(userData.gems||0).toLocaleString()} جوهرة) لا يكفي. يلزم امتلاك 5.000 جوهرة كحد أدنى لتبديلها بـ 100 نقطة!`);
-        let newGems = (userData.gems||0) - 5000;
-        let newPoints = (userData.points||0) + 100;
-        rtdb.ref(`users/${currentUserKey}`).update({ gems: newGems, points: newPoints }).then(()=>{
+        if((userData.gems||0)<5000) return alert(`⚠️ رصيدك الحالي لا يكفي (يلزم 5,000 جوهرة كحد أدنى)!`);
+        rtdb.ref(`users/${currentUserKey}`).update({
+            gems: (userData.gems||0) - 5000,
+            points: (userData.points||0) + 100
+        }).then(()=>{
             updateUI();
-            alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح متزامن تام!');
+            alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح!');
         });
     }
 
@@ -1714,13 +1666,11 @@
         if(isSpinning)return;let msg=document.getElementById('wheelMsg'),spinBtn=document.getElementById('spinBtn');
         if((userData.gems||0)<100)return msg.innerText="❌ ليس لديك جواهر كافية (يلزم 100 جوهرة)!";
         isSpinning=true;spinBtn.disabled=true;
-        let newGems = (userData.gems||0) - 100;
-        rtdb.ref(`users/${currentUserKey}`).update({ gems: newGems }).then(()=>{
+        rtdb.ref(`users/${currentUserKey}`).update({ gems: (userData.gems||0) - 100 }).then(()=>{
             let wheel=document.getElementById('wheelGraphic'),prizes=[0,5,10,15,20,25,50],idx=Math.floor(Math.random()*7),prize=prizes[idx];
             totalWheelDegrees+=3600+(idx*51.4)+25;wheel.style.transform=`rotate(${totalWheelDegrees}deg)`;
             setTimeout(()=>{
-                let currentPts = userData.points || 0;
-                rtdb.ref(`users/${currentUserKey}`).update({ points: currentPts + prize }).then(()=>{
+                rtdb.ref(`users/${currentUserKey}`).update({ points: (userData.points || 0) + prize }).then(()=>{
                     msg.innerText=`🎉 مبروك! حصلت على ${prize} نقطة بنجاح!`;
                     isSpinning=false;spinBtn.disabled=false;updateUI();
                 });
@@ -1729,10 +1679,10 @@
     }
 
     function loadLeaderboardData(){
-        rtdb.ref('users').once('value').then(snap=>{
+        rtdb.ref('users').once('value',snap=>{
             let c=document.getElementById('leaderboardClickingList');
             if(!snap.exists()){
-                if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة في التصنيف الأسبوعي حالياً.</div>";
+                if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة.</div>";
                 return;
             }
             let users=[];
@@ -1748,7 +1698,7 @@
 
     function renderLeaderboardList(id,list,key,unit){
         let c=document.getElementById(id);if(!c)return;
-        if(list.length===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد أي تكبيسات مسجلة في التصنيف حتى الآن.</div>";return;}
+        if(list.length===0){c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد تكبيسات مسجلة.</div>";return;}
         let html='';list.forEach((it,i)=>{
             let r=i+1,cr=r===1?'👑 ':(r===2?'🥈 ':(r===3?'🥉 ':''));
             html+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:8px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.05)"><div style="display:flex;align-items:center;gap:8px"><span style="font-weight:900;font-size:12px;color:#c084fc;width:22px;text-align:center">#${r}</span><img src="${it.avatar||'https://via.placeholder.com/38'}" style="width:38px;height:38px;border-radius:50%;object-fit:cover" alt="صورة"><div><b style="color:#fff;font-size:12px">${cr}${it.name}</b><div style="font-size:10px;color:#94a3b8">ID: ${it.customId}</div></div></div><div style="text-align:left"><span style="color:#34d399;font-weight:bold;font-size:12px">${it[key].toLocaleString()}</span><div style="font-size:9px;color:#94a3b8">${unit}</div></div></div>`;
@@ -1780,13 +1730,8 @@
             rtdb.ref(`friends/${currentUserKey}/${tk}`).once('value',fs=>{
                 if(fs.exists())return res.innerText="⚠️ هذا المستخدم مضاف لديك مسبقاً!";
                 rtdb.ref(`friend_requests/${tk}/${currentUserKey}`).set({
-                    name: userData.name || 'مستخدم',
-                    customId: userData.customId || '---',
-                    timestamp: Date.now()
-                }).then(()=>{
-                    document.getElementById('searchIdInput').value='';
-                    res.innerText="✅ تم إرسال طلب الصداقة بنجاح!";
-                });
+                    name: userData.name || 'مستخدم', customId: userData.customId || '---', timestamp: Date.now()
+                }).then(()=>{ document.getElementById('searchIdInput').value=''; res.innerText="✅ تم إرسال طلب الصداقة بنجاح!"; });
             });
         });
     }
@@ -1834,10 +1779,7 @@
     }
 
     function closeChatModal(){
-        if(activeChatFriendKey){
-            let chatId=[currentUserKey,activeChatFriendKey].sort().join('_');
-            rtdb.ref(`chats/${chatId}`).off();
-        }
+        if(activeChatFriendKey){ rtdb.ref(`chats/${[currentUserKey,activeChatFriendKey].sort().join('_')}`).off(); }
         activeChatFriendKey='';activeChatFriendName='';document.getElementById('chatModal').style.display='none';
     }
 
@@ -1858,46 +1800,47 @@
     }
 
     function openWithdrawModal(){
-        if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') return alert('⚠️ عذراً، خدمة سحب الأرباح مغلقة من قبل الإدارة حالياً.');
+        if(globalAppSettings.withdrawLocked && currentEmail !== 'msaftwtn@gmail.com') return alert('⚠️ عذراً، خدمة سحب الأرباح مغلقة حالياً.');
         document.getElementById('withdrawModal').style.display='flex';
     }
     function closeWithdrawModal(){ document.getElementById('withdrawModal').style.display='none'; }
     
     function submitWithdrawal(){
         let acc=document.getElementById('withdrawAccount').value.trim(),amt=parseFloat(document.getElementById('withdrawAmount').value);
-        if(!acc||isNaN(amt))return alert('⚠️ أدخل الحساب والمبلغ بشكل صحيح!');
-        if(amt<10)return alert('⚠️ الحد الأدنى للسحب 10$!');
-        if((userData.points||0)<30000)return alert('❌ رصيدك الحالي أقل من 30,000 نقطة!');
+        if(!acc||isNaN(amt))return alert('⚠️ أدخل رقم الحساب والمبلغ بشكل صحيح!');
+        if(amt<30000)return alert('⚠️ الحد الأدنى للسحب هو 30,000 نقطة!');
+        if((userData.points||0)<amt)return alert('❌ نقاطك الحالية غير كافية لهذا المبلغ!');
+        
         userData.withdrawCount = (userData.withdrawCount || 0) + 1;
         rtdb.ref(`admin_withdrawals`).push({
             userKey: currentUserKey,
             userName: userData.name,
             userId: userData.customId,
-            method: selectedWithdrawMethodName,
-            account: acc,
-            amount: amt,
+            method: selectedWithdrawMethodName, // وسيلة استلام الأرباح (الشرط 4)
+            account: acc, // رقم الحساب أو الهاتف الصحيح لاستلام الأموال (الشرط 4)
+            amount: amt, // عدد النقاط المسحوبة (الشرط 4)
             timestamp: Date.now(),
             status: 'pending'
         }).then(()=>{
             userData.lastWithdrawTime=Date.now();
             saveToDB().then(()=>{
                 closeWithdrawModal();
-                alert(`✅ تم تقديم طلب السحب للإدارة بنجاح!`);
+                alert(`✅ تم تقديم طلب سحب الأرباح للإدارة بنجاح!`);
             });
         });
     }
 
     function adminDualChargeDirectPoints(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminDualTargetId').value.trim();
         let pts = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!tId || isNaN(pts) || pts <= 0) return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
         rtdb.ref('users').once('value',snap=>{
             let targetKey = '';
             snap.forEach(c=>{ let u = c.val(); if(String(u.customId).trim() === String(tId).trim() || c.key === tId) targetKey = c.key; });
-            if(!targetKey) return alert('❌ لم يتم العثور على المستخدم بهذا الـ ID!');
+            if(!targetKey) return alert('❌ لم يتم العثور على المستخدم!');
             rtdb.ref(`users/${targetKey}`).once('value',userSnap=>{
-                let currentPoints = Number(userSnap.val().points || 0);
-                rtdb.ref(`users/${targetKey}`).update({ points: currentPoints + pts }).then(()=>{
+                rtdb.ref(`users/${targetKey}`).update({ points: Number(userSnap.val().points || 0) + pts }).then(()=>{
                     rtdb.ref(`notifications/${targetKey}`).push({ text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك!`, timestamp: Date.now() });
                     alert(`✅ تم شحن النقاط بنجاح!`);
                 });
@@ -1906,18 +1849,18 @@
     }
 
     function adminDualChargeAgentBag(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let targetId = document.getElementById('adminDualTargetId').value.trim();
         let amt = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل ID الوكيل وعدد النقاط!");
         rtdb.ref('users').once('value',snap=>{
             let targetKey = '';
-            snap.forEach(c=>{ let u = c.val(); if(String(u.customId).trim() === String(targetId).trim()) targetKey = c.key; });
+            snap.forEach(c=>{ let u = c.val(); if(String(u.customId).trim() === String(targetId).trim() || c.key === targetKey) targetKey = c.key; });
             if(!targetKey) return alert("❌ لم يتم العثور على الوكيل!");
             rtdb.ref(`users/${targetKey}`).once('value',userSnap=>{
                 let uData = userSnap.val();
                 if(!uData.isAgent) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
-                let newBagTotal = Number(uData.agentBag || 0) + amt;
-                rtdb.ref(`users/${targetKey}`).update({ agentBag: newBagTotal }).then(()=>{
+                rtdb.ref(`users/${targetKey}`).update({ agentBag: Number(uData.agentBag || 0) + amt }).then(()=>{
                     alert(`✅ تم شحن حقيبة الوكيل بنجاح!`);
                 });
             });
@@ -1925,6 +1868,7 @@
     }
 
     function adminToggleFreezeUser(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
         if(!tId) return alert("⚠️ أدخل ID المستخدم!");
         rtdb.ref('users').once('value',snap=>{
@@ -1939,12 +1883,14 @@
     }
 
     function adminUpdateTicker(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let txt = document.getElementById('adminTickerInput').value.trim();
         if(!txt) return alert("⚠️ أدخل نص الإعلان!");
         rtdb.ref('app_settings').update({tickerText: txt}).then(()=>alert("📢 تم نشر الإعلان بنجاح!"));
     }
 
     function openAdminAgentApplications(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         document.getElementById('adminAgentAppsModal').style.display='flex';
         rtdb.ref('agent_applications').once('value',snap=>{
             let lst = document.getElementById('adminAgentAppsList');
@@ -1967,68 +1913,89 @@
         });
     }
 
+    // تطوير دقة فحص الملف الشخصي للمستخدم من قبل الإدارة (الشرط 8)
     function adminInspectUser(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
         let resArea=document.getElementById('adminInspectResult');
         if(!tId)return alert('⚠️ أدخل ID المستخدم!');
         resArea.style.display='block';
+        resArea.innerHTML="جاري جلب البيانات الفعلية بدقة...";
+
         rtdb.ref('users').once('value',snap=>{
             let foundUser=null, foundKey='';
             snap.forEach(c=>{ let u=c.val(); if(String(u.customId).trim()===String(tId).trim() || c.key===tId) { foundUser=u; foundKey=c.key; } });
             if(!foundUser){ resArea.innerHTML="❌ لم يتم العثور على مستخدم بهذا الـ ID."; return; }
-            let agentControlBtn = foundUser.isAgent ? `<button onclick="adminDirectRemoveAgent('${foundKey}')" style="background:#ef4444;color:#fff;border:none;padding:5px 10px;border-radius:6px;margin-top:6px;cursor:pointer">🗑️ إزالة صفة الوكيل</button>` : '';
-            resArea.innerHTML=`<b>👤 اسم المستخدم:</b> ${foundUser.name}<br><b>🪪 ID:</b> ${foundUser.customId}<br>${agentControlBtn}`;
-        });
-    }
+            
+            // استخراج نوع العداد الحقيقي بدقة تامة (الشرط 8)
+            let valNum = foundUser.activeCounterVal || 0;
+            let counterDetail = valNum > 0 ? `عداد ${valNum.toLocaleString()} نقطة يومياً` : (foundUser.activeCounter || 'لا يوجد عداد نشط');
+            let wCount = foundUser.withdrawCount || 0; // عدد مرات السحب الحقيقية الدقيقة (الشرط 8)
 
-    function adminDirectRemoveAgent(targetKey){
-        if(!confirm("⚠️ هل أنت متأكد من إزالة صفة الوكيل؟")) return;
-        rtdb.ref(`users/${targetKey}`).update({ isAgent: false, agentBag: 0 }).then(()=>{
-            alert("✅ تم إزالة الوكيل بنجاح!");
-            adminInspectUser();
+            resArea.innerHTML=`👤 <b>اسم المستخدم:</b> ${foundUser.name || 'بدون اسم'}<br>`+
+                              `🪪 <b>آيدي المستخدم (ID):</b> ${foundUser.customId || '---'}<br>`+
+                              `👑 <b>العداد المشترك به:</b> <span style="color:#fde047">${counterDetail}</span><br>`+
+                              `💸 <b>عدد مرات سحب الأرباح الفعلي:</b> <span style="color:#34d399">${wCount} مرة</span>`;
         });
     }
 
     function adminToggleWithdrawFeature(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let ns=!globalAppSettings.withdrawLocked;
         rtdb.ref('app_settings').update({withdrawLocked:ns}).then(()=>alert(ns ? '🔒 تم إغلاق السحب.' : '🔓 تم فتح السحب.'));
     }
 
     function adminToggleDailyCounterFeature(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let ns=!globalAppSettings.dailyCounterLocked;
-        rtdb.ref('app_settings').update({dailyCounterLocked:ns}).then(()=>alert(ns?'⏳ تم قفل العداد.':'⚡ تم فتح العداد.'));
+        rtdb.ref('app_settings').update({dailyCounterLocked:ns}).then(()=>alert(ns?'⏳ تم قفل العداد اليومي.':'⚡ تم فتح العداد اليومي.'));
     }
 
     function openAdminPanelModal(){
-        if(currentEmail!=='msaftwtn@gmail.com'&&userData.customId!=='1')return alert('⚠️ غير مسموح.');
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح. حساب الإدارة المعتمد حصراً هو (msaftwtn@gmail.com - ID: 1)');
         document.getElementById('adminPanelModal').style.display='flex';
-        loadAdminData();loadAdminVerificationRequests();
+        loadAdminData(); loadAdminVerificationRequests();
     }
     function closeAdminPanelModal(){ document.getElementById('adminPanelModal').style.display='none'; }
     
+    // إظهار جميع بيانات طلبات العدادات المعلقة والإيداعات للإدارة (الشرط 3)
     function openAdminCounterOrders(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         document.getElementById('adminCounterOrdersModal').style.display='flex';
         rtdb.ref('manual_counter_orders').once('value',snap=>{
             let lst = document.getElementById('adminCounterOrdersList');
-            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات معلقة."; return; }
+            if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات إيداع أو عدادات معلقة."; return; }
             let h="";
             snap.forEach(item=>{
                 let d = item.val();
-                h+=`<div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;margin-bottom:6px"><b>المستخدم:</b> ${d.userName} (ID: ${d.userId})<br><button onclick="adminDeleteRef('manual_counter_orders','${item.key}')" style="background:#10b981;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer">موافقة ✔️</button></div>`;
+                h+=`<div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;margin-bottom:6px">
+                    🪪 <b>آيدي المستخدم (ID):</b> <span style="color:#38bdf8">${d.userId}</span><br>
+                    👑 <b>نوع العداد المطلوب:</b> <span style="color:#fde047">${d.details}</span><br>
+                    🔑 <b>كود عملية التحويل (Hash):</b> <span style="color:#34d399;word-break:break-all">${d.hash || '---'}</span>
+                    <button onclick="adminDeleteRef('manual_counter_orders','${item.key}')" style="background:#10b981;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;display:block;margin-top:6px;font-size:10px;">موافقة وإتمام الطلب ✔️</button>
+                </div>`;
             });
             lst.innerHTML = h;
         });
     }
     function closeAdminCounterOrders(){ document.getElementById('adminCounterOrdersModal').style.display='none'; }
 
+    // إظهار جميع بيانات طلبات سحب الأرباح للإدارة بدقة (الشرط 4)
     function loadAdminData(){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return;
         rtdb.ref('admin_withdrawals').once('value',snap=>{
             let a=document.getElementById('adminWithdrawalsArea');
-            if(!snap.exists()){ if(a) a.innerHTML="لا توجد طلبات سحب معلقة."; return; }
+            if(!snap.exists()){ if(a) a.innerHTML="لا توجد طلبات سحب معلقة حالياً."; return; }
             let h='';
             snap.forEach(item=>{
                 let d=item.val();
-                h+=`<div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:6px;margin-bottom:5px">🪪 <b>ID:</b> ${d.userId} | 💰 <b>المبلغ:</b> ${d.amount}$<br><button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;margin-top:4px">إتمام ✔️</button></div>`;
+                h+=`<div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:6px;margin-bottom:5px;border:1px solid rgba(192,132,252,0.2)">
+                    🪪 <b>آيدي المستخدم (ID):</b> <span style="color:#38bdf8">${d.userId}</span><br>
+                    💰 <b>عدد النقاط المراد سحبها:</b> <span style="color:#34d399">${Number(d.amount).toLocaleString()} نقطة</span><br>
+                    💳 <b>وسيلة استلام الأرباح:</b> <span style="color:#c084fc">${d.method}</span><br>
+                    📱 <b>رقم المحفظة أو الحساب:</b> <b style="color:#fde047">${d.account}</b>
+                    <button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;display:block;margin-top:6px;font-size:10px;">إتمام / حذف الطلب ✔️</button>
+                </div>`;
             });
             if(a) a.innerHTML=h;
         });
@@ -2036,7 +2003,7 @@
 
     function adminDeleteRef(path,key){
         rtdb.ref(`${path}/${key}`).remove().then(()=>{
-            alert("✅ تم.");
+            alert("✅ تم إتمام العملية بنجاح.");
             if(path==='admin_withdrawals') loadAdminData();
             if(path==='manual_counter_orders') openAdminCounterOrders();
             if(path==='agent_applications') openAdminAgentApplications();
