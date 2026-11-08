@@ -724,6 +724,7 @@
     let isCompletedToday = false;
     let clickDebounceTimer = null;
 
+    // دالة النسخ الآمنة والمتوافقة مع كافة المتصفحات والهواتف (تمنع ظهور خطأ "تعذر النسخ")
     function safeCopyTextToClipboard(textToCopy, successMsg = "📋 تم النسخ بنجاح!") {
         if (!textToCopy) return alert("⚠️ لا يوجد نص للنسخ!");
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -760,11 +761,13 @@
         }
     }
 
+    // إصلاح مشكلة نسخ كود التحويل / العنوان (الشرط 1)
     function copyUsdtAddress(){
         let addr = "TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F";
         safeCopyTextToClipboard(addr, "📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
     }
 
+    // إصلاح مشكلة نسخ اسم المستخدم أو رقم الوكيل (الشرط 2)
     function copyTextToClipboard(text){
         safeCopyTextToClipboard(text, "📋 تم نسخ النص بنجاح!");
     }
@@ -803,7 +806,7 @@
                     roomName: roomName,
                     creatorKey: currentUserKey,
                     creatorName: userData.name || 'مستخدم',
-                    creatorCustomId: userData.customId || '---',
+                    creatorCustomId: userData.customId || '---', // توحيد الآيدي الحقيقي للمستخدم في الغرفة (الشرط 5)
                     cover: coverBase64 || 'https://via.placeholder.com/85',
                     timestamp: Date.now()
                 }).then(()=>{
@@ -920,7 +923,7 @@
 
         rtdb.ref(`room_users/${rKey}/${currentUserKey}`).set({
             name: userData.name || 'مستخدم',
-            customId: userData.customId || '---'
+            customId: userData.customId || '---' // توحيد الآيدي داخل الغرفة تماماً مع الملف الشخصي (الشرط 5)
         });
 
         rtdb.ref(`room_chats/${rKey}`).on('value', snap=>{
@@ -1076,7 +1079,7 @@
 
     function loadTradingCountersMarket(){
         if(!rtdb) return;
-        rtdb.ref('trading_counters').limitToLast(50).once('value', snap=>{
+        rtdb.ref('trading_counters').once('value', snap=>{
             let container = document.getElementById('tradingCountersListContainer');
             if(!container) return;
             if(!snap.exists()){
@@ -1453,7 +1456,7 @@
     }
 
     function loadAdminVerificationRequests(){
-        rtdb.ref('verification_requests').limitToLast(30).once('value', snap=>{
+        rtdb.ref('verification_requests').once('value', snap=>{
             let c = document.getElementById('adminVerificationRequestsList');
             if(!c) return;
             if(!snap.exists()){ c.innerHTML = "لا توجد طلبات توثيق معلقة."; return; }
@@ -1504,24 +1507,26 @@
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل الـ ID وعدد النقاط بشكل صحيح!");
         let currentBag = userData.agentBag || 0;
         if(currentBag < amt) return alert(`❌ النقاط غير كافية برصيد حقيبتك!`);
-        
-        rtdb.ref('users').orderByChild('customId').equalTo(targetId).once('value', snap=>{
-            if(!snap.exists()) return alert("❌ لم يتم العثور على هذا المستخدم!");
-            let targetKey = Object.keys(snap.val())[0];
-            let targetData = snap.val()[targetKey];
-            
+        rtdb.ref('users').once('value', snap=>{
+            let targetKey = '';
+            snap.forEach(c=>{ if(String(c.val().customId).trim()===String(targetId).trim()) targetKey = c.key; });
+            if(!targetKey) return alert("❌ لم يتم العثور على هذا المستخدم!");
             let updatedBag = currentBag - amt;
             rtdb.ref(`users/${currentUserKey}`).update({ agentBag: updatedBag }).then(()=>{
                 userData.agentBag = updatedBag;
-                rtdb.ref(`users/${targetKey}`).update({ points: Number(targetData.points || 0) + amt }).then(()=>{
-                    rtdb.ref(`notifications/${targetKey}`).push({
-                        text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك مباشرة!`,
-                        timestamp: Date.now()
+                rtdb.ref(`users/${targetKey}`).once('value', targetSnap=>{
+                    if(!targetSnap.exists()) return;
+                    let targetData = targetSnap.val();
+                    rtdb.ref(`users/${targetKey}`).update({ points: Number(targetData.points || 0) + amt }).then(()=>{
+                        rtdb.ref(`notifications/${targetKey}`).push({
+                            text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك مباشرة!`,
+                            timestamp: Date.now()
+                        });
+                        document.getElementById('agentChargeTargetId').value = '';
+                        document.getElementById('agentChargeAmount').value = '';
+                        updateUI();
+                        alert("✅ تم شحن النقاط للمستخدم بنجاح!");
                     });
-                    document.getElementById('agentChargeTargetId').value = '';
-                    document.getElementById('agentChargeAmount').value = '';
-                    updateUI();
-                    alert("✅ تم شحن النقاط للمستخدم بنجاح!");
                 });
             });
         });
@@ -1617,35 +1622,39 @@
     }
 
     function loadApprovedAgentsList(){
-        rtdb.ref('users').orderByChild('isAgent').equalTo(true).once('value').then(snap=>{
+        rtdb.ref('users').once('value').then(snap=>{
             let c = document.getElementById('approvedAgentsList'); if(!c) return;
             if(!snap.exists()){ c.innerHTML = "<div style='grid-column:span 2;text-align:center;'>لا يوجد وكلاء حالياً</div>"; return; }
             let h = '';
             snap.forEach(u=>{
                 let d = u.val();
-                let prov = d.agentProvince || 'العراق';
-                let av = d.agentAvatar || d.avatar || 'https://via.placeholder.com/45';
-                
-                let removeAgentBtn = '';
-                if(currentEmail === 'msaftwtn@gmail.com' || userData.customId === '1'){
-                    removeAgentBtn = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:3px 6px;font-size:9px;margin-top:6px;width:100%;" onclick="adminRemoveAgentStatus('${u.key}', '${d.name}')">إزالة الوكيل (إدارة) 🗑️</button>`;
-                }
+                if(d.isAgent){
+                    let prov = d.agentProvince || 'العراق';
+                    let av = d.agentAvatar || d.avatar || 'https://via.placeholder.com/45';
+                    
+                    // إضافة صلاحية إزالة الوكيل وحذف ملكيته للإدارة فقط (الشرط 4)
+                    let removeAgentBtn = '';
+                    if(currentEmail === 'msaftwtn@gmail.com' || userData.customId === '1'){
+                        removeAgentBtn = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:3px 6px;font-size:9px;margin-top:6px;width:100%;" onclick="adminRemoveAgentStatus('${u.key}', '${d.name}')">إزالة الوكيل (إدارة) 🗑️</button>`;
+                    }
 
-                h += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(234,179,8,0.3);padding:6px;border-radius:10px;text-align:right;">
-                    <div style="font-size:11px;color:#facc15;font-weight:bold;margin-bottom:4px;">📍 ${prov}</div>
-                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-                        <img src="${av}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid #eab308;" alt="وكيل">
-                        <div><b style="color:#fff;font-size:11px">${d.name}</b><div style="font-size:9px;color:#cbd5e1;">⭐ وكيل معتمد</div></div>
-                    </div>
-                    <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">تليجرام: ${d.agentTelegram||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentTelegram||''}')">📋</button></div>
-                    <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">واتساب: ${d.agentWhatsapp||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentWhatsapp||''}')">📋</button></div>
-                    ${removeAgentBtn}
-                </div>`;
+                    h += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(234,179,8,0.3);padding:6px;border-radius:10px;text-align:right;">
+                        <div style="font-size:11px;color:#facc15;font-weight:bold;margin-bottom:4px;">📍 ${prov}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                            <img src="${av}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid #eab308;" alt="وكيل">
+                            <div><b style="color:#fff;font-size:11px">${d.name}</b><div style="font-size:9px;color:#cbd5e1;">⭐ وكيل معتمد</div></div>
+                        </div>
+                        <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">تليجرام: ${d.agentTelegram||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentTelegram||''}')">📋</button></div>
+                        <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">واتساب: ${d.agentWhatsapp||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentWhatsapp||''}')">📋</button></div>
+                        ${removeAgentBtn}
+                    </div>`;
+                }
             });
             c.innerHTML = h || "<div style='grid-column:span 2;text-align:center;'>لا يوجد وكلاء معتمدون.</div>";
         });
     }
 
+    // دالة إزالة الوكيل وسحب صلاحياته (خاصة بالإدارة فقط - الشرط 4)
     function adminRemoveAgentStatus(targetUserKey, agentName){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         if(!confirm(`⚠️ هل أنت متأكد من إزالة الوكيل (${agentName}) وسحب ملكيته وصلاحياته بالكامل؟`)) return;
@@ -1680,6 +1689,7 @@
         });
     }
 
+    // إصلاح مشكلة استبدال الجواهر بالنقاط (الشرط 3)
     function convertGemsToPoints(){
         let currentGems = userData.gems || 0;
         if(currentGems < 5000) return alert(`⚠️ رصيدك الحالي (${currentGems.toLocaleString()} جوهرة) لا يكفي! (يلزم 5,000 جوهرة كحد أدنى للاستبدال).`);
@@ -1734,7 +1744,7 @@
     }
 
     function loadLeaderboardData(){
-        rtdb.ref('users').orderByChild('userClicksCount').limitToLast(30).once('value',snap=>{
+        rtdb.ref('users').once('value',snap=>{
             let c=document.getElementById('leaderboardClickingList');
             if(!snap.exists()){
                 if(c) c.innerHTML="<div style='text-align:center;padding:15px;color:#94a3b8'>لا توجد بيانات مسجلة.</div>";
@@ -1763,7 +1773,7 @@
 
     function loadNotifications(){
         if(!currentUserKey||!rtdb)return;
-        rtdb.ref(`notifications/${currentUserKey}`).limitToLast(20).on('value',snap=>{
+        rtdb.ref(`notifications/${currentUserKey}`).on('value',snap=>{
             let c=document.getElementById('notificationsContainer'),b=document.getElementById('mainNotificationBadge');if(!c)return;
             if(!snap.exists()){c.innerHTML="لا توجد إشعارات جديدة";if(b)b.style.display='none';return;}
             if(b)b.style.display='block';let html='';snap.forEach(n=>{html+=`<div style="border-bottom:1px solid rgba(255,255,255,0.08);padding:6px 0">🔔 ${n.val().text}</div>`;});
@@ -1777,9 +1787,10 @@
         let sId=document.getElementById('searchIdInput').value.trim(),res=document.getElementById('searchResultArea');
         if(!sId)return res.innerText="⚠️ أدخل الـ ID";
         res.innerText="جاري البحث والإرسال...";
-        rtdb.ref('users').orderByChild('customId').equalTo(sId).once('value',snap=>{
-            if(!snap.exists())return res.innerText="❌ لم يتم العثور على مستخدم بهذا الـ ID";
-            let tk = Object.keys(snap.val())[0];
+        rtdb.ref('users').once('value',snap=>{
+            let tk='';
+            snap.forEach(c=>{ let u=c.val(); if(String(u.customId).trim()===String(sId).trim() || c.key===sId) tk=c.key; });
+            if(!tk)return res.innerText="❌ لم يتم العثور على مستخدم بهذا الـ ID";
             if(tk===currentUserKey)return res.innerText="⚠️ لا يمكنك إرسال طلب صداقة لنفسك!";
             rtdb.ref(`friends/${currentUserKey}/${tk}`).once('value',fs=>{
                 if(fs.exists())return res.innerText="⚠️ هذا المستخدم مضاف لديك مسبقاً!";
@@ -1820,7 +1831,7 @@
         document.getElementById('chatTitle').innerText=`${fName} 👤`;
         document.getElementById('chatModal').style.display='flex';
         let chatId=[currentUserKey,fk].sort().join('_');
-        rtdb.ref(`chats/${chatId}`).limitToLast(50).on('value',snap=>{
+        rtdb.ref(`chats/${chatId}`).on('value',snap=>{
             let a=document.getElementById('chatMessagesArea');if(!a)return;
             if(!snap.exists()){a.innerHTML="ابدأ المحادثة...";return;}let h='';
             snap.forEach(m=>{
@@ -1889,15 +1900,15 @@
         let tId = document.getElementById('adminDualTargetId').value.trim();
         let pts = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!tId || isNaN(pts) || pts <= 0) return alert('⚠️ أدخل ID المستخدم وعدد النقاط بشكل صحيح!');
-        
-        rtdb.ref('users').orderByChild('customId').equalTo(tId).once('value',snap=>{
-            if(!snap.exists()) return alert('❌ لم يتم العثور على المستخدم!');
-            let targetKey = Object.keys(snap.val())[0];
-            let userSnapVal = snap.val()[targetKey];
-            
-            rtdb.ref(`users/${targetKey}`).update({ points: Number(userSnapVal.points || 0) + pts }).then(()=>{
-                rtdb.ref(`notifications/${targetKey}`).push({ text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك!`, timestamp: Date.now() });
-                alert(`✅ تم شحن النقاط بنجاح!`);
+        rtdb.ref('users').once('value',snap=>{
+            let targetKey = '';
+            snap.forEach(c=>{ let u = c.val(); if(String(u.customId).trim() === String(tId).trim() || c.key === tId) targetKey = c.key; });
+            if(!targetKey) return alert('❌ لم يتم العثور على المستخدم!');
+            rtdb.ref(`users/${targetKey}`).once('value',userSnap=>{
+                rtdb.ref(`users/${targetKey}`).update({ points: Number(userSnap.val().points || 0) + pts }).then(()=>{
+                    rtdb.ref(`notifications/${targetKey}`).push({ text: `⚡ قامت الإدارة بشحن ${pts.toLocaleString()} نقطة برصيدك!`, timestamp: Date.now() });
+                    alert(`✅ تم شحن النقاط بنجاح!`);
+                });
             });
         });
     }
@@ -1907,15 +1918,16 @@
         let targetId = document.getElementById('adminDualTargetId').value.trim();
         let amt = parseInt(document.getElementById('adminDualPointsAmount').value);
         if(!targetId || isNaN(amt) || amt <= 0) return alert("⚠️ أدخل ID الوكيل وعدد النقاط!");
-        
-        rtdb.ref('users').orderByChild('customId').equalTo(targetId).once('value',snap=>{
-            if(!snap.exists()) return alert("❌ لم يتم العثور على الوكيل!");
-            let targetKey = Object.keys(snap.val())[0];
-            let uData = snap.val()[targetKey];
-            
-            if(!uData.isAgent) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
-            rtdb.ref(`users/${targetKey}`).update({ agentBag: Number(uData.agentBag || 0) + amt }).then(()=>{
-                alert(`✅ تم شحن حقيبة الوكيل بنجاح!`);
+        rtdb.ref('users').once('value',snap=>{
+            let targetKey = '';
+            snap.forEach(c=>{ let u = c.val(); if(String(u.customId).trim() === String(targetId).trim() || c.key === targetKey) targetKey = c.key; });
+            if(!targetKey) return alert("❌ لم يتم العثور على الوكيل!");
+            rtdb.ref(`users/${targetKey}`).once('value',userSnap=>{
+                let uData = userSnap.val();
+                if(!uData.isAgent) return alert("⚠️ هذا المستخدم ليس وكيلاً معتمداً!");
+                rtdb.ref(`users/${targetKey}`).update({ agentBag: Number(uData.agentBag || 0) + amt }).then(()=>{
+                    alert(`✅ تم شحن حقيبة الوكيل بنجاح!`);
+                });
             });
         });
     }
@@ -1924,14 +1936,14 @@
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId = document.getElementById('adminFreezeTargetId').value.trim();
         if(!tId) return alert("⚠️ أدخل ID المستخدم!");
-        
-        rtdb.ref('users').orderByChild('customId').equalTo(tId).once('value',snap=>{
-            if(!snap.exists()) return alert("❌ لم يتم العثور على المستخدم!");
-            let tk = Object.keys(snap.val())[0];
-            let us = snap.val()[tk];
-            
-            let newStatus = !us.isBanned;
-            rtdb.ref(`users/${tk}`).update({isBanned: newStatus}).then(()=>alert(newStatus ? "🚫 تم التجميد." : "✅ تم إلغاء التجميد."));
+        rtdb.ref('users').once('value',snap=>{
+            let tk = '';
+            snap.forEach(c=>{ if(String(c.val().customId).trim()===String(tId).trim()) tk = c.key; });
+            if(!tk) return alert("❌ لم يتم العثور على المستخدم!");
+            rtdb.ref(`users/${tk}`).once('value',us=>{
+                let newStatus = !us.val().isBanned;
+                rtdb.ref(`users/${tk}`).update({isBanned: newStatus}).then(()=>alert(newStatus ? "🚫 تم التجميد." : "✅ تم إلغاء التجميد."));
+            });
         });
     }
 
@@ -1945,7 +1957,7 @@
     function openAdminAgentApplications(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         document.getElementById('adminAgentAppsModal').style.display='flex';
-        rtdb.ref('agent_applications').limitToLast(20).once('value',snap=>{
+        rtdb.ref('agent_applications').once('value',snap=>{
             let lst = document.getElementById('adminAgentAppsList');
             if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات وكالة معلقة حالياً."; return; }
             let h = '';
@@ -1974,10 +1986,10 @@
         resArea.style.display='block';
         resArea.innerHTML="جاري جلب البيانات الفعلية بدقة...";
 
-        rtdb.ref('users').orderByChild('customId').equalTo(tId).once('value',snap=>{
-            if(!snap.exists()){ resArea.innerHTML="❌ لم يتم العثور على مستخدم بهذا الـ ID."; return; }
-            let foundKey = Object.keys(snap.val())[0];
-            let foundUser = snap.val()[foundKey];
+        rtdb.ref('users').once('value',snap=>{
+            let foundUser=null, foundKey='';
+            snap.forEach(c=>{ let u=c.val(); if(String(u.customId).trim()===String(tId).trim() || c.key===tId) { foundUser=u; foundKey=c.key; } });
+            if(!foundUser){ resArea.innerHTML="❌ لم يتم العثور على مستخدم بهذا الـ ID."; return; }
             
             let valNum = foundUser.activeCounterVal || 0;
             let counterDetail = valNum > 0 ? `عداد ${valNum.toLocaleString()} نقطة يومياً` : (foundUser.activeCounter || 'لا يوجد عداد نشط');
@@ -2012,7 +2024,7 @@
     function openAdminCounterOrders(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         document.getElementById('adminCounterOrdersModal').style.display='flex';
-        rtdb.ref('manual_counter_orders').limitToLast(20).once('value',snap=>{
+        rtdb.ref('manual_counter_orders').once('value',snap=>{
             let lst = document.getElementById('adminCounterOrdersList');
             if(!snap.exists()){ lst.innerHTML = "لا توجد طلبات إيداع أو عدادات معلقة."; return; }
             let h="";
@@ -2032,7 +2044,7 @@
 
     function loadAdminData(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return;
-        rtdb.ref('admin_withdrawals').limitToLast(20).once('value',snap=>{
+        rtdb.ref('admin_withdrawals').once('value',snap=>{
             let a=document.getElementById('adminWithdrawalsArea');
             if(!snap.exists()){ if(a) a.innerHTML="لا توجد طلبات سحب معلقة حالياً."; return; }
             let h='';
@@ -2041,7 +2053,8 @@
                 h+=`<div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:6px;margin-bottom:5px;border:1px solid rgba(192,132,252,0.2)">
                     🪪 <b>آيدي المستخدم (ID):</b> <span style="color:#38bdf8">${d.userId}</span><br>
                     💰 <b>عدد النقاط المراد سحبها:</b> <span style="color:#34d399">${Number(d.amount).toLocaleString()} نقطة</span><br>
-                    💳 <b>وسيلة استلام الأرباح:</b> <span style="color:#c084fc">${d.method}</span><br>ن رقم المحفظة أو الحساب: <b style="color:#fde047">${d.account}</b>
+                    💳 <b>وسيلة استلام الأرباح:</b> <span style="color:#c084fc">${d.method}</span><br>
+                    📱 <b>رقم المحفظة أو الحساب:</b> <b style="color:#fde047">${d.account}</b>
                     <button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;display:block;margin-top:6px;font-size:10px;">إتمام / حذف الطلب ✔️</button>
                 </div>`;
             });
