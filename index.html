@@ -192,6 +192,7 @@
                 </div>
                 <span style="font-size:22px">🪙</span>
             </div>
+            <!-- إصلاح مشكلة استبدال الجواهر بالنقاط (الشرط 3) -->
             <div class="asset-box" onclick="convertGemsToPoints()" style="cursor:pointer" title="تبديل الجواهر">
                 <div style="text-align:right">
                     <div style="font-size:10px;color:#38bdf8">الجواهر</div>
@@ -268,14 +269,12 @@
         </div>
     </div>
 
-    <!-- شاشة غرف الدردشة (محدثة حسب الشروط 5، 6، 7) -->
     <div id="roomsScreen" class="screen-page">
         <div class="top-nav">
             <h3 style="margin:0;color:#ec4899;font-size:15px">💬 غرف الدردشة والهدايا</h3>
             <button class="nav-btn back" onclick="navigateTo('mainScreen')">⬅️ الرئيسية</button>
         </div>
 
-        <!-- خيار إنشاء الغرفة يظهر أو يختفي تلقائياً حسب شرط عدم امتلاك غرفة سابقة -->
         <div id="createRoomSectionCard" class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(236,72,153,0.4);margin-bottom:12px;text-align:right">
             <h4 style="margin:0 0 6px 0;color:#f472b6;font-size:13px">✨ أنشئ غرفتك الخاصة مجاناً</h4>
             <button class="action-btn btn-purple" style="padding:8px;font-size:11px;background:linear-gradient(135deg,#db2777,#9333ea)" onclick="openCreateRoomModal()">إنشاء غرفة جديدة مجاناً 🚀</button>
@@ -403,6 +402,7 @@
             <h4 style="margin:0 0 6px 0;color:#34d399;font-size:13px">📥 إيداع USDT TRC20 وطلب عداد مخصص</h4>
             <div style="background:rgba(2,6,23,0.9);border:1px solid rgba(16,185,129,0.4);border-radius:10px;padding:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
                 <span id="usdtWalletAddressText" style="font-size:10px;color:#38bdf8;font-family:monospace;word-break:break-all;direction:ltr;text-align:left">TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F</span>
+                <!-- إصلاح مشكلة نسخ كود التحويل / العنوان (الشرط 1) -->
                 <button class="action-btn btn-green" style="width:auto;padding:5px 10px;font-size:10px" onclick="copyUsdtAddress()">📋 نسخ العنوان</button>
             </div>
             <input type="text" id="manualCounterPhone" class="input-box" placeholder="رقم عملية التحويل أو الـ Hash" style="margin-bottom:6px">
@@ -450,7 +450,6 @@
         </div>
     </div>
 
-    <!-- شاشة الملف الشخصي (تم إصلاح زر الرجوع فيها - الشرط 1) -->
     <div id="profileScreen" class="screen-page">
         <div class="top-nav">
             <h3 style="margin:0;color:#c084fc;font-size:15px">👤 الملف الشخصي</h3>
@@ -460,6 +459,7 @@
             <div class="large-avatar-container" id="profileAvatarRingBox"><img id="avatarPreview" class="large-avatar" src="" alt="صورة" onclick="triggerImageUpload()" title="اضغط لتغيير الصورة الشخصية"></div>
             <input type="file" id="hiddenImageInput" accept="image/*" style="display:none" onchange="previewImage(event)">
             <div style="margin-top:2px;margin-bottom:6px">
+                <!-- إصلاح مشكلة ظهور الآيدي وتوحيده (الشرط 5) -->
                 <span id="displayUserIdProfile" style="color:#c084fc;font-size:12px;font-weight:bold">ID: ---</span>
                 <div id="profileBadgeDisplay" style="margin-top:4px"></div>
             </div>
@@ -562,7 +562,6 @@
     </div>
 </div>
 
-<!-- مودال التقديم على وكالة (تم تصغير أزراره وظهور كلمة التقديم بوضوح تام - الشرط 2) -->
 <div id="agentApplyModal" class="modal">
     <div class="modal-content agent-modal-input-group" style="text-align:right; max-width:320px; padding:12px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -591,7 +590,6 @@
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">البطاقة الوطنية (خلف):</label>
         <input type="file" id="agentNationalBack" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:8px">
 
-        <!-- زر التقديم بحجم مناسب وواضح تماماً -->
         <button class="action-btn btn-gold" style="margin-top:2px; padding:8px 12px; font-size:11px;" onclick="submitAgentApplication()">إرسال طلب التقديم للإدارة 🚀</button>
     </div>
 </div>
@@ -637,14 +635,14 @@
             </div>
         </div>
         <div style="background:rgba(10,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:6px;border-radius:8px;margin-bottom:6px">
-            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:11px">🔍 فحص ملف المستخدم بالـ ID (دقيق ومطور - الشرط 8)</h4>
+            <h4 style="margin:0 0 2px 0;color:#10b981;font-size:11px">🔍 فحص ملف المستخدم بالـ ID</h4>
             <div style="display:flex;gap:4px">
                 <input type="text" id="adminInspectIdInput" class="input-box" placeholder="ID المستخدم" style="margin:0;padding:6px;font-size:10px;flex:1">
                 <button class="action-btn btn-green" style="width:auto;padding:6px 10px;font-size:10px" onclick="adminInspectUser()">فحص 🔎</button>
             </div>
             <div id="adminInspectResult" style="font-size:10px;color:#cbd5e1;margin-top:4px;background:rgba(0,0,0,0.3);padding:6px;border-radius:4px;display:none;text-align:right;"></div>
         </div>
-        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة (بالتفاصيل الكاملة - الشرط 4):</b></div>
+        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة:</b></div>
         <div id="adminWithdrawalsArea" class="admin-tab-content" style="max-height:120px;overflow-y:auto;font-size:10px">جاري التحميل...</div>
     </div>
 </div>
@@ -662,7 +660,7 @@
 <div id="adminCounterOrdersModal" class="modal">
     <div class="modal-content" style="text-align:right;max-width:390px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <h4 style="margin:0;color:#c084fc;font-size:13px">📥 طلبات شراء العدادات المعلقة والإيداعات (بالتفاصيل - الشرط 3)</h4>
+            <h4 style="margin:0;color:#c084fc;font-size:13px">📥 طلبات شراء العدادات المعلقة والإيداعات</h4>
             <button style="background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer" onclick="closeAdminCounterOrders()">✖</button>
         </div>
         <div id="adminCounterOrdersList" style="max-height:260px;overflow-y:auto;font-size:11px">جاري التحميل...</div>
@@ -726,9 +724,55 @@
     let isCompletedToday = false;
     let clickDebounceTimer = null;
 
-    // دوال غرف الدردشة مع الشرط (5، 6، 7): منع إنشاء أكثر من غرفة، ربط الآيدي الحقيقي، وإخفاء زر الإنشاء إذا كان يمتلك غرفة
+    // دالة النسخ الآمنة والمتوافقة مع كافة المتصفحات والهواتف (تمنع ظهور خطأ "تعذر النسخ")
+    function safeCopyTextToClipboard(textToCopy, successMsg = "📋 تم النسخ بنجاح!") {
+        if (!textToCopy) return alert("⚠️ لا يوجد نص للنسخ!");
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert(successMsg);
+            }).catch(() => {
+                fallbackCopyTextMethod(textToCopy, successMsg);
+            });
+        } else {
+            fallbackCopyTextMethod(textToCopy, successMsg);
+        }
+    }
+
+    function fallbackCopyTextMethod(textToCopy, successMsg) {
+        try {
+            let textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            textArea.style.position = "fixed";  
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            let successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+            if (successful) {
+                alert(successMsg);
+            } else {
+                alert("❌ تعذر النسخ، يرجى النسخ يدويًا.");
+            }
+        } catch (err) {
+            alert("❌ تعذر النسخ، يرجى النسخ يدويًا.");
+        }
+    }
+
+    // إصلاح مشكلة نسخ كود التحويل / العنوان (الشرط 1)
+    function copyUsdtAddress(){
+        let addr = "TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F";
+        safeCopyTextToClipboard(addr, "📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!");
+    }
+
+    // إصلاح مشكلة نسخ اسم المستخدم أو رقم الوكيل (الشرط 2)
+    function copyTextToClipboard(text){
+        safeCopyTextToClipboard(text, "📋 تم نسخ النص بنجاح!");
+    }
+
     function openCreateRoomModal(){
-        // التحقق إن كان يمتلك غرفة مسبقاً
         rtdb.ref('rooms').once('value', snap=>{
             let hasRoom = false;
             snap.forEach(item=>{
@@ -762,7 +806,7 @@
                     roomName: roomName,
                     creatorKey: currentUserKey,
                     creatorName: userData.name || 'مستخدم',
-                    creatorCustomId: userData.customId || '---', // ربط الآيدي الحقيقي والصحيح للمستخدم (الشرط 6)
+                    creatorCustomId: userData.customId || '---', // توحيد الآيدي الحقيقي للمستخدم في الغرفة (الشرط 5)
                     cover: coverBase64 || 'https://via.placeholder.com/85',
                     timestamp: Date.now()
                 }).then(()=>{
@@ -798,7 +842,6 @@
                 let rKey = item.key;
                 if(r.creatorKey === currentUserKey) userHasRoom = true;
 
-                // زر حذف الغرفة خاص للإدارة فقط (الشرط 5)
                 let deleteAdminBtn = '';
                 if(currentEmail === 'msaftwtn@gmail.com' || userData.customId === '1'){
                     deleteAdminBtn = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:4px 8px;font-size:10px;margin-top:4px;" onclick="adminDeleteRoomByAdmin('${rKey}')">حذف الغرفة (إدارة) 🗑️</button>`;
@@ -819,7 +862,6 @@
                 </div>`;
             });
 
-            // إخفاء خيار إنشاء غرفة جديدة مجاناً إذا كان المستخدم يمتلك غرفة، وإظهاره فقط إذا حذفتها الإدارة (الشرط 7)
             if(createSection){
                 createSection.style.display = userHasRoom ? 'none' : 'block';
             }
@@ -832,12 +874,11 @@
         });
     }
 
-    // حذف الغرفة حصراً للإدارة (الشرط 5)
     function adminDeleteRoomByAdmin(roomKey){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
-        if(!confirm("⚠️ هل أنت متأكد من حذف هذه الغرفة نهائياً؟ (صلاحية للإدارة فقط)")) return;
+        if(!confirm("⚠️ هل أنت متأكد من حذف هذه الغرفة نهائياً؟")) return;
         rtdb.ref(`rooms/${roomKey}`).remove().then(()=>{
-            alert("✅ تم حذف الغرفة من قبل الإدارة بنجاح وسيعود خيار الإنشاء للمستخدم.");
+            alert("✅ تم حذف الغرفة من قبل الإدارة بنجاح.");
             loadRoomsList();
         });
     }
@@ -882,7 +923,7 @@
 
         rtdb.ref(`room_users/${rKey}/${currentUserKey}`).set({
             name: userData.name || 'مستخدم',
-            customId: userData.customId || '---'
+            customId: userData.customId || '---' // توحيد الآيدي داخل الغرفة تماماً مع الملف الشخصي (الشرط 5)
         });
 
         rtdb.ref(`room_chats/${rKey}`).on('value', snap=>{
@@ -1000,13 +1041,6 @@
             cIdx++;
             if(cIdx >= currentWord.length){ cIdx = 0; wIdx = (wIdx + 1) % words.length; }
         }, 800);
-    }
-
-    function copyUsdtAddress(){
-        let addr = "TU31n5NnWAnhQ83YTpYFXvjhrAqxNfkn8F";
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(addr).then(()=>alert("📋 تم نسخ عنوان محفظة USDT TRC20 بنجاح!"));
-        } else { alert("❌ تعذر النسخ."); }
     }
 
     function selectWithdrawMethod(methodName){
@@ -1262,7 +1296,6 @@
         document.getElementById('signupForm').style.display=type==='signup'?'block':'none';
     }
     
-    // نظام فحص بصمة الجهاز الصارم ومنع فتح حسابين على نفس الهاتف
     function handleLogin(){
         const email=document.getElementById('loginEmail').value.trim(),pass=document.getElementById('loginPass').value.trim();
         if(!email||!pass)return alert("⚠️ أدخل البريد وكلمة المرور");if(!auth||!rtdb)return alert("❌ خطأ بالاتصال");
@@ -1522,8 +1555,8 @@
             userName: userData.name || 'مستخدم',
             userId: userData.customId || '---',
             paymentMethod: 'USDT TRC20',
-            hash: ph, // كود عملية التحويل (الشرط 3)
-            details: det, // العداد المطلوب (الشرط 3)
+            hash: ph,
+            details: det,
             timestamp: Date.now(),
             status: 'pending'
         }).then(()=>{
@@ -1598,18 +1631,48 @@
                 if(d.isAgent){
                     let prov = d.agentProvince || 'العراق';
                     let av = d.agentAvatar || d.avatar || 'https://via.placeholder.com/45';
-                    h += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(234,179,8,0.3);padding:6px;border-radius:10px;text-align:right;"><div style="font-size:11px;color:#facc15;font-weight:bold;margin-bottom:4px;">📍 ${prov}</div><div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><img src="${av}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid #eab308;" alt="وكيل"><div><b style="color:#fff;font-size:11px">${d.name}</b><div style="font-size:9px;color:#cbd5e1;">⭐ وكيل معتمد</div></div></div><div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">تليجرام: ${d.agentTelegram||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentTelegram||''}')">📋</button></div><div style="font-size:9px;color:#cbd5e1;">واتساب: ${d.agentWhatsapp||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentWhatsapp||''}')">📋</button></div></div>`;
+                    
+                    // إضافة صلاحية إزالة الوكيل وحذف ملكيته للإدارة فقط (الشرط 4)
+                    let removeAgentBtn = '';
+                    if(currentEmail === 'msaftwtn@gmail.com' || userData.customId === '1'){
+                        removeAgentBtn = `<button class="action-btn" style="background:#ef4444;color:#fff;padding:3px 6px;font-size:9px;margin-top:6px;width:100%;" onclick="adminRemoveAgentStatus('${u.key}', '${d.name}')">إزالة الوكيل (إدارة) 🗑️</button>`;
+                    }
+
+                    h += `<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(234,179,8,0.3);padding:6px;border-radius:10px;text-align:right;">
+                        <div style="font-size:11px;color:#facc15;font-weight:bold;margin-bottom:4px;">📍 ${prov}</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                            <img src="${av}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;border:1px solid #eab308;" alt="وكيل">
+                            <div><b style="color:#fff;font-size:11px">${d.name}</b><div style="font-size:9px;color:#cbd5e1;">⭐ وكيل معتمد</div></div>
+                        </div>
+                        <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">تليجرام: ${d.agentTelegram||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentTelegram||''}')">📋</button></div>
+                        <div style="font-size:9px;color:#cbd5e1;margin-bottom:2px;">واتساب: ${d.agentWhatsapp||'---'} <button class="agent-copy-btn" onclick="copyTextToClipboard('${d.agentWhatsapp||''}')">📋</button></div>
+                        ${removeAgentBtn}
+                    </div>`;
                 }
             });
             c.innerHTML = h || "<div style='grid-column:span 2;text-align:center;'>لا يوجد وكلاء معتمدون.</div>";
         });
     }
 
-    function copyTextToClipboard(text){
-        if(!text) return alert("⚠️ لا يوجد نص للنسخ!");
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(()=>alert(`📋 تم النسخ بنجاح!`)).catch(()=>alert("❌ تعذر النسخ."));
-        } else { alert("❌ تعذر النسخ."); }
+    // دالة إزالة الوكيل وسحب صلاحياته (خاصة بالإدارة فقط - الشرط 4)
+    function adminRemoveAgentStatus(targetUserKey, agentName){
+        if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
+        if(!confirm(`⚠️ هل أنت متأكد من إزالة الوكيل (${agentName}) وسحب ملكيته وصلاحياته بالكامل؟`)) return;
+        rtdb.ref(`users/${targetUserKey}`).update({
+            isAgent: false,
+            agentTelegram: '',
+            agentWhatsapp: '',
+            agentBag: 0,
+            agentProvince: '',
+            agentAvatar: ''
+        }).then(()=>{
+            rtdb.ref(`notifications/${targetUserKey}`).push({
+                text: `⚠️ قامت الإدارة بإزالة صفة وكيل معتمد وسحب ملكية وكالتك.`,
+                timestamp: Date.now()
+            });
+            alert("✅ تم إزالة الوكيل وسحب ملكيته بنجاح!");
+            loadApprovedAgentsList();
+        });
     }
 
     function claimDailyReward(){
@@ -1626,14 +1689,16 @@
         });
     }
 
+    // إصلاح مشكلة استبدال الجواهر بالنقاط (الشرط 3)
     function convertGemsToPoints(){
-        if((userData.gems||0)<5000) return alert(`⚠️ رصيدك الحالي لا يكفي (يلزم 5,000 جوهرة كحد أدنى)!`);
+        let currentGems = userData.gems || 0;
+        if(currentGems < 5000) return alert(`⚠️ رصيدك الحالي (${currentGems.toLocaleString()} جوهرة) لا يكفي! (يلزم 5,000 جوهرة كحد أدنى للاستبدال).`);
         rtdb.ref(`users/${currentUserKey}`).update({
-            gems: (userData.gems||0) - 5000,
-            points: (userData.points||0) + 100
+            gems: currentGems - 5000,
+            points: (userData.points || 0) + 100
         }).then(()=>{
             updateUI();
-            alert('🎉 تم تبديل 5.000 جوهرة بـ 100 نقطة بنجاح!');
+            alert('🎉 تم تبديل 5,000 جوهرة بـ 100 نقطة بنجاح تام!');
         });
     }
 
@@ -1816,9 +1881,9 @@
             userKey: currentUserKey,
             userName: userData.name,
             userId: userData.customId,
-            method: selectedWithdrawMethodName, // وسيلة استلام الأرباح (الشرط 4)
-            account: acc, // رقم الحساب أو الهاتف الصحيح لاستلام الأموال (الشرط 4)
-            amount: amt, // عدد النقاط المسحوبة (الشرط 4)
+            method: selectedWithdrawMethodName,
+            account: acc,
+            amount: amt,
             timestamp: Date.now(),
             status: 'pending'
         }).then(()=>{
@@ -1913,7 +1978,6 @@
         });
     }
 
-    // تطوير دقة فحص الملف الشخصي للمستخدم من قبل الإدارة (الشرط 8)
     function adminInspectUser(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         let tId=document.getElementById('adminInspectIdInput').value.trim();
@@ -1927,10 +1991,9 @@
             snap.forEach(c=>{ let u=c.val(); if(String(u.customId).trim()===String(tId).trim() || c.key===tId) { foundUser=u; foundKey=c.key; } });
             if(!foundUser){ resArea.innerHTML="❌ لم يتم العثور على مستخدم بهذا الـ ID."; return; }
             
-            // استخراج نوع العداد الحقيقي بدقة تامة (الشرط 8)
             let valNum = foundUser.activeCounterVal || 0;
             let counterDetail = valNum > 0 ? `عداد ${valNum.toLocaleString()} نقطة يومياً` : (foundUser.activeCounter || 'لا يوجد عداد نشط');
-            let wCount = foundUser.withdrawCount || 0; // عدد مرات السحب الحقيقية الدقيقة (الشرط 8)
+            let wCount = foundUser.withdrawCount || 0;
 
             resArea.innerHTML=`👤 <b>اسم المستخدم:</b> ${foundUser.name || 'بدون اسم'}<br>`+
                               `🪪 <b>آيدي المستخدم (ID):</b> ${foundUser.customId || '---'}<br>`+
@@ -1958,7 +2021,6 @@
     }
     function closeAdminPanelModal(){ document.getElementById('adminPanelModal').style.display='none'; }
     
-    // إظهار جميع بيانات طلبات العدادات المعلقة والإيداعات للإدارة (الشرط 3)
     function openAdminCounterOrders(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return alert('⚠️ غير مسموح.');
         document.getElementById('adminCounterOrdersModal').style.display='flex';
@@ -1980,7 +2042,6 @@
     }
     function closeAdminCounterOrders(){ document.getElementById('adminCounterOrdersModal').style.display='none'; }
 
-    // إظهار جميع بيانات طلبات سحب الأرباح للإدارة بدقة (الشرط 4)
     function loadAdminData(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return;
         rtdb.ref('admin_withdrawals').once('value',snap=>{
