@@ -705,7 +705,7 @@
             <h3 style="color:#c084fc;margin:0;font-size:14px">💸 سحب الأرباح</h3>
             <button style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer" onclick="closeWithdrawModal()">✖</button>
         </div>
-        <div style="background:rgba(16,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>الحد الأدنى للسحب 10$. اختر طريقة السحب:</div>
+        <div style="background:rgba(10,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>الحد الأدنى للسحب 10$. اختر طريقة السحب:</div>
         <label style="font-size:11px;color:#cbd5e1;display:block;margin-bottom:4px">اختر طريقة السحب:</label>
         <div class="withdraw-methods-grid">
             <button class="withdraw-method-btn active" id="wBtnZain" onclick="selectWithdrawMethod('زين كاش (Zain Cash)')">زين كاش</button>
@@ -1142,33 +1142,43 @@
             closeBuyConfirmModal();
             return showNeonPopup(`❌ ليس لديك نقاط كافية لشراء العداد!`);
         }
-        rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
-            let newBuyerPts = userData.points - price;
-            // إصلاح مشكلة شق المشتري وشراء العدادات (إضافة قيمة العداد الجديد إلى الأساسي بدلاً من استبداله - النقطة 1)
-            let existingCounterVal = userData.activeCounterVal || 0;
-            let updatedCounterVal = existingCounterVal + counterVal;
+        
+        // التحقق أولاً من بيانات البائع لضمان إتمام المعاملة بنجاح وتصفير عداده المباع
+        rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
+            if(!sSnap.exists()){
+                closeBuyConfirmModal();
+                return showNeonPopup(`❌ عذراً، عارض العداد غير موجود أو تم حذفه!`);
+            }
+            let sellerData = sSnap.val();
 
-            rtdb.ref(`users/${currentUserKey}`).update({
-                points: newBuyerPts,
-                activeCounterVal: updatedCounterVal,
-                activeCounter: `عداد ${updatedCounterVal.toLocaleString()} نقطة يومياً (مجمع)`
-            }).then(()=>{
-                rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
-                    if(sSnap.exists()){
-                        rtdb.ref(`users/${sellerKey}`).update({
-                            points: (sSnap.val().points || 0) + price,
-                            activeCounterVal: 0,
-                            activeCounter: 'لا يوجد (تم بيع العداد)'
-                        }).then(()=>{
-                            rtdb.ref(`notifications/${sellerKey}`).push({
-                                text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) وإضافة (${price.toLocaleString()} نقطة) لرصيدك!`,
-                                timestamp: Date.now()
-                            });
-                            closeBuyConfirmModal();
-                            updateUI();
-                            showNeonPopup(`🎉 تم الشراء بنجاح! تمت إضافة (${counterVal.toLocaleString()} نقطة) إلى عدادك السابق ليصبح إجمالي إنتاجك (${updatedCounterVal.toLocaleString()} نقطة يومياً).`);
+            // حذف العرض من السوق لمنع التكرار
+            rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
+                let newBuyerPts = userData.points - price;
+                let existingBuyerCounterVal = userData.activeCounterVal || 0;
+                let updatedBuyerCounterVal = existingBuyerCounterVal + counterVal;
+
+                // تحديث المشتري (خصم السعر + إضافة العداد الجديد تراكمياً)
+                rtdb.ref(`users/${currentUserKey}`).update({
+                    points: newBuyerPts,
+                    activeCounterVal: updatedBuyerCounterVal,
+                    activeCounter: `عداد ${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً (مجمع)`
+                }).then(()=>{
+                    // تحديث البائع (إضافة الثمن + تصفير العداد المباع منه فوراً)
+                    let newSellerPts = Number(sellerData.points || 0) + price;
+                    rtdb.ref(`users/${sellerKey}`).update({
+                        points: newSellerPts,
+                        activeCounterVal: 0,
+                        activeCounter: 'لا يوجد (تم بيع العداد)'
+                    }).then(()=>{
+                        // إرسال إشعار للبائع بنجاح البيع وتصفير عداده
+                        rtdb.ref(`notifications/${sellerKey}`).push({
+                            text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) بنجاح! وأضيفت (${price.toLocaleString()} نقطة) لرصيدك، وتم تصفير العداد المباع من حسابك.`,
+                            timestamp: Date.now()
                         });
-                    }
+                        closeBuyConfirmModal();
+                        updateUI();
+                        showNeonPopup(`🎉 تم الشراء بنجاح! تمت إضافة (${counterVal.toLocaleString()} نقطة) إلى عدادك السابق ليصبح إجمالي إنتاجك (${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً).`);
+                    });
                 });
             });
         });
@@ -1561,7 +1571,6 @@
     function buyCounter(pts,price, counterName){
         if((userData.points||0)<price) return showNeonPopup(`❌ نقاطك غير كافية! سعر العداد ${price.toLocaleString()} نقطة.`);
         let newPts = (userData.points||0) - price;
-        // إصلاح شق الشراء متجر العدادات (تجميع القيمة الجديدة مع القديمة - النقطة 1)
         let existingCounterVal = userData.activeCounterVal || 0;
         let newCounterVal = existingCounterVal + pts;
 
@@ -1795,7 +1804,6 @@
         c.innerHTML=html;
     }
 
-    // تحسين شكل وتصميم إشعارات النظام العامة (النقطة 2)
     function loadNotifications(){
         if(!currentUserKey||!rtdb)return;
         rtdb.ref(`notifications/${currentUserKey}`).limitToLast(20).on('value',snap=>{
