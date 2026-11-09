@@ -849,7 +849,7 @@
 
     function loadRoomsList(){
         if(!rtdb) return;
-        rtdb.ref('rooms').once('value', snap=>{
+        rtdb.ref('rooms').on('value', snap=>{
             let container = document.getElementById('roomsListContainer');
             let createSection = document.getElementById('createRoomSectionCard');
             if(!container) return;
@@ -941,12 +941,15 @@
         document.getElementById('currentRoomCoverImg').src = cover;
         navigateTo('singleRoomScreen');
 
-        rtdb.ref(`room_users/${rKey}/${currentUserKey}`).set({
+        // استخدام onDisconnect لحذف المستخدم فور خروجه أو انقطاع اتصاله لضمان عدم تعليق اسمه في القائمة
+        let userPresenceRef = rtdb.ref(`room_users/${rKey}/${currentUserKey}`);
+        userPresenceRef.set({
             name: userData.name || 'مستخدم',
             customId: userData.customId || '---'
         });
+        userPresenceRef.onDisconnect().remove();
 
-        rtdb.ref(`room_chats/${rKey}`).on('value', snap=>{
+        rtdb.ref(`room_chats/${rKey}`).limitToLast(100).on('value', snap=>{
             let area = document.getElementById('roomMessagesArea');
             if(!area) return;
             if(!snap.exists()){ area.innerHTML = "أهلاً بك في الغرفة! ابدأ المحادثة أو أرسل الهدايا."; return; }
@@ -996,8 +999,9 @@
             senderName: userData.name || 'مستخدم',
             text: txt,
             timestamp: Date.now()
+        }).then(()=>{
+            document.getElementById('roomChatInputMsg').value = '';
         });
-        document.getElementById('roomChatInputMsg').value = '';
     }
 
     function sendRoomGift(giftName, giftPrice){
@@ -1131,10 +1135,6 @@
 
     function closeBuyConfirmModal(){ document.getElementById('buyConfirmModal').style.display = 'none'; pendingBuyItem = null; }
 
-    // ==========================================
-    // دالة الشراء النهائية والمصححة جذرياً 100%
-    // تضمن استلام البائع للنقاط، تصفير عداده المباع فوراً، وتراكم النقاط للمشتري
-    // ==========================================
     function executeBuyCounterTransaction(){
         if(!pendingBuyItem) return closeBuyConfirmModal();
         let { itemKey, sellerKey, counterVal, price } = pendingBuyItem;
@@ -1144,7 +1144,6 @@
             return showNeonPopup(`❌ ليس لديك نقاط كافية لشراء العداد!`);
         }
         
-        // 1. جلب بيانات البائع حصرياً والتأكد من وجوده بدقة
         rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
             if(!sSnap.exists()){
                 closeBuyConfirmModal();
@@ -1152,20 +1151,17 @@
             }
             let sellerData = sSnap.val();
 
-            // 2. حذف العرض من السوق فوراً لمنع تكرار الشراء
             rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
                 let newBuyerPts = userData.points - price;
                 let existingBuyerCounterVal = userData.activeCounterVal || 0;
                 let updatedBuyerCounterVal = existingBuyerCounterVal + counterVal;
 
-                // 3. تحديث بيانات المشتري (خصم نقاط الشراء + تراكم العداد الجديد فوق القديم)
                 rtdb.ref(`users/${currentUserKey}`).update({
                     points: newBuyerPts,
                     activeCounterVal: updatedBuyerCounterVal,
                     activeCounter: `عداد ${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً (مجمع)`
                 }).then(()=>{
                     
-                    // 4. تحديث بيانات البائع (إضافة سعر البيع لرصيده + تصفير عداده المباع نهائياً وجعله 0)
                     let newSellerPts = Number(sellerData.points || 0) + price;
                     rtdb.ref(`users/${sellerKey}`).update({
                         points: newSellerPts,
@@ -1173,7 +1169,6 @@
                         activeCounter: 'لا يوجد (تم بيع العداد)'
                     }).then(()=>{
                         
-                        // 5. إرسال إشعار رسمي للبائع بنجاح البيع وتصفير العداد وإنهاء إنتاجه المزدوج
                         rtdb.ref(`notifications/${sellerKey}`).push({
                             text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) بنجاح! وأضيفت (${price.toLocaleString()} نقطة) لرصيدك، وتم تصفير العداد المباع من حسابك وإيقاف إنتاجه المزدوج نهائياً.`,
                             timestamp: Date.now()
