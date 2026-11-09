@@ -116,14 +116,12 @@
         .withdraw-method-btn { background: rgba(30,41,59,0.8); border: 1px solid rgba(192,132,252,0.3); border-radius: 8px; padding: 8px 4px; font-size: 10px; font-weight: bold; color: #cbd5e1; cursor: pointer; text-align: center; }
         .withdraw-method-btn.active { background: linear-gradient(135deg, #9333ea, #c084fc); color: #fff; border-color: #c084fc; box-shadow: 0 0 10px rgba(192,132,252,0.4); }
 
-        /* تنسيق إشعارات الظهور (Popups) الفخمة المطابقة للصورة المرفقة تماماً */
         .neon-popup-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
         .neon-popup-card { width: 100%; max-width: 330px; background: #070913; border: 2px solid #a855f7; border-radius: 22px; padding: 30px 20px 20px 20px; text-align: center; position: relative; box-shadow: 0 0 25px rgba(168,85,247,0.5), inset 0 0 15px rgba(168,85,247,0.2); }
         .neon-popup-icon-circle { width: 65px; height: 65px; background: #070913; border: 2px solid #c084fc; border-radius: 50%; position: absolute; top: -35px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(192,132,252,0.8); }
         .neon-popup-msg { color: #fff; font-size: 13px; font-weight: bold; line-height: 1.6; margin-bottom: 20px; margin-top: 10px; word-break: break-word; }
         .neon-popup-btn { background: linear-gradient(135deg, #9333ea, #c084fc); color: #fff; border: none; border-radius: 12px; padding: 10px 30px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 0 12px rgba(147,51,234,0.6); }
 
-        /* تحسين مظهر إشعارات النظام (System Notifications) */
         .system-notification-item { background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.95)); border: 1px solid rgba(192,132,252,0.3); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; text-align: right; box-shadow: 0 4px 12px rgba(0,0,0,0.4); display: flex; align-items: flex-start; gap: 8px; }
     </style>
 </head>
@@ -530,7 +528,6 @@
     </div>
 </div>
 
-<!-- نافذة إشعارات الظهور المنبثقة النيون الفخمة (المطابقة للصورة المرفقة رقم 13) -->
 <div id="neonPopupModal" class="neon-popup-overlay">
     <div class="neon-popup-card">
         <div class="neon-popup-icon-circle">
@@ -1134,16 +1131,20 @@
 
     function closeBuyConfirmModal(){ document.getElementById('buyConfirmModal').style.display = 'none'; pendingBuyItem = null; }
 
-    // دالة الشراء المصححة جذرياً لضمان تصفير عداد البائع واستلامه للنقاط وتحويلها للمشتري تراكمياً
+    // ==========================================
+    // دالة الشراء النهائية والمصححة جذرياً 100%
+    // تضمن استلام البائع للنقاط، تصفير عداده المباع فوراً، وتراكم النقاط للمشتري
+    // ==========================================
     function executeBuyCounterTransaction(){
         if(!pendingBuyItem) return closeBuyConfirmModal();
         let { itemKey, sellerKey, counterVal, price } = pendingBuyItem;
+        
         if((userData.points || 0) < price){
             closeBuyConfirmModal();
             return showNeonPopup(`❌ ليس لديك نقاط كافية لشراء العداد!`);
         }
         
-        // جلب بيانات البائع للتأكد وتحديث رصيده وتصفير عداده المباع
+        // 1. جلب بيانات البائع حصرياً والتأكد من وجوده بدقة
         rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
             if(!sSnap.exists()){
                 closeBuyConfirmModal();
@@ -1151,30 +1152,33 @@
             }
             let sellerData = sSnap.val();
 
-            // حذف العرض من السوق لمنع التكرار
+            // 2. حذف العرض من السوق فوراً لمنع تكرار الشراء
             rtdb.ref(`trading_counters/${itemKey}`).remove().then(()=>{
                 let newBuyerPts = userData.points - price;
                 let existingBuyerCounterVal = userData.activeCounterVal || 0;
                 let updatedBuyerCounterVal = existingBuyerCounterVal + counterVal;
 
-                // تحديث المشتري (خصم السعر + إضافة العداد الجديد تراكمياً فوق عداده القديم)
+                // 3. تحديث بيانات المشتري (خصم نقاط الشراء + تراكم العداد الجديد فوق القديم)
                 rtdb.ref(`users/${currentUserKey}`).update({
                     points: newBuyerPts,
                     activeCounterVal: updatedBuyerCounterVal,
                     activeCounter: `عداد ${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً (مجمع)`
                 }).then(()=>{
-                    // تحديث البائع (إضافة سعر البيع + تصفير عداده المباع فوراً ليصبح 0)
+                    
+                    // 4. تحديث بيانات البائع (إضافة سعر البيع لرصيده + تصفير عداده المباع نهائياً وجعله 0)
                     let newSellerPts = Number(sellerData.points || 0) + price;
                     rtdb.ref(`users/${sellerKey}`).update({
                         points: newSellerPts,
                         activeCounterVal: 0,
                         activeCounter: 'لا يوجد (تم بيع العداد)'
                     }).then(()=>{
-                        // إرسال إشعار للبائع بنجاح البيع وتصفير عداده
+                        
+                        // 5. إرسال إشعار رسمي للبائع بنجاح البيع وتصفير العداد وإنهاء إنتاجه المزدوج
                         rtdb.ref(`notifications/${sellerKey}`).push({
-                            text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) بنجاح! وأضيفت (${price.toLocaleString()} نقطة) لرصيدك، وتم تصفير العداد المباع من حسابك.`,
+                            text: `🎉 تم بيع عدادك (${counterVal.toLocaleString()} نقطة) بنجاح! وأضيفت (${price.toLocaleString()} نقطة) لرصيدك، وتم تصفير العداد المباع من حسابك وإيقاف إنتاجه المزدوج نهائياً.`,
                             timestamp: Date.now()
                         });
+                        
                         closeBuyConfirmModal();
                         updateUI();
                         showNeonPopup(`🎉 تم الشراء بنجاح! تمت إضافة (${counterVal.toLocaleString()} نقطة) إلى عدادك السابق ليصبح إجمالي إنتاجك (${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً).`);
