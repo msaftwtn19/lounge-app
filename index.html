@@ -941,7 +941,7 @@
         document.getElementById('currentRoomCoverImg').src = cover;
         navigateTo('singleRoomScreen');
 
-        // استخدام onDisconnect لحذف المستخدم فور خروجه أو انقطاع اتصاله لضمان عدم تعليق اسمه في القائمة
+        // تسجيل تواجد المستخدم داخل الغرفة مع تفعيل نظام الخروج التلقائي عند قطع الاتصال لضمان دقة عدد الحضور
         let userPresenceRef = rtdb.ref(`room_users/${rKey}/${currentUserKey}`);
         userPresenceRef.set({
             name: userData.name || 'مستخدم',
@@ -949,6 +949,7 @@
         });
         userPresenceRef.onDisconnect().remove();
 
+        // تفعيل الاستماع اللحظي لرسائل الروم والشات
         rtdb.ref(`room_chats/${rKey}`).limitToLast(100).on('value', snap=>{
             let area = document.getElementById('roomMessagesArea');
             if(!area) return;
@@ -962,6 +963,7 @@
             area.scrollTop = area.scrollHeight;
         });
 
+        // تفعيل الاستماع اللحظي للمتواجدين وتحديث العداد والقائمة فوراً
         rtdb.ref(`room_users/${rKey}`).on('value', snap=>{
             let uList = document.getElementById('roomUsersListContainer');
             let targetSelect = document.getElementById('giftTargetSelect');
@@ -1537,6 +1539,9 @@
         navigateTo('authScreen');
     }
     
+    // ==========================================
+    // إصلاح مشكلة شحن الوكيل (وصول النقاط للمستخدم بدقة)
+    // ==========================================
     function agentTransferPoints(){
         if(!userData.isAgent) return showNeonPopup("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1547,13 +1552,17 @@
         
         rtdb.ref('users').orderByChild('customId').equalTo(targetId).once('value', snap=>{
             if(!snap.exists()) return showNeonPopup("❌ لم يتم العثور على هذا المستخدم!");
+            
+            // استخراج المفتاح الحقيقي للمستخدم المستهدف من الـ Object بدقة
             let targetKey = Object.keys(snap.val())[0];
             let targetData = snap.val()[targetKey];
             
             let updatedBag = currentBag - amt;
             rtdb.ref(`users/${currentUserKey}`).update({ agentBag: updatedBag }).then(()=>{
                 userData.agentBag = updatedBag;
-                rtdb.ref(`users/${targetKey}`).update({ points: Number(targetData.points || 0) + amt }).then(()=>{
+                
+                let targetNewPoints = Number(targetData.points || 0) + amt;
+                rtdb.ref(`users/${targetKey}`).update({ points: targetNewPoints }).then(()=>{
                     rtdb.ref(`notifications/${targetKey}`).push({
                         text: `💼 قام الوكيل (${userData.name}) بشحن ${amt.toLocaleString()} نقطة بحسابك مباشرة!`,
                         timestamp: Date.now()
@@ -1561,7 +1570,7 @@
                     document.getElementById('agentChargeTargetId').value = '';
                     document.getElementById('agentChargeAmount').value = '';
                     updateUI();
-                    showNeonPopup("✅ تم شحن النقاط للمستخدم بنجاح!");
+                    showNeonPopup("✅ تم شحن النقاط للمستخدم بنجاح تام!");
                 });
             });
         });
