@@ -941,7 +941,6 @@
         document.getElementById('currentRoomCoverImg').src = cover;
         navigateTo('singleRoomScreen');
 
-        // تسجيل تواجد المستخدم داخل الغرفة مع تفعيل نظام الخروج التلقائي عند قطع الاتصال لضمان دقة عدد الحضور
         let userPresenceRef = rtdb.ref(`room_users/${rKey}/${currentUserKey}`);
         userPresenceRef.set({
             name: userData.name || 'مستخدم',
@@ -949,21 +948,20 @@
         });
         userPresenceRef.onDisconnect().remove();
 
-        // تفعيل الاستماع اللحظي لرسائل الروم والشات
-        rtdb.ref(`room_chats/${rKey}`).limitToLast(100).on('value', snap=>{
+        // إصلاح مشكلة إرسال وعرض رسائل الغرفة لحظياً في الكود
+        rtdb.ref(`room_messages/${rKey}`).on('value', snap=>{
             let area = document.getElementById('roomMessagesArea');
             if(!area) return;
             if(!snap.exists()){ area.innerHTML = "أهلاً بك في الغرفة! ابدأ المحادثة أو أرسل الهدايا."; return; }
             let h = '';
             snap.forEach(m=>{
                 let msg = m.val();
-                h += `<div style="margin-bottom:4px;word-break:break-word"><b>${msg.senderName}:</b> ${msg.text}</div>`;
+                h += `<div style="margin-bottom:6px;word-break:break-word"><b>${msg.senderName || 'مستخدم'}:</b> ${msg.text || ''}</div>`;
             });
             area.innerHTML = h;
             area.scrollTop = area.scrollHeight;
         });
 
-        // تفعيل الاستماع اللحظي للمتواجدين وتحديث العداد والقائمة فوراً
         rtdb.ref(`room_users/${rKey}`).on('value', snap=>{
             let uList = document.getElementById('roomUsersListContainer');
             let targetSelect = document.getElementById('giftTargetSelect');
@@ -986,17 +984,18 @@
     function leaveCurrentRoom(){
         if(activeRoomKey && currentUserKey){
             rtdb.ref(`room_users/${activeRoomKey}/${currentUserKey}`).remove();
-            rtdb.ref(`room_chats/${activeRoomKey}`).off();
+            rtdb.ref(`room_messages/${activeRoomKey}`).off();
             rtdb.ref(`room_users/${activeRoomKey}`).off();
         }
         activeRoomKey = null;
         navigateTo('roomsScreen');
     }
 
+    // إصلاح دالة إرسال رسائل الغرفة لضمان دفعها وصلاحيتها التامة
     function sendRoomChatMessage(){
         let txt = document.getElementById('roomChatInputMsg').value.trim();
         if(!txt || !activeRoomKey) return;
-        rtdb.ref(`room_chats/${activeRoomKey}`).push({
+        rtdb.ref(`room_messages/${activeRoomKey}`).push({
             senderKey: currentUserKey,
             senderName: userData.name || 'مستخدم',
             text: txt,
@@ -1023,7 +1022,7 @@
             rtdb.ref(`users/${currentUserKey}`).update({ points: newSenderPts }).then(()=>{
                 updateUI();
                 if(targetVal === 'all'){
-                    rtdb.ref(`room_chats/${activeRoomKey}`).push({
+                    rtdb.ref(`room_messages/${activeRoomKey}`).push({
                         senderKey: 'SYSTEM',
                         senderName: '🎁 نظام الهدايا',
                         text: `أرسل (${userData.name}) هدية (${giftName}) للجميع في الشات العام! ✨`,
@@ -1041,7 +1040,7 @@
                                     text: `🎁 مبروك! استلمت هدية (${giftName}) من (${userData.name}) وأضيفت (${recipientShare} نقطة) لرصيدك!`,
                                     timestamp: Date.now()
                                 });
-                                rtdb.ref(`room_chats/${activeRoomKey}`).push({
+                                rtdb.ref(`room_messages/${activeRoomKey}`).push({
                                     senderKey: 'SYSTEM',
                                     senderName: '🎁 نظام الهدايا',
                                     text: `أرسل (${userData.name}) هدية (${giftName}) إلى (${rData.name || 'صديق'}) بنجاح! 💎`,
@@ -1539,9 +1538,6 @@
         navigateTo('authScreen');
     }
     
-    // ==========================================
-    // إصلاح مشكلة شحن الوكيل (وصول النقاط للمستخدم بدقة)
-    // ==========================================
     function agentTransferPoints(){
         if(!userData.isAgent) return showNeonPopup("⚠️ أنت لست وكيلاً معتمداً!");
         let targetId = document.getElementById('agentChargeTargetId').value.trim();
@@ -1552,15 +1548,12 @@
         
         rtdb.ref('users').orderByChild('customId').equalTo(targetId).once('value', snap=>{
             if(!snap.exists()) return showNeonPopup("❌ لم يتم العثور على هذا المستخدم!");
-            
-            // استخراج المفتاح الحقيقي للمستخدم المستهدف من الـ Object بدقة
             let targetKey = Object.keys(snap.val())[0];
             let targetData = snap.val()[targetKey];
             
             let updatedBag = currentBag - amt;
             rtdb.ref(`users/${currentUserKey}`).update({ agentBag: updatedBag }).then(()=>{
                 userData.agentBag = updatedBag;
-                
                 let targetNewPoints = Number(targetData.points || 0) + amt;
                 rtdb.ref(`users/${targetKey}`).update({ points: targetNewPoints }).then(()=>{
                     rtdb.ref(`notifications/${targetKey}`).push({
@@ -1858,17 +1851,46 @@
         rtdb.ref(`friends/${currentUserKey}`).once('value',snap=>{
             let c=document.getElementById('friendsListContainer');if(!c)return;
             if(!snap.exists()){c.innerHTML="لا يوجد أصدقاء مضافون";return;}let h='';
-            snap.forEach(f=>{let d=f.val();h+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:6px;border-radius:6px;margin-bottom:4px"><span style="cursor:pointer">🟢 <b>${d.name}</b></span><button onclick="openChatModal('${f.key}','${d.name}')" style="background:#0ea5e9;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer">محادثة 💬</button></div>`;});
+            snap.forEach(f=>{
+                let d=f.val(), fk=f.key;
+                // إضافة زر حذف الصديق لحماية المستخدمين من التحرش أو الإساءة
+                h+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:6px;border-radius:6px;margin-bottom:4px">
+                    <span style="cursor:pointer">🟢 <b>${d.name}</b></span>
+                    <div style="display:flex;gap:4px">
+                        <button onclick="openChatModal('${fk}','${d.name}')" style="background:#0ea5e9;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer">محادثة 💬</button>
+                        <button onclick="removeFriend('${fk}','${d.name}')" style="background:#ef4444;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer" title="حذف الصديق">حذف 🗑️</button>
+                    </div>
+                </div>`;
+            });
             c.innerHTML=h;
         });
     }
 
+    // إصلاح دالة قبول الصداقة لضمان حفظها في طرفين وإنشاء الشات المشترك تلقائياً
     function acceptFriend(sk,sName,sId){
         rtdb.ref(`friends/${currentUserKey}/${sk}`).set({name:sName,customId:sId});
         rtdb.ref(`friends/${sk}/${currentUserKey}`).set({name:userData.name,customId:userData.customId});
-        rtdb.ref(`friend_requests/${currentUserKey}/${sk}`).remove().then(()=>showNeonPopup('✅ أصدقاء الآن!'));
+        rtdb.ref(`friend_requests/${currentUserKey}/${sk}`).remove().then(()=>{
+            loadFriendSystem();
+            showNeonPopup('✅ تمت الموافقة وأصبحتم أصدقاء الآن!');
+        });
     }
-    function rejectFriend(sk){rtdb.ref(`friend_requests/${currentUserKey}/${sk}`).remove();}
+
+    function rejectFriend(sk){
+        rtdb.ref(`friend_requests/${currentUserKey}/${sk}`).remove().then(()=>{ loadFriendSystem(); });
+    }
+
+    // دالة جديدة لحذف الصديق من الطرفين وقطع الاتصال أو إنهاء أي إساءة
+    function removeFriend(friendKey, friendName){
+        if(!confirm(`⚠️ هل أنت متأكد من حذف الصديق (${friendName}) وإنهاء الصداقة نهائياً؟`)) return;
+        rtdb.ref(`friends/${currentUserKey}/${friendKey}`).remove().then(()=>{
+            rtdb.ref(`friends/${friendKey}/${currentUserKey}`).remove().then(()=>{
+                loadFriendSystem();
+                showNeonPopup(`✅ تم حذف الصديق (${friendName}) بنجاح.`);
+            });
+        });
+    }
+
     function clearRequestsList(){rtdb.ref(`friend_requests/${currentUserKey}`).remove().then(()=>{document.getElementById('friendRequestsContainer').innerHTML="لا توجد طلبات صداقة";showNeonPopup('🗑️ تم التنظيف.');});}
     function clearFriendsDisplayList(){let c=document.getElementById('friendsListContainer');if(c)c.innerHTML="لا يوجد أصدقاء معروضون";}
 
@@ -1883,7 +1905,7 @@
             snap.forEach(m=>{
                 let msg=m.val(),isMe=msg.sender===currentUserKey;
                 let bg=isMe?"background:#10b981;color:#fff":"background:#fff;color:#0f172a";
-                h+=`<div style="text-align:${isMe?'left':'right'};margin-bottom:5px"><span style="${bg};padding:5px 9px;border-radius:6px;display:inline-block;max-width:85%;word-break:break-word"><b>${msg.senderName}:</b> ${msg.text}</span></div>`;
+                h+=`<div style="text-align:${isMe?'left':'right'};margin-bottom:5px"><span style="${bg};padding:5px 9px;border-radius:6px;display:inline-block;max-width:85%;word-break:break-word"><b>${msg.senderName || 'مستخدم'}:</b> ${msg.text || ''}</span></div>`;
             });
             a.innerHTML=h;a.scrollTop=a.scrollHeight;
         });
@@ -1896,8 +1918,10 @@
 
     function sendChatMessage(){
         let txt=document.getElementById('chatInputMsg').value.trim();if(!txt||!activeChatFriendKey)return;
-        rtdb.ref(`chats/${[currentUserKey,activeChatFriendKey].sort().join('_')}`).push({sender:currentUserKey,senderName:userData.name,text:txt,timestamp:Date.now()});
-        document.getElementById('chatInputMsg').value='';
+        let chatId=[currentUserKey,activeChatFriendKey].sort().join('_');
+        rtdb.ref(`chats/${chatId}`).push({sender:currentUserKey,senderName:userData.name || 'مستخدم',text:txt,timestamp:Date.now()}).then(()=>{
+            document.getElementById('chatInputMsg').value='';
+        });
     }
 
     function triggerImageUpload(){document.getElementById('hiddenImageInput').click();}
