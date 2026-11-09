@@ -742,7 +742,6 @@
     let isCompletedToday = false;
     let clickDebounceTimer = null;
 
-    // دالة إشعارات الظهور (Popups) المنبثقة النيون الفخمة بدلاً من alert العادي
     function showNeonPopup(message) {
         document.getElementById('neonPopupMessageText').innerText = message;
         document.getElementById('neonPopupModal').style.display = 'flex';
@@ -1135,6 +1134,7 @@
 
     function closeBuyConfirmModal(){ document.getElementById('buyConfirmModal').style.display = 'none'; pendingBuyItem = null; }
 
+    // دالة الشراء المصححة جذرياً لضمان تصفير عداد البائع واستلامه للنقاط وتحويلها للمشتري تراكمياً
     function executeBuyCounterTransaction(){
         if(!pendingBuyItem) return closeBuyConfirmModal();
         let { itemKey, sellerKey, counterVal, price } = pendingBuyItem;
@@ -1143,7 +1143,7 @@
             return showNeonPopup(`❌ ليس لديك نقاط كافية لشراء العداد!`);
         }
         
-        // التحقق أولاً من بيانات البائع لضمان إتمام المعاملة بنجاح وتصفير عداده المباع
+        // جلب بيانات البائع للتأكد وتحديث رصيده وتصفير عداده المباع
         rtdb.ref(`users/${sellerKey}`).once('value', sSnap=>{
             if(!sSnap.exists()){
                 closeBuyConfirmModal();
@@ -1157,13 +1157,13 @@
                 let existingBuyerCounterVal = userData.activeCounterVal || 0;
                 let updatedBuyerCounterVal = existingBuyerCounterVal + counterVal;
 
-                // تحديث المشتري (خصم السعر + إضافة العداد الجديد تراكمياً)
+                // تحديث المشتري (خصم السعر + إضافة العداد الجديد تراكمياً فوق عداده القديم)
                 rtdb.ref(`users/${currentUserKey}`).update({
                     points: newBuyerPts,
                     activeCounterVal: updatedBuyerCounterVal,
                     activeCounter: `عداد ${updatedBuyerCounterVal.toLocaleString()} نقطة يومياً (مجمع)`
                 }).then(()=>{
-                    // تحديث البائع (إضافة الثمن + تصفير العداد المباع منه فوراً)
+                    // تحديث البائع (إضافة سعر البيع + تصفير عداده المباع فوراً ليصبح 0)
                     let newSellerPts = Number(sellerData.points || 0) + price;
                     rtdb.ref(`users/${sellerKey}`).update({
                         points: newSellerPts,
