@@ -653,8 +653,8 @@
             </div>
             <div id="adminInspectResult" style="font-size:10px;color:#cbd5e1;margin-top:4px;background:rgba(0,0,0,0.3);padding:6px;border-radius:4px;display:none;text-align:right;"></div>
         </div>
-        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة:</b></div>
-        <div id="adminWithdrawalsArea" class="admin-tab-content" style="max-height:120px;overflow-y:auto;font-size:10px">جاري التحميل...</div>
+        <div style="font-size:11px;color:#c084fc;margin-bottom:4px"><b>طلبـات السحب المعلقة (مع إمكانية الموافقة والرفض وإعادة النقاط):</b></div>
+        <div id="adminWithdrawalsArea" class="admin-tab-content" style="max-height:140px;overflow-y:auto;font-size:10px">جاري التحميل...</div>
     </div>
 </div>
 
@@ -698,7 +698,7 @@
             <h3 style="color:#c084fc;margin:0;font-size:14px">💸 سحب الأرباح</h3>
             <button style="background:none;border:none;color:#ef4444;font-size:18px;cursor:pointer" onclick="closeWithdrawModal()">✖</button>
         </div>
-        <div style="background:rgba(10,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>الحد الأدنى للسحب 10$. اختر طريقة السحب:</div>
+        <div style="background:rgba(10,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:8px;margin-bottom:10px;font-size:11px;color:#10b981"><b>💼 قسم سحب الأرباح:</b><br>تُخصم النقاط فوراً من رصيدك عند إرسال الطلب (الحد الأدنى 30,000 نقطة):</div>
         <label style="font-size:11px;color:#cbd5e1;display:block;margin-bottom:4px">اختر طريقة السحب:</label>
         <div class="withdraw-methods-grid">
             <button class="withdraw-method-btn active" id="wBtnZain" onclick="selectWithdrawMethod('زين كاش (Zain Cash)')">زين كاش</button>
@@ -1602,7 +1602,6 @@
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
     function closeAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='none'; }
 
-    // تعديل التقديم حصراً بالنقاط (6,000,000 نقطة) مع الخصم الفوري
     function submitAgentApplication(){
         let prov = document.getElementById('agentProvinceInput').value.trim();
         let tg = document.getElementById('agentTelegramInput').value.trim();
@@ -1629,7 +1628,6 @@
                         r4.onload = (e4)=>{
                             let nBack64 = e4.target.result;
                             
-                            // خصم 6 مليون نقطة فوراً عند التقديم
                             let newPoints = (userData.points || 0) - requiredFee;
                             rtdb.ref(`users/${currentUserKey}`).update({ points: newPoints }).then(()=>{
                                 userData.points = newPoints;
@@ -1933,27 +1931,37 @@
     }
     function closeWithdrawModal(){ document.getElementById('withdrawModal').style.display='none'; }
     
+    // الخصم التلقائي المباشر من رصيد المستخدم عند طلب سحب الأرباح
     function submitWithdrawal(){
         let acc=document.getElementById('withdrawAccount').value.trim(),amt=parseFloat(document.getElementById('withdrawAmount').value);
         if(!acc||isNaN(amt))return showNeonPopup('⚠️ أدخل رقم الحساب والمبلغ بشكل صحيح!');
         if(amt<30000)return showNeonPopup('⚠️ الحد الأدنى للسحب هو 30,000 نقطة!');
-        if((userData.points||0)<amt)return showNeonPopup('❌ نقاطك الحالية غير كافية لهذا المبلغ!');
+        if((userData.points||0)<amt)return showNeonPopup(`❌ نقاطك الحالية (${(userData.points||0).toLocaleString()} نقطة) غير كافية لهذا المبلغ!`);
         
-        userData.withdrawCount = (userData.withdrawCount || 0) + 1;
-        rtdb.ref(`admin_withdrawals`).push({
-            userKey: currentUserKey,
-            userName: userData.name,
-            userId: userData.customId,
-            method: selectedWithdrawMethodName,
-            account: acc,
-            amount: amt,
-            timestamp: Date.now(),
-            status: 'pending'
-        }).then(()=>{
-            userData.lastWithdrawTime=Date.now();
-            saveToDB().then(()=>{
-                closeWithdrawModal();
-                showNeonPopup(`✅ تم تقديم طلب سحب الأرباح للإدارة بنجاح!`);
+        // الخصم الفوري من النقاط
+        let newPoints = (userData.points || 0) - amt;
+        rtdb.ref(`users/${currentUserKey}`).update({ points: newPoints }).then(()=>{
+            userData.points = newPoints;
+            userData.withdrawCount = (userData.withdrawCount || 0) + 1;
+            updateUI();
+            
+            rtdb.ref(`admin_withdrawals`).push({
+                userKey: currentUserKey,
+                userName: userData.name,
+                userId: userData.customId,
+                method: selectedWithdrawMethodName,
+                account: acc,
+                amount: amt,
+                timestamp: Date.now(),
+                status: 'pending'
+            }).then(()=>{
+                userData.lastWithdrawTime=Date.now();
+                saveToDB().then(()=>{
+                    closeWithdrawModal();
+                    document.getElementById('withdrawAccount').value = '';
+                    document.getElementById('withdrawAmount').value = '';
+                    showNeonPopup(`✅ تم خصم (${amt.toLocaleString()} نقطة) وتقديم طلب السحب للإدارة بنجاح!`);
+                });
             });
         });
     }
@@ -2052,7 +2060,6 @@
         });
     }
 
-    // زر الرفض وإعادة الـ 6 مليون نقطة للمستخدم تلقائياً
     function adminRejectAgent(userKey, feeAmount, appKey){
         if(!confirm("⚠️ هل أنت متأكد من رفض الطلب وإعادة الـ 6,000,000 نقطة إلى رصيد المستخدم؟")) return;
         rtdb.ref(`users/${userKey}`).once('value', uSnap=>{
@@ -2137,6 +2144,7 @@
     }
     function closeAdminCounterOrders(){ document.getElementById('adminCounterOrdersModal').style.display='none'; }
 
+    // تحميل طلبات السحب مع زري الموافقة والرفض وإعادة النقاط
     function loadAdminData(){
         if(currentEmail !== 'msaftwtn@gmail.com' && userData.customId !== '1') return;
         rtdb.ref('admin_withdrawals').limitToLast(20).once('value',snap=>{
@@ -2147,13 +2155,49 @@
                 let d=item.val();
                 h+=`<div style="background:rgba(255,255,255,0.04);padding:8px;border-radius:6px;margin-bottom:5px;border:1px solid rgba(192,132,252,0.2)">
                     🪪 <b>آيدي المستخدم (ID):</b> <span style="color:#38bdf8">${d.userId}</span><br>
-                    💰 <b>عدد النقاط المراد سحبها:</b> <span style="color:#34d399">${Number(d.amount).toLocaleString()} نقطة</span><br>
-                    💳 <b>وسيلة استلام الأرباح:</b> <span style="color:#c084fc">${d.method}</span><br>
-                    📱 <b>رقم المحفظة أو الحساب:</b> <b style="color:#fde047">${d.account}</b>
-                    <button onclick="adminDeleteRef('admin_withdrawals','${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:3px 8px;border-radius:4px;cursor:pointer;display:block;margin-top:6px;font-size:10px;">إتمام / حذف الطلب ✔️</button>
+                    💰 <b>عدد النقاط المخصومة:</b> <span style="color:#34d399">${Number(d.amount).toLocaleString()} نقطة</span><br>
+                    💳 <b>وسيلة السحب:</b> <span style="color:#c084fc">${d.method}</span><br>
+                    📱 <b>الحساب/المحفظة:</b> <b style="color:#fde047">${d.account}</b>
+                    <div style="display:flex;gap:4px;margin-top:6px;">
+                        <button onclick="adminApproveWithdrawal('${item.key}', '${d.userKey}', '${d.userName||'مستخدم'}', ${d.amount})" style="background:#10b981;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;flex:1;">موافقة وإتمام السحب ✔️</button>
+                        <button onclick="adminRejectWithdrawal('${item.key}', '${d.userKey}', ${d.amount})" style="background:#ef4444;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;font-size:10px;flex:1;">رفض وإعادة النقاط ✖</button>
+                    </div>
                 </div>`;
             });
             if(a) a.innerHTML=h;
+        });
+    }
+
+    // زر موافقة الإدارة على السحب (تثبيت الخصم وحذف الطلب)
+    function adminApproveWithdrawal(reqKey, userKey, userName, amount){
+        rtdb.ref(`notifications/${userKey}`).push({
+            text: `🎉 تم الموافقة على طلب سحب الأرباح بقيمة (${Number(amount).toLocaleString()} نقطة) وتم إرسال الأموال لحسابك بنجاح!`,
+            timestamp: Date.now()
+        });
+        rtdb.ref(`admin_withdrawals/${reqKey}`).remove().then(()=>{
+            showNeonPopup("✅ تم تأكيد إتمام طلب السحب بنجاح!");
+            loadAdminData();
+        });
+    }
+
+    // زر رفض الإدارة للسحب (إعادة النقاط المخصومة تلقائياً وحذف الطلب)
+    function adminRejectWithdrawal(reqKey, userKey, amount){
+        if(!confirm(`⚠️ هل أنت متأكد من رفض الطلب وإعادة (${Number(amount).toLocaleString()} نقطة) إلى حساب المستخدم؟`)) return;
+        rtdb.ref(`users/${userKey}`).once('value', uSnap=>{
+            if(!uSnap.exists()) return showNeonPopup("❌ المستخدم غير موجود!");
+            let uData = uSnap.val();
+            let restoredPoints = Number(uData.points || 0) + Number(amount);
+            
+            rtdb.ref(`users/${userKey}`).update({ points: restoredPoints }).then(()=>{
+                rtdb.ref(`notifications/${userKey}`).push({
+                    text: `⚠️ عذراً، تم رفض طلب سحب الأرباح الخاص بك، وتمت إعادة ${Number(amount).toLocaleString()} نقطة إلى رصيدك بالكامل.`,
+                    timestamp: Date.now()
+                });
+                rtdb.ref(`admin_withdrawals/${reqKey}`).remove().then(()=>{
+                    showNeonPopup("❌ تم رفض الطلب وإعادة النقاط للمستخدم تلقائياً.");
+                    loadAdminData();
+                });
+            });
         });
     }
 
