@@ -364,7 +364,7 @@
         </div>
         <div class="card" style="background:rgba(15,23,42,0.9);border:1px solid rgba(234,179,8,0.4);margin-bottom:10px;text-align:right">
             <h4 style="margin:0 0 6px 0;color:#eab308;font-size:13px">🤝 التقديم على وكالة معتمدة</h4>
-            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">رسوم الوكالة (1,000,000 نقطة) أو تحويل (1,000,000 د.ع):</p>
+            <p style="font-size:10px;color:#cbd5e1;margin-bottom:8px">رسوم التقديم للوكالة (6,000,000 نقطة) تُخصم حصراً من رصيدك:</p>
             <button class="action-btn btn-gold" style="padding:8px;font-size:11px" onclick="openAgentApplyModal()">تقديم طلب وكالة جديد 📝</button>
         </div>
         <div class="card" style="text-align:right">
@@ -583,6 +583,7 @@
             <h4 style="margin:0;color:#eab308;font-size:12px">📝 التقديم على وكالة معتمدة</h4>
             <button style="background:none;border:none;color:#ef4444;font-size:15px;cursor:pointer" onclick="closeAgentApplyModal()">✖</button>
         </div>
+        <p style="font-size:10px;color:#38bdf8;margin-bottom:6px">رسوم التقديم: 6,000,000 نقطة (تخصم حصراً من رصيدك)</p>
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">اسم المحافظة:</label>
         <input type="text" id="agentProvinceInput" class="input-box" placeholder="مثال: بغداد..." style="padding:7px;font-size:11px;margin-bottom:6px">
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">يوزر التليجرام:</label>
@@ -591,11 +592,6 @@
         <input type="text" id="agentWhatsappInput" class="input-box" placeholder="07xxxxxxxxx" style="padding:7px;font-size:11px;margin-bottom:6px">
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">صورة الوكيل:</label>
         <input type="file" id="agentAvatarInput" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
-        <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">طريقة دفع الرسوم (1M):</label>
-        <select id="agentPaymentMethod" class="select-box" style="padding:7px;font-size:11px;margin-bottom:6px">
-            <option value="points">خصم 1M نقطة من الرصيد مباشرة</option>
-            <option value="zaincash">تحويل 1,000,000 د.ع زين كاش</option>
-        </select>
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">بطاقة السكن (أمام):</label>
         <input type="file" id="agentHousingFront" accept="image/*" class="input-box" style="padding:5px;font-size:10px;margin-bottom:6px">
         <label style="font-size:10px;color:#cbd5e1;margin-bottom:2px">بطاقة السكن (خلف):</label>
@@ -948,7 +944,6 @@
         });
         userPresenceRef.onDisconnect().remove();
 
-        // إصلاح مشكلة إرسال وعرض رسائل الغرفة لحظياً في الكود
         rtdb.ref(`room_messages/${rKey}`).on('value', snap=>{
             let area = document.getElementById('roomMessagesArea');
             if(!area) return;
@@ -991,7 +986,6 @@
         navigateTo('roomsScreen');
     }
 
-    // إصلاح دالة إرسال رسائل الغرفة لضمان دفعها وصلاحيتها التامة
     function sendRoomChatMessage(){
         let txt = document.getElementById('roomChatInputMsg').value.trim();
         if(!txt || !activeRoomKey) return;
@@ -1608,18 +1602,20 @@
     function openAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='flex'; }
     function closeAgentApplyModal(){ document.getElementById('agentApplyModal').style.display='none'; }
 
+    // تعديل التقديم حصراً بالنقاط (6,000,000 نقطة) مع الخصم الفوري
     function submitAgentApplication(){
         let prov = document.getElementById('agentProvinceInput').value.trim();
         let tg = document.getElementById('agentTelegramInput').value.trim();
         let wa = document.getElementById('agentWhatsappInput').value.trim();
-        let method = document.getElementById('agentPaymentMethod').value;
         let aImg = document.getElementById('agentAvatarInput').files[0];
         let hF = document.getElementById('agentHousingFront').files[0];
         let hB = document.getElementById('agentHousingBack').files[0];
         let nF = document.getElementById('agentNationalFront').files[0];
         let nB = document.getElementById('agentNationalBack').files[0];
+        
         if(!prov || !tg || !wa || !aImg || !hF || !hB || !nF || !nB) return showNeonPopup("⚠️ يرجى ملء كافة الحقول ورفع المستمسكات!");
-        if(method === 'points' && (userData.points||0) < 1000000) return showNeonPopup("❌ نقاطك الحالية أقل من 1,000,000 نقطة المطلوبة!");
+        let requiredFee = 6000000;
+        if((userData.points || 0) < requiredFee) return showNeonPopup(`❌ رصيدك الحالي (${(userData.points||0).toLocaleString()} نقطة) لا يكفي! رسوم التقديم للوكالة هي 6,000,000 نقطة حصراً.`);
         
         let rA = new FileReader(), r1 = new FileReader(), r2 = new FileReader(), r3 = new FileReader(), r4 = new FileReader();
         rA.onload = (eA)=>{
@@ -1632,11 +1628,22 @@
                         let nFront64 = e3.target.result;
                         r4.onload = (e4)=>{
                             let nBack64 = e4.target.result;
-                            if(method === 'points'){
-                                rtdb.ref(`users/${currentUserKey}`).update({ points: (userData.points||0) - 1000000 }).then(()=>{
-                                    saveAgentAppToDB(prov, tg, wa, method, agentAvatar64, hFront64, hBack64, nFront64, nBack64);
+                            
+                            // خصم 6 مليون نقطة فوراً عند التقديم
+                            let newPoints = (userData.points || 0) - requiredFee;
+                            rtdb.ref(`users/${currentUserKey}`).update({ points: newPoints }).then(()=>{
+                                userData.points = newPoints;
+                                updateUI();
+                                
+                                rtdb.ref('agent_applications').push({
+                                    userKey: currentUserKey, userName: userData.name, userId: userData.customId,
+                                    province: prov, telegram: tg, whatsapp: wa, agentAvatar: agentAvatar64,
+                                    feePaid: requiredFee, housingFront: hF, housingBack: hB, nationalFront: nF, nationalBack: nB, timestamp: Date.now()
+                                }).then(()=>{
+                                    closeAgentApplyModal();
+                                    showNeonPopup("✅ تم خصم 6,000,000 نقطة وإرسال طلب الوكالة للإدارة بنجاح تام!");
                                 });
-                            } else { saveAgentAppToDB(prov, tg, wa, method, agentAvatar64, hFront64, hBack64, nFront64, nBack64); }
+                            });
                         };
                         r4.readAsDataURL(nB);
                     };
@@ -1647,17 +1654,6 @@
             r1.readAsDataURL(hF);
         };
         rA.readAsDataURL(aImg);
-    }
-
-    function saveAgentAppToDB(prov, tg, wa, method, a64, hF, hB, nF, nB){
-        rtdb.ref('agent_applications').push({
-            userKey: currentUserKey, userName: userData.name, userId: userData.customId,
-            province: prov, telegram: tg, whatsapp: wa, agentAvatar: a64, method: method,
-            housingFront: hF, housingBack: hB, nationalFront: nF, nationalBack: nB, timestamp: Date.now()
-        }).then(()=>{
-            closeAgentApplyModal();
-            showNeonPopup("✅ تم إرسال طلب الوكالة والمستمسكات بنجاح تام!");
-        });
     }
 
     function loadApprovedAgentsList(){
@@ -1853,7 +1849,6 @@
             if(!snap.exists()){c.innerHTML="لا يوجد أصدقاء مضافون";return;}let h='';
             snap.forEach(f=>{
                 let d=f.val(), fk=f.key;
-                // إضافة زر حذف الصديق لحماية المستخدمين من التحرش أو الإساءة
                 h+=`<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.03);padding:6px;border-radius:6px;margin-bottom:4px">
                     <span style="cursor:pointer">🟢 <b>${d.name}</b></span>
                     <div style="display:flex;gap:4px">
@@ -1866,7 +1861,6 @@
         });
     }
 
-    // إصلاح دالة قبول الصداقة لضمان حفظها في طرفين وإنشاء الشات المشترك تلقائياً
     function acceptFriend(sk,sName,sId){
         rtdb.ref(`friends/${currentUserKey}/${sk}`).set({name:sName,customId:sId});
         rtdb.ref(`friends/${sk}/${currentUserKey}`).set({name:userData.name,customId:userData.customId});
@@ -1880,7 +1874,6 @@
         rtdb.ref(`friend_requests/${currentUserKey}/${sk}`).remove().then(()=>{ loadFriendSystem(); });
     }
 
-    // دالة جديدة لحذف الصديق من الطرفين وقطع الاتصال أو إنهاء أي إساءة
     function removeFriend(friendKey, friendName){
         if(!confirm(`⚠️ هل أنت متأكد من حذف الصديق (${friendName}) وإنهاء الصداقة نهائياً؟`)) return;
         rtdb.ref(`friends/${currentUserKey}/${friendKey}`).remove().then(()=>{
@@ -2032,7 +2025,15 @@
             let h = '';
             snap.forEach(item=>{
                 let d = item.val();
-                h += `<div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;margin-bottom:6px"><b>المستخدم:</b> ${d.userName} (${d.userId})<br><b>المحافظة:</b> ${d.province||''}<br><button onclick="adminApproveAgent('${d.userKey}','${d.telegram}','${d.whatsapp}','${d.province||''}','${d.agentAvatar||''}','${item.key}')" style="background:#10b981;color:#fff;border:none;padding:3px 8px;border-radius:4px;margin-top:4px;cursor:pointer">موافقة ✔️</button></div>`;
+                h += `<div style="background:rgba(255,255,255,0.03);padding:8px;border-radius:8px;margin-bottom:6px">
+                    <b>المستخدم:</b> ${d.userName} (${d.userId})<br>
+                    <b>المحافظة:</b> ${d.province||''}<br>
+                    <b>رسوم الخصم:</b> ${Number(d.feePaid||6000000).toLocaleString()} نقطة<br>
+                    <div style="display:flex;gap:4px;margin-top:6px;">
+                        <button onclick="adminApproveAgent('${d.userKey}','${d.telegram}','${d.whatsapp}','${d.province||''}','${d.agentAvatar||''}','${item.key}')" style="background:#10b981;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1;">موافقة ✔️</button>
+                        <button onclick="adminRejectAgent('${d.userKey}', ${d.feePaid||6000000}, '${item.key}')" style="background:#ef4444;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;flex:1;">رفض وإعادة النقاط ✖</button>
+                    </div>
+                </div>`;
             });
             lst.innerHTML = h;
         });
@@ -2041,9 +2042,34 @@
 
     function adminApproveAgent(userKey, tg, wa, prov, agentAv, appKey){
         rtdb.ref(`users/${userKey}`).update({ isAgent: true, agentTelegram: tg, agentWhatsapp: wa, agentProvince: prov, agentAvatar: agentAv }).then(()=>{
+            rtdb.ref(`notifications/${userKey}`).push({
+                text: `🎉 مبروك! وافقت الإدارة على طلب وكالتك المعتمدة وتم تفعيل صلاحيات الوكيل بنجاح! 💼`,
+                timestamp: Date.now()
+            });
             rtdb.ref(`agent_applications/${appKey}`).remove();
             showNeonPopup("💼 تم تفعيل الوكالة بنجاح!");
             openAdminAgentApplications();
+        });
+    }
+
+    // زر الرفض وإعادة الـ 6 مليون نقطة للمستخدم تلقائياً
+    function adminRejectAgent(userKey, feeAmount, appKey){
+        if(!confirm("⚠️ هل أنت متأكد من رفض الطلب وإعادة الـ 6,000,000 نقطة إلى رصيد المستخدم؟")) return;
+        rtdb.ref(`users/${userKey}`).once('value', uSnap=>{
+            if(!uSnap.exists()) return showNeonPopup("❌ المستخدم غير موجود!");
+            let uData = uSnap.val();
+            let restoredPoints = Number(uData.points || 0) + Number(feeAmount);
+            
+            rtdb.ref(`users/${userKey}`).update({ points: restoredPoints }).then(()=>{
+                rtdb.ref(`notifications/${userKey}`).push({
+                    text: `⚠️ عذراً، تم رفض طلب وكالتك من قبل الإدارة، وتمت إعادة ${Number(feeAmount).toLocaleString()} نقطة إلى رصيدك بالكامل.`,
+                    timestamp: Date.now()
+                });
+                rtdb.ref(`agent_applications/${appKey}`).remove().then(()=>{
+                    showNeonPopup("❌ تم رفض الطلب وإعادة النقاط تلقائياً للمستخدم بنجاح.");
+                    openAdminAgentApplications();
+                });
+            });
         });
     }
 
